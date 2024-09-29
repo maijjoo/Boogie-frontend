@@ -114,6 +114,7 @@ const FindPasswordPage = () => {
   const handlePasswordChange = () => {
     // 바뀐 비밀번호 저장
     // 위에서 강도체크랑 일치 체크 했으니 저장만 하면됨
+    navigate("/");
   };
 
   return (
