@@ -1,6 +1,14 @@
 import { createBrowserRouter } from "react-router-dom";
 
-import { Login, Find, AdminMain, WorkerMain } from "../pages/lazyLoadPages.js";
+import {
+  Login,
+  Find,
+  AdminMain,
+  WorkerMain,
+  ResearchMain,
+  CleaningMain,
+  CollectingMain,
+} from "../pages/lazyLoadPages.js";
 
 const root = createBrowserRouter([
   {
@@ -18,6 +26,18 @@ const root = createBrowserRouter([
   {
     path: "workerMain",
     element: <WorkerMain />,
+  },
+  {
+    path: "researchMain",
+    element: <ResearchMain />,
+  },
+  {
+    path: "cleaningMain",
+    element: <CleaningMain />,
+  },
+  {
+    path: "collectingMain",
+    element: <CollectingMain />,
   },
 ]);
 

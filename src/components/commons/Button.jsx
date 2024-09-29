@@ -12,6 +12,7 @@ const Button = ({ className, color, children, ...props }) => {
     red: "bg-red-500 text-white hover:bg-red-600",
     green: "bg-green-500 text-white hover:bg-green-600",
     white: "bg-white text-blue-700 hover:bg-blue-200 border border-blue-700",
+    gray: "bg-white text-gray-400 border border-gray-400",
     // 필요한 색상 추가
   };
 
