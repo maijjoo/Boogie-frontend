@@ -53,7 +53,7 @@ const Login = () => {
       <div className="w-full flex flex-col mt-9 px-4 items-center">
         <div className="w-full xl:w-1/5 flex flex-col items-start mb-4">
           <InputWithLabel
-            className="w-full ps-2 py-2 md:text-base rounded-md"
+            className="w-full mt-2 ps-2 py-2 md:text-base rounded-md"
             type="email"
             ref={id}
             placeholder="아이디를 입력해 주세요."
@@ -63,7 +63,7 @@ const Login = () => {
         </div>
         <div className="w-full xl:w-1/5 flex flex-col items-start mb-4">
           <InputWithLabel
-            className="w-full ps-2 py-2 md:text-base rounded-md"
+            className="w-full mt-2 ps-2 py-2 md:text-base rounded-md"
             type="password"
             ref={password}
             placeholder="비밀번호를 입력해 주세요."
@@ -81,7 +81,7 @@ const Login = () => {
         </div>
       )}
 
-      <div className="w-full xl:w-1/5 flex justify-between">
+      <div className="w-full xl:w-1/5 px-4 flex justify-between">
         <CheckboxWithLabel>아이디 저장</CheckboxWithLabel>
         <CheckboxWithLabel>자동 로그인</CheckboxWithLabel>
       </div>
