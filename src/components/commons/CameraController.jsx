@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import addImage from "../../assets/icons/write/Add Image.svg";
 import dot from "../../assets/icons/write/Circle.svg";
 
-const CameraController = () => {
+const CameraController = ({ setSource }) => {
   const [sources, setSources] = useState([]);
   const fileInputRef = useRef(null);
 
@@ -16,6 +16,7 @@ const CameraController = () => {
 
   const handleSvgClick = () => {
     fileInputRef.current.click();
+    setSource(sources);
   };
   return (
     <div className="w-full xl:w-1/3 h-fit p-3 mt-3 flex flex-col border border-gray-600 rounded-md shadow-md">
