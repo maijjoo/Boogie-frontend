@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import logo from "../../assets/images/logo_tr.png";
 import wave from "../../assets/images/wave.jpg";
@@ -8,10 +8,27 @@ import collect from "../../assets/icons/workerMode/GarbageTruck.svg";
 import collectInactive from "../../assets/icons/workerMode/GarbageTruckInactive.svg";
 import Button from "../../components/commons/Button";
 import { useNavigate } from "react-router-dom";
+import { getCookie } from "../../util/cookieUtil";
+import { loadMemberCookie } from "../../slices/loginSlice";
+import { useSelector } from "react-redux";
 
 const WorkerMainPage = () => {
   const navigate = useNavigate();
   const [hasRegisteredCar, setHasRegisteredCar] = useState(false);
+
+  const getMemberInfo = () => {
+    const memberInfo = getCookie("member");
+    if (memberInfo && memberInfo.username) {
+      memberInfo.username = decodeURIComponent(memberInfo.username);
+    }
+    return memberInfo;
+  };
+
+  useEffect(() => {
+    const memberInfo = getMemberInfo();
+    setHasRegisteredCar(memberInfo?.vehicleCapacity !== 0);
+  }, []); // 빈 의존성 배열
+
   return (
     <div className="w-full flex flex-col items-center">
       <div className="flex items-center mt-3">
