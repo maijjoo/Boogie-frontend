@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import dot from "../../../assets/icons/write/Circle.svg";
 import plus from "../../../assets/icons/write/Plus.svg";
 import cancel from "../../../assets/icons/write/Cancel.svg";
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 import InputWithLabel from "../../../components/commons/InputWithLabel.jsx";
 import MobileHeader from "../../../components/menus/MobileHeader.jsx";
 import MobileFooter from "../../../components/menus/MobileFooter.jsx";
@@ -13,6 +13,28 @@ import CameraController from "../../../components/commons/CameraController.jsx";
 import Button from "../../../components/commons/Button.jsx";
 import FormSub from "../../../components/commons/FormSub.jsx";
 import { MatchUsername } from "../../../datas/MatchUsername.js";
+import { postAdd } from "../../../api/researchApi.js";
+import { API_SERVER_HOST } from "../../../api/commonApi.js";
+import axios from "axios";
+
+const initState = {
+  researcherUsername: "",
+  beachName: "",
+  totalBeachLength: "",
+  expectedTrashAmount: "",
+  weather: "",
+  specialNote: "",
+  researchSubList: [
+    {
+      beachNameWithIndex: "",
+      startLatitude: "",
+      startLongitude: "",
+      endLatitude: "",
+      endLongitude: "",
+      mainTrashType: "",
+    },
+  ],
+};
 
 const ResearchMainPage = () => {
   const navigate = useNavigate();
@@ -22,6 +44,11 @@ const ResearchMainPage = () => {
 
   const [subs, setSubs] = useState([]);
   const [imgs, setImgs] = useState([]);
+  const [formImgs, setFormImgs] = useState([]);
+  const [trashAmount, setTrashAmount] = useState(0);
+
+  const uploadRef = useRef();
+  const [result, setResult] = useState(false);
 
   const [isSubOnWrite, setIsSubOnWrite] = useState(false);
   const [startCoords, setStartCoords] = useState();
@@ -122,25 +149,59 @@ const ResearchMainPage = () => {
     );
   };
 
-  const onMainFormSubmit = () => {
-    let totalTrashAmount = 0;
-    subs.map((sub) => (totalTrashAmount += sub.trashAmount));
-    const main = {
-      researcherUsername: "", // 작성자
-      beachName: { beachName }, //beachName
-      totalBeachLength: "", //각 sub의 위경도로 길이 구한 총합 빈값으로 보내도됨
-      expectedTrashAmount: {}, // 각 sub의 trashAmount 총합
-      weather: "", // api 로 따와서 넘김
-      specialNote: NaturalDisasterList[selected], // 재연재해 값
-      researchSubList: { subs }, //서브조사 리스트
-    };
+  const onMainFormSubmit = async () => {
+    try {
+      const main = {
+        researcherUsername: "W_testWorker", // 작성자
+        beachName: beachName, //beachName
+        totalBeachLength: "", //각 sub의 위경도로 길이 구한 총합 빈값으로 보내도됨
+        expectedTrashAmount: trashAmount, // 각 sub의 trashAmount 총합
+        weather: "", // api 로 따와서 넘김
+        specialNote: NaturalDisasterList[selected], // 재연재해 값
+        researchSubList: subs, //서브조사 리스트
+      };
 
-    const dto = {
-      json: main,
-      files: [],
-    };
+      console.log("=----------d이미지스", formImgs);
 
-    console.log(dto);
+      console.log("main----------", main);
+
+      console.log("----요청 전송--------------");
+
+      const formData = new FormData();
+
+      // 이미지 ref 로 연결하기
+      const files = formImgs;
+
+      console.log("--------------------files: ", files);
+
+      if (files !== null && files.length !== 0) {
+        for (let i = 0; i < files.length; i++) {
+          formData.append("files", files[i]);
+          console.log("---------files[i]", files[i]);
+        }
+      }
+      console.log("---------formData", formData.get("files"));
+      formData.append("json", JSON.stringify(main));
+
+      // 나중에 바꿔야함
+      // postAdd(formData).then((data) => {
+      //   setResult(data.result);
+      //   console.log("-------------------");
+      //   console.log(data.result);
+      // });
+
+      postAdd(formData).then((data) => {
+        setResult(data.result);
+        console.log("-----------data.result");
+        console.log(data.result);
+      });
+
+      // const result = await postAdd(formData);
+      // console.log("API Response: ", result);
+      // setResult(result.result);
+    } catch (error) {
+      console.error("Error submitting form: ", error);
+    }
   };
 
   return (
@@ -294,7 +355,7 @@ const ResearchMainPage = () => {
         )}
       </div>
 
-      {isResearching && <CameraController setSource={setImgs} />}
+      {isResearching && <CameraController setSource={setFormImgs} />}
 
       {/* subs 의 길이에 따라 formsub 렌더링, 있는건 데이터 가져와서 렌더링, 마지막에 빈거 한개 렌더링 */}
       {isResearching && (
@@ -319,6 +380,7 @@ const ResearchMainPage = () => {
               setSubs={setSubs}
               setSubWrite={setIsSubOnWrite}
               startcoord={startCoords}
+              setAmount={setTrashAmount}
               onComplete={() => {
                 setIsSubOnWrite(false);
                 setCanSubmit(true);
