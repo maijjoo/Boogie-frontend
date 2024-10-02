@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import Button from "../components/commons/Button";
 import InputWithLabel from "../components/commons/InputWithLabel";
@@ -8,6 +8,7 @@ import CheckboxWithLabel from "../components/commons/CheckboxWithLabel";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { login, loginPostAsync } from "../slices/loginSlice";
+import { useAuth } from "../hooks/useAuth";
 
 const Login = () => {
   // input 값 받아오는 ref
@@ -21,8 +22,16 @@ const Login = () => {
   // 자동로그인 체크 후 로그인 성공시 쿠키?에 loginSuccess, user 정보 저장?
   const [loginSuccess, setLoginSuccess] = useState(undefined);
 
-  const loginState = useSelector((state) => state.loginSlice);
   const dispatch = useDispatch();
+  const { isLoggedIn, role } = useAuth();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      role === "Admin" ? navigate("/adminMain") : navigate("/workerMain");
+    } else {
+      navigate("/");
+    }
+  }, [isLoggedIn, role, navigate]);
 
   // 체크용 함수
   // 기능개발땐 삭제
@@ -38,12 +47,19 @@ const Login = () => {
         .unwrap()
         .then((data) => {
           console.log("after unwrap....");
-          console.log(data);
+          const role = data.roleNames[0];
+          const isDriver = data.vehicleCapacity;
+
+          console.log("role: ", role, "vehicle: ", isDriver);
+
           if (data.error) {
             alert("아이디와 비밀번호를 다시 확인하세요");
           } else {
-            alert("로그인 성공");
-            navigate({ pathname: "/workerMain" }, { replace: true });
+            if (role === "WORKER") {
+              navigate({ pathname: "/workerMain" }, { replace: true });
+            } else {
+              navigate({ pathname: "/adminMain" }, { replace: true });
+            }
           }
         });
 
