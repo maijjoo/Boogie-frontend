@@ -9,6 +9,9 @@ const CameraController = ({ setSource }) => {
   const handleCapture = (target) => {
     if (target.files && target.files.length !== 0) {
       const file = target.files[0];
+
+      setSource((prevSrc) => [...prevSrc, file]);
+
       const newUrl = URL.createObjectURL(file);
       setSources((prevSources) => [...prevSources, newUrl]);
     }
@@ -16,7 +19,6 @@ const CameraController = ({ setSource }) => {
 
   const handleSvgClick = () => {
     fileInputRef.current.click();
-    setSource(sources);
   };
   return (
     <div className="w-full xl:w-1/3 h-fit p-3 mt-3 flex flex-col border border-gray-600 rounded-md shadow-md">

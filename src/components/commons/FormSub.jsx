@@ -9,7 +9,7 @@ const FormSub = ({
   beachName,
   subIdx,
   setSubs,
-  setSubWrite,
+  setAmount,
   startcoord,
   isCollapsed = undefined,
   data = null,
@@ -44,10 +44,11 @@ const FormSub = ({
         startLongitude: startcoord[1],
         endLatitude: position.coords.latitude,
         endLongitude: position.coords.longitude,
-        beachNameWithIndex: `${beachName}${subIdx}`,
+        beachNameWithIndex: `${beachName}${subindex}`,
         mainTrashType: MainTrashList[selectedTrash].type,
-        trashAmount: Number(trashAmount),
       };
+
+      setAmount((prevAmount) => prevAmount + Number(trashAmount));
 
       setSubs((prevSubs) => [...prevSubs, subData]);
       onComplete?.();
