@@ -6,6 +6,8 @@ import logo from "../assets/images/logo_tr.png";
 import wave from "../assets/images/wave.jpg";
 import CheckboxWithLabel from "../components/commons/CheckboxWithLabel";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { login, loginPostAsync } from "../slices/loginSlice";
 
 const Login = () => {
   // input 값 받아오는 ref
@@ -19,6 +21,9 @@ const Login = () => {
   // 자동로그인 체크 후 로그인 성공시 쿠키?에 loginSuccess, user 정보 저장?
   const [loginSuccess, setLoginSuccess] = useState(undefined);
 
+  const loginState = useSelector((state) => state.loginSlice);
+  const dispatch = useDispatch();
+
   // 체크용 함수
   // 기능개발땐 삭제
   const handleLogin = () => {
@@ -27,16 +32,30 @@ const Login = () => {
     if (inputId.trim() && inputPassword.trim()) {
       // security 로직
       // 유효 id / pw 체킹
-      // 권한 체킹 후 각 메인으로 이동
-      if (inputId === "user" && inputPassword === "1234") {
-        setLoginSuccess(true);
-        navigate("/workerMain");
-      } else if (inputId === "admin" && inputPassword === "1234") {
-        setLoginSuccess(true);
-        navigate("/adminMain");
-      } else {
-        setLoginSuccess(false);
-      }
+
+      //dispatch(login({ email: inputId, pw: inputPassword }));
+      dispatch(loginPostAsync({ email: inputId, pw: inputPassword }))
+        .unwrap()
+        .then((data) => {
+          console.log("after unwrap....");
+          console.log(data);
+          if (data.error) {
+            alert("아이디와 비밀번호를 다시 확인하세요");
+          } else {
+            alert("로그인 성공");
+            navigate({ pathname: "/workerMain" }, { replace: true });
+          }
+        });
+
+      // if (inputId === "user" && inputPassword === "1234") {
+      //   setLoginSuccess(true);
+      //   navigate("/workerMain");
+      // } else if (inputId === "admin" && inputPassword === "1234") {
+      //   setLoginSuccess(true);
+      //   navigate("/adminMain");
+      // } else {
+      //   setLoginSuccess(false);
+      // }
     } else {
       setLoginSuccess(false);
       id.current.value = "";
