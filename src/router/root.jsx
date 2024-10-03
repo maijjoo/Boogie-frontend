@@ -44,6 +44,15 @@ const root = createBrowserRouter([
     path: "collectingMain",
     element: <CollectingMain />,
   },
+  {
+    path: "newWorks",
+    element: <newWorks />,
+  },
+
+  {
+    path: "adminMain",
+    element: <AdminMain />,
+  },
 ]);
 
 export default root;
