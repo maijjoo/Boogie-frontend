@@ -6,61 +6,42 @@ import logo from "../assets/images/logo_tr.png";
 import wave from "../assets/images/wave.jpg";
 import CheckboxWithLabel from "../components/commons/CheckboxWithLabel";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { login, loginPostAsync } from "../slices/loginSlice";
+import { useDispatch } from "react-redux";
+import { loginPostAsync } from "../slices/loginSlice";
 import { useAuth } from "../hooks/useAuth";
 
 const Login = () => {
   // input 값 받아오는 ref
   // id.current.value 로 input 박스에 적혀있는 현재값 가져올수있음
-  // 빈값 체크
-  // const inputId = id.current.value;
-  // if(inputId.trim()) => 빈칸이면 false
   const id = useRef();
   const password = useRef();
   const navigate = useNavigate();
-  // 자동로그인 체크 후 로그인 성공시 쿠키?에 loginSuccess, user 정보 저장?
+  // 오류메세지 출력용
   const [loginSuccess, setLoginSuccess] = useState(undefined);
 
   const { isLoggedIn, role } = useAuth();
   const dispatch = useDispatch();
 
-  console.log("login state : ", isLoggedIn, ", ", role);
-
   useEffect(() => {
     if (isLoggedIn) {
-      role === "Admin"
+      console.log(role);
+
+      role === "ADMIN"
         ? navigate("/adminMain", { replace: true })
         : navigate("/workerMain", { replace: true });
     }
   }, [isLoggedIn, role, navigate]);
 
-  // input값 체킹 및 일치할 시 role에 따른 페이지 이동
+  // input값 빈칸 체킹 후 api 호출
+  // 응답 성공일 시 redux 상태
   const handleLogin = async () => {
     const inputId = id.current.value;
     const inputPassword = password.current.value;
     if (inputId.trim() && inputPassword.trim()) {
-      // security 로직
-      // 유효 id / pw 체킹
-
-      //dispatch(login({ email: inputId, pw: inputPassword }));
       try {
         const data = await dispatch(
           loginPostAsync({ username: inputId, password: inputPassword })
         ).unwrap();
-
-        console.log("after unwrap...");
-        const role = data.roleNames[0];
-
-        const isDriver = data.vehicleCapacity;
-
-        console.log("role: ", role, "vehicle: ", isDriver);
-
-        if (role === "WORKER") {
-          navigate({ pathname: "/workerMain" }, { replace: true });
-        } else {
-          navigate({ pathname: "/adminMain" }, { replace: true });
-        }
       } catch (error) {
         alert("id 혹은 비밀번호를 다시 확인해주세요.");
         console.log("Login Error: ", error);

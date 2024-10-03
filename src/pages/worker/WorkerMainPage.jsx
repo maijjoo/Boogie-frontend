@@ -8,26 +8,20 @@ import collect from "../../assets/icons/workerMode/GarbageTruck.svg";
 import collectInactive from "../../assets/icons/workerMode/GarbageTruckInactive.svg";
 import Button from "../../components/commons/Button";
 import { useNavigate } from "react-router-dom";
-import { getCookie } from "../../util/cookieUtil";
-import { loadMemberCookie } from "../../slices/loginSlice";
-import { useSelector } from "react-redux";
+import { useAuth } from "../../hooks/useAuth";
 
 const WorkerMainPage = () => {
   const navigate = useNavigate();
   const [hasRegisteredCar, setHasRegisteredCar] = useState(false);
-
-  const getMemberInfo = () => {
-    const memberInfo = getCookie("member");
-    if (memberInfo && memberInfo.username) {
-      memberInfo.username = decodeURIComponent(memberInfo.username);
-    }
-    return memberInfo;
-  };
+  const { isLoggedIn, isDriver } = useAuth();
 
   useEffect(() => {
-    const memberInfo = getMemberInfo();
-    setHasRegisteredCar(memberInfo?.vehicleCapacity !== 0);
-  }, []); // 빈 의존성 배열
+    if (!isLoggedIn) {
+      navigate("/", { replace: true });
+    } else {
+      setHasRegisteredCar(isDriver);
+    }
+  }, []);
 
   return (
     <div className="w-full flex flex-col items-center">
