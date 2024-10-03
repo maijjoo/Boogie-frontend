@@ -7,18 +7,22 @@ export const useAuth = () => {
 
   const isLoggedIn = !!memberInfo?.username;
 
-  const role = memberInfo?.roleNames?.[0] || "Guest";
+  const role = memberInfo?.role || "Guest";
+
+  const isDriver = !!memberInfo?.vehicleCapacity;
+
+  const username = memberInfo?.username;
 
   const handleLogout = () => {
     dispatch(logout());
-    // 쿠키도 삭제해야 할 경우c
-    // removeCookie("member");
   };
 
   return {
     isLoggedIn,
     memberInfo: memberInfo || {},
     role,
+    username,
+    isDriver,
     logout: handleLogout,
   };
 };
