@@ -1,11 +1,7 @@
-import React from "react";
+import SidebarLayout from "../../layouts/SidebarLayout";
 
 const AdminMainPage = () => {
-  return (
-    <div>
-      <p>adminMain</p>
-    </div>
-  );
+  return <SidebarLayout />;
 };
 
 export default AdminMainPage;
