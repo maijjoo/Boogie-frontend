@@ -2,12 +2,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../slices/loginSlice";
 
 export const useAuth = () => {
-  const memberInfo = useSelector((state) => state);
+  const memberInfo = useSelector((state) => state.login);
   const dispatch = useDispatch();
 
-  const isLoggedIn = !!memberInfo?.email;
+  const isLoggedIn = !!memberInfo?.username;
 
-  const role = memberInfo.roleNames[0] || "Guest";
+  const role = memberInfo?.roleNames?.[0] || "Guest";
 
   const handleLogout = () => {
     dispatch(logout());
@@ -17,7 +17,7 @@ export const useAuth = () => {
 
   return {
     isLoggedIn,
-    memberInfo,
+    memberInfo: memberInfo || {},
     role,
     logout: handleLogout,
   };
