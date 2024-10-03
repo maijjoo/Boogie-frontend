@@ -22,20 +22,21 @@ const Login = () => {
   // 자동로그인 체크 후 로그인 성공시 쿠키?에 loginSuccess, user 정보 저장?
   const [loginSuccess, setLoginSuccess] = useState(undefined);
 
-  const dispatch = useDispatch();
   const { isLoggedIn, role } = useAuth();
+  const dispatch = useDispatch();
+
+  console.log("login state : ", isLoggedIn, ", ", role);
 
   useEffect(() => {
     if (isLoggedIn) {
-      role === "Admin" ? navigate("/adminMain") : navigate("/workerMain");
-    } else {
-      navigate("/");
+      role === "Admin"
+        ? navigate("/adminMain", { replace: true })
+        : navigate("/workerMain", { replace: true });
     }
   }, [isLoggedIn, role, navigate]);
 
-  // 체크용 함수
-  // 기능개발땐 삭제
-  const handleLogin = () => {
+  // input값 체킹 및 일치할 시 role에 따른 페이지 이동
+  const handleLogin = async () => {
     const inputId = id.current.value;
     const inputPassword = password.current.value;
     if (inputId.trim() && inputPassword.trim()) {
@@ -43,39 +44,32 @@ const Login = () => {
       // 유효 id / pw 체킹
 
       //dispatch(login({ email: inputId, pw: inputPassword }));
-      dispatch(loginPostAsync({ email: inputId, pw: inputPassword }))
-        .unwrap()
-        .then((data) => {
-          console.log("after unwrap....");
-          const role = data.roleNames[0];
-          const isDriver = data.vehicleCapacity;
+      try {
+        const data = await dispatch(
+          loginPostAsync({ username: inputId, password: inputPassword })
+        ).unwrap();
 
-          console.log("role: ", role, "vehicle: ", isDriver);
+        console.log("after unwrap...");
+        const role = data.roleNames[0];
 
-          if (data.error) {
-            alert("아이디와 비밀번호를 다시 확인하세요");
-          } else {
-            if (role === "WORKER") {
-              navigate({ pathname: "/workerMain" }, { replace: true });
-            } else {
-              navigate({ pathname: "/adminMain" }, { replace: true });
-            }
-          }
-        });
+        const isDriver = data.vehicleCapacity;
 
-      // if (inputId === "user" && inputPassword === "1234") {
-      //   setLoginSuccess(true);
-      //   navigate("/workerMain");
-      // } else if (inputId === "admin" && inputPassword === "1234") {
-      //   setLoginSuccess(true);
-      //   navigate("/adminMain");
-      // } else {
-      //   setLoginSuccess(false);
-      // }
+        console.log("role: ", role, "vehicle: ", isDriver);
+
+        if (role === "WORKER") {
+          navigate({ pathname: "/workerMain" }, { replace: true });
+        } else {
+          navigate({ pathname: "/adminMain" }, { replace: true });
+        }
+      } catch (error) {
+        alert("id 혹은 비밀번호를 다시 확인해주세요.");
+        console.log("Login Error: ", error);
+      }
     } else {
       setLoginSuccess(false);
       id.current.value = "";
       password.current.value = "";
+      alert("id 혹은 비밀번호를 입력해주세요.");
     }
   };
 
@@ -89,7 +83,7 @@ const Login = () => {
         <div className="w-full xl:w-1/5 flex flex-col items-start mb-4">
           <InputWithLabel
             className="w-full mt-2 ps-2 py-2 md:text-base rounded-md"
-            type="email"
+            type="text"
             ref={id}
             placeholder="아이디를 입력해 주세요."
           >
