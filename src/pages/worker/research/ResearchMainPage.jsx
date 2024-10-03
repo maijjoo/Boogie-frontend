@@ -14,9 +14,10 @@ import Button from "../../../components/commons/Button.jsx";
 import FormSub from "../../../components/commons/FormSub.jsx";
 import { MatchUsername } from "../../../datas/MatchUsername.js";
 import { postAdd } from "../../../api/researchApi.js";
-import { API_SERVER_HOST } from "../../../api/commonApi.js";
-import axios from "axios";
+import { useAuth } from "../../../hooks/useAuth.js";
 
+// dto 구조 참고용
+// 개발 완료되면 지우기
 const initState = {
   researcherUsername: "",
   beachName: "",
@@ -38,29 +39,67 @@ const initState = {
 
 const ResearchMainPage = () => {
   const navigate = useNavigate();
+  const { username, isLoggedIn } = useAuth();
+
+  // 등록요청 성공시 리렌더링하기 위함
+  const [result, setResult] = useState(false);
 
   // 임시저장 모달을 띄우기 위한 state
   // const [isTempExists, setIsTempExists] = useState(false);
 
+  // 서브조사리스트
   const [subs, setSubs] = useState([]);
-  const [imgs, setImgs] = useState([]);
+  // 이미지 등록을 위한 파일 배열
   const [formImgs, setFormImgs] = useState([]);
   const [trashAmount, setTrashAmount] = useState(0);
-
-  const uploadRef = useRef();
-  const [result, setResult] = useState(false);
-
+  // 서브폼이 작성중일때 등록버튼 못누르게
   const [isSubOnWrite, setIsSubOnWrite] = useState(false);
+  // 서브폼 시작좌표
   const [startCoords, setStartCoords] = useState();
-
+  //메인폼 접기, undefined는 메인폼 작성중일때
   const [isMainFormCollapsed, setIsMainFormCollapsed] = useState(undefined);
-  const [canSubmit, setCanSubmit] = useState(false);
-
-  // 해안명 관리 state
+  // 해안명 입력값
   const [beachName, setBeachName] = useState("");
-
   // 해안명 자동완성 드랍다운
   const [beachNameOptions, setBeachNameOptions] = useState([]);
+  // 팀원이름 입력값
+  const [inputName, setInputName] = useState("");
+  // 팀원이름 자동완성 드랍다운
+  const [inputNameOptions, setInputNameOptions] = useState([]);
+  // 조사시작 여부 파악하는 state
+  const [isResearching, setIsResearching] = useState(false);
+  // 팀원 리스트 state
+  const [teamList, setTeamList] = useState([]);
+  // 체크박스 관리 state
+  const [selected, setSelected] = useState(null);
+
+  // 로그인 판별, 등록 성공시 수행
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/", { replace: true });
+    }
+    if (result === "success") {
+      initializeAllStates();
+    }
+  }, [result, isLoggedIn]);
+
+  // 등록요청 성공시 초기화
+  const initializeAllStates = () => {
+    alert("등록완료");
+    setSubs([]);
+    setSubsCollapse([]);
+    setFormImgs([]);
+    setTeamList([]);
+    setTrashAmount(0);
+    setStartCoords();
+    setIsMainFormCollapsed(undefined);
+    setSelected(null);
+    setBeachName("");
+    setInputName("");
+    setIsSubOnWrite(false);
+    setIsResearching(false);
+    setResult(false);
+  };
 
   const handleBeachNameChange = (e) => {
     const beachname = e.target.value.trim();
@@ -72,10 +111,6 @@ const ResearchMainPage = () => {
     setBeachNameOptions(filtered);
   };
 
-  const [inputName, setInputName] = useState("");
-  // 팀원 입력 input 자동완성 렌더링을 위한 state
-  const [inputNameOptions, setInputNameOptions] = useState([]);
-
   const handleInputNameChange = (e) => {
     const inputname = e.target.value.trim();
     setInputName(inputname);
@@ -85,18 +120,6 @@ const ResearchMainPage = () => {
     );
     setInputNameOptions(filtered);
   };
-
-  // 조사 시작 여부 파악하는 state
-  const [isResearching, setIsResearching] = useState(false);
-
-  // 조사 메인폼 접기 펴기
-  const [isFlipped, setIsFlipped] = useState(undefined);
-
-  // 팀원 리스트 state
-  const [teamList, setTeamList] = useState([]);
-
-  // 체크박스 관리 state
-  const [selected, setSelected] = useState(null);
 
   const handleCheckboxChange = (index) => {
     setSelected(selected === index ? null : index);
@@ -112,7 +135,6 @@ const ResearchMainPage = () => {
   const handleDeleteTeam = (username) => {
     // 팀원 지우기
     setTeamList((prevTeam) => prevTeam.filter((team) => team !== username));
-    console.log(imgs);
   };
 
   const isMainFormComplete =
@@ -120,7 +142,11 @@ const ResearchMainPage = () => {
 
   const hasActiveSubForm = isSubOnWrite;
 
-  const canSubmitForm = subs.length > 0 && !hasActiveSubForm;
+  const canSubmitForm =
+    subs.length > 0 &&
+    !hasActiveSubForm &&
+    formImgs.length >= 3 &&
+    formImgs.length <= 30;
 
   const handleStartResearch = () => {
     setIsResearching(true);
@@ -138,7 +164,6 @@ const ResearchMainPage = () => {
 
   const handleAddNewSubForm = () => {
     setIsSubOnWrite(true);
-    setCanSubmit(false);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setStartCoords([pos.coords.latitude, pos.coords.longitude]);
@@ -152,13 +177,13 @@ const ResearchMainPage = () => {
   const onMainFormSubmit = async () => {
     try {
       const main = {
-        researcherUsername: "W_testWorker", // 작성자
+        researcherUsername: username, // 작성자
         beachName: beachName, //beachName
         totalBeachLength: "", //각 sub의 위경도로 길이 구한 총합 빈값으로 보내도됨
         expectedTrashAmount: trashAmount, // 각 sub의 trashAmount 총합
         weather: "", // api 로 따와서 넘김
         specialNote: NaturalDisasterList[selected], // 재연재해 값
-        researchSubList: subs, //서브조사 리스트
+        researchSubList: subs.data, //서브조사 리스트
       };
 
       console.log("=----------d이미지스", formImgs);
@@ -182,13 +207,6 @@ const ResearchMainPage = () => {
       }
       console.log("---------formData", formData.get("files"));
       formData.append("json", JSON.stringify(main));
-
-      // 나중에 바꿔야함
-      // postAdd(formData).then((data) => {
-      //   setResult(data.result);
-      //   console.log("-------------------");
-      //   console.log(data.result);
-      // });
 
       postAdd(formData).then((data) => {
         setResult(data.result);
@@ -366,9 +384,25 @@ const ResearchMainPage = () => {
               key={index}
               beachName={beachName}
               subIdx={index}
-              setSubs={setSubs}
-              isCollapsed={true}
-              data={sub}
+              isCollapsed={sub.isCollapsed}
+              setCollapse={() =>
+                setSubs((prevSubs) => {
+                  return prevSubs.map((sub, i) => {
+                    if (i === index) {
+                      return {
+                        ...sub,
+                        isCollapsed: !sub.isCollapsed,
+                      };
+                    }
+                    return sub;
+                  });
+                })
+              }
+              deleteSub={() =>
+                setSubs((prevSubs) => prevSubs.filter((_, i) => i !== index))
+              }
+              _trashAmount={sub.trashAmount}
+              mainTrashIndex={sub.data.mainTrashType}
             />
           ))}
 
@@ -381,42 +415,12 @@ const ResearchMainPage = () => {
               setSubWrite={setIsSubOnWrite}
               startcoord={startCoords}
               setAmount={setTrashAmount}
+              isCollapsed={undefined}
               onComplete={() => {
                 setIsSubOnWrite(false);
-                setCanSubmit(true);
               }}
             />
           )}
-          {/* {subs.length > 0 ? (
-            subs.map((sub, index) => {
-              <FormSub
-                beachName={beachName}
-                subIdx={index}
-                setSubs={setSubs}
-                setSubWrite={setIsSubOnWrite}
-                startcoord={startCoords}
-              />;
-            })
-          ) : (
-            <FormSub
-              beachName={beachName}
-              subIdx="0"
-              setSubs={setSubs}
-              setSubWrite={setIsSubOnWrite}
-              startcoord={startCoords}
-            />
-          )}
-        </div>
-      )}
-      {isSubOnWrite && (
-        <FormSub
-          beachName={beachName}
-          subIdx={subs.length - 1}
-          setSubs={setSubs}
-          setSubWrite={setIsSubOnWrite}
-          startcoord={startCoords}
-        />
-      )} */}
         </div>
       )}
 
@@ -459,73 +463,6 @@ const ResearchMainPage = () => {
           </div>
         </div>
       </div>
-
-      {/* {isResearching ? (
-        <div className="w-full xl:w-1/3 mt-3">
-          <Button
-            className="w-full py-4 rounded-lg"
-            color="blue"
-            onClick={() => {
-              navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                  const coords = [pos.coords.latitude, pos.coords.longitude];
-                  setStartCoords(coords);
-                },
-                (error) => {
-                  alert(error);
-                  return;
-                }
-              );
-              setIsSubOnWrite(true);
-            }}
-          >
-            추가
-          </Button>
-        </div>
-      ) : (
-        <div className="w-full xl:w-1/3 mt-3">
-          <Button
-            className="w-full py-4 rounded-lg"
-            color={isReady ? "blue" : "gray"}
-            disabled={!isReady}
-            onClick={() => {
-              navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                  const coords = [pos.coords.latitude, pos.coords.longitude];
-                  setStartCoords(coords);
-                },
-                (error) => {
-                  alert(error);
-                  return;
-                }
-              );
-              setIsResearching(true);
-              setIsFlipped(true);
-              setIsSubOnWrite(true);
-            }}
-          >
-            조사시작
-          </Button>
-        </div>
-      )}
-      <div className="w-full xl:w-1/3 mt-3 flex">
-        {}
-        <div className="w-1/2 m-1">
-          <Button className="w-full py-3 rounded-lg" color="blue">
-            임시저장
-          </Button>
-        </div>
-        <div className="w-1/2 m-1">
-          <Button
-            className="w-full py-3 rounded-lg"
-            color="gray"
-            onClick={onMainFormSubmit}
-          >
-            제출하기
-          </Button>
-        </div>
-      </div> */}
-
       <MobileFooter homeroot="/workerMain" />
     </div>
   );

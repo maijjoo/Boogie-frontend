@@ -56,8 +56,17 @@ const loginSlice = createSlice({
 
         if (!payload.error) {
           setCookie("member", JSON.stringify(payload), 1);
+          state.username = payload.username;
+          state.role = payload.roleNames[0];
+          state.name = payload.name;
+          state.workGroup = payload.workGroup;
+          state.department =
+            payload.roleNames[0] === "Admin" ? payload.department : null;
+          state.vehicleCapacity = payload.vehicleCapacity;
+          state.managerId = payload.managerId;
         }
-        return { ...state, isLoading: false, error: payload.error };
+        state.isLoading = false;
+        state.error = payload.error;
       })
       .addCase(loginPostAsync.pending, (state) => {
         state.isLoading = true;
@@ -66,7 +75,8 @@ const loginSlice = createSlice({
       })
       .addCase(loginPostAsync.rejected, (state, action) => {
         console.log("rejected...");
-        return { ...state, isLoading: false, error: action.payload };
+        state.isLoading = false;
+        state.error = action.payload;
       });
   },
 });
