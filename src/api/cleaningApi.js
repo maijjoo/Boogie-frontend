@@ -1,7 +1,7 @@
 import { API_SERVER_HOST } from "./commonApi";
 import jwtAxios from "../util/jwtUtil";
 
-const prefix = `${API_SERVER_HOST}/api/cleaning`;
+const prefix = `${API_SERVER_HOST}/api/clean`;
 
 export const postAdd = async (cleaningObj) => {
   const res = await jwtAxios.post(`${prefix}/`, cleaningObj, {
@@ -9,6 +9,8 @@ export const postAdd = async (cleaningObj) => {
       "Content-Type": "multipart/form-data",
     },
   });
+
+  console.log("----------", res);
 
   return res.data;
 };
