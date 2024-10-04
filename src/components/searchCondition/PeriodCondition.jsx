@@ -12,9 +12,10 @@ const PeriodCondition = () => {
             type="date"
             className="p-2 w-44 border rounded-s border-gray-300 mr-3"
           />
+          ~
           <input
             type="date"
-            className="p-2 w-44 border rounded-s border-gray-300 mr-3"
+            className="p-2 w-44 border rounded-s border-gray-300 ml-3 mr-3"
           />
         </div>
       </div>
