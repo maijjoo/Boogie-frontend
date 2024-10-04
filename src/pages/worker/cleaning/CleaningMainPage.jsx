@@ -202,7 +202,16 @@ const CleaningMainPage = () => {
         }
       }
       console.log("---------formData", formData.get("afterFiles"));
-      formData.append("json", JSON.stringify(main));
+      formData.append("cleanerUsername", "W_testWorker"); // 작성자
+      formData.append("beachName", beachName); // 해안명
+      formData.append("totalBeachLength", ""); // 총 길이 (빈 값)
+      formData.append("realTrashAmount", subData.realTrashAmount); // 실제 수거량
+      formData.append("mainTrashType", subData.mainTrashType); // 주요 쓰레기 유형
+      formData.append("startLatitude", startCoords[0]); // 청소 시작 위치 위도
+      formData.append("startLongitude", startCoords[1]); // 청소 시작 위치 경도
+      formData.append("endLatitude", endCoords[0]); // 청소 끝 위치 위도
+      formData.append("endLongitude", endCoords[1]); // 청소 끝 위치 경도
+      formData.append("specialNote", NaturalDisasterList[selected]); // 재연재해 값
 
       console.log("----------------" + formData);
 
