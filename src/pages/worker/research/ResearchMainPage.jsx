@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import dot from "../../../assets/icons/write/Circle.svg";
 import plus from "../../../assets/icons/write/Plus.svg";
 import cancel from "../../../assets/icons/write/Cancel.svg";
-import { json, useNavigate } from "react-router-dom";
-import InputWithLabel from "../../../components/commons/InputWithLabel.jsx";
+import { useNavigate } from "react-router-dom";
 import MobileHeader from "../../../components/menus/MobileHeader.jsx";
 import MobileFooter from "../../../components/menus/MobileFooter.jsx";
 import { NaturalDisasterList } from "../../../datas/NaturalDisasterList.js";
@@ -81,13 +80,12 @@ const ResearchMainPage = () => {
     if (result === "success") {
       initializeAllStates();
     }
-  }, [result, isLoggedIn]);
+  }, [result, isLoggedIn, navigate]);
 
   // 등록요청 성공시 초기화
   const initializeAllStates = () => {
     alert("등록완료");
     setSubs([]);
-    setSubsCollapse([]);
     setFormImgs([]);
     setTeamList([]);
     setTrashAmount(0);
@@ -186,10 +184,6 @@ const ResearchMainPage = () => {
         researchSubList: subs.data, //서브조사 리스트
       };
 
-      console.log("=----------d이미지스", formImgs);
-
-      console.log("main----------", main);
-
       console.log("----요청 전송--------------");
 
       const formData = new FormData();
@@ -197,12 +191,9 @@ const ResearchMainPage = () => {
       // 이미지 ref 로 연결하기
       const files = formImgs;
 
-      console.log("--------------------files: ", files);
-
       if (files !== null && files.length !== 0) {
         for (let i = 0; i < files.length; i++) {
           formData.append("files", files[i]);
-          console.log("---------files[i]", files[i]);
         }
       }
       console.log("---------formData", formData.get("files"));
@@ -213,21 +204,17 @@ const ResearchMainPage = () => {
         console.log("-----------data.result");
         console.log(data.result);
       });
-
-      // const result = await postAdd(formData);
-      // console.log("API Response: ", result);
-      // setResult(result.result);
     } catch (error) {
       console.error("Error submitting form: ", error);
     }
   };
 
   return (
-    <div className="w-full max-h-full flex flex-col items-center px-3">
+    <div className="w-full h-dvh flex flex-col items-center p-3">
       <MobileHeader>조사 보고서</MobileHeader>
 
       {/* 메인 폼 */}
-      <div className="w-full xl:w-1/3 border border-black rounded-md mt-4 mb-2 p-6">
+      <div className="w-full xl:w-1/3 border border-black rounded-md mt-12 xl:mt-14 mb-2 p-6">
         {isMainFormCollapsed ? (
           <div className="flex flex-col items-center justify-center">
             <div className="w-full flex flex-col mb-2">

@@ -1,13 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import logo from "../../../assets/images/logo_tr.png";
 import wave from "../../../assets/images/wave.jpg";
 import Button from "../../../components/commons/Button";
 import clean from "../../../assets/icons/workerMode/Housekeeping.svg";
 import pickup from "../../../assets/icons/workerMode/Trash Pile.svg";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth";
 
 const CleanerTaskSelectPage = () => {
+  const { username, isLoggedIn } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/", { replace: true });
+    }
+  }, [isLoggedIn, navigate]);
+
   return (
     <div className="w-full flex flex-col items-center">
       <div className="flex items-center mt-3">

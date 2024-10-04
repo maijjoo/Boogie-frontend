@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Copy from "../../../../assets/icons/write/Copy.svg";
 import Cancel from "../../../../assets/icons/write/Cancel.svg";
-import { pickUpSpot } from "../../../../datas/pickUpSpot";
 
-const DetailedSpot = ({ spot, onClose }) => {
+const DetailedSpot = ({ spot, onClose, pickUpSpot }) => {
   const [spotInfo, setSpotInfo] = useState({});
 
   const getSpotInfoBySpotId = () => {
     pickUpSpot.map((spotInfo) => {
-      if (spotInfo.title === spot) {
+      if (spotInfo.id === spot) {
         setSpotInfo(spotInfo);
         console.log(spotInfo);
       }
@@ -23,7 +22,7 @@ const DetailedSpot = ({ spot, onClose }) => {
     <div className="flex flex-col justify-center items-left p-3">
       <div className="flex justify-between mb-3">
         <h1 className="inline font-bold text-red-500 text-xl">
-          {spotInfo.title}
+          {spotInfo.pickUpPlace}
         </h1>
         <img
           className="inline cursor-pointer w-6"
