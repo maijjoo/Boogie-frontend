@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import InputWithLabel from "../components/commons/InputWithLabel";
 import Button from "../components/commons/Button";
+import MobileHeader from "../components/menus/MobileHeader";
 
 const FindPasswordPage = () => {
   const navigate = useNavigate();
@@ -114,21 +115,17 @@ const FindPasswordPage = () => {
   const handlePasswordChange = () => {
     // 바뀐 비밀번호 저장
     // 위에서 강도체크랑 일치 체크 했으니 저장만 하면됨
+    navigate("/");
   };
 
   return (
     <div className="w-full flex flex-col items-center">
-      <div className="w-full border-b border-b-slate-400 flex">
-        <button onClick={() => navigate(-1)} className="p-3">
-          <img src={back} alt="back" />
-        </button>
-        <p className="py-3">비밀번호 찾기</p>
-      </div>
+      <MobileHeader>비밀번호 찾기</MobileHeader>
 
       <div className="w-full flex flex-col mt-3 px-4 items-center">
         <div className="w-full xl:w-1/5 flex flex-col items-start mb-4">
           <InputWithLabel
-            className="w-full ps-2 py-2 md:text-base rounded-md"
+            className="w-full mt-2 ps-2 py-2 md:text-base rounded-md"
             type="email"
             ref={inputId}
             placeholder="아이디를 입력해 주세요."
@@ -139,7 +136,7 @@ const FindPasswordPage = () => {
         </div>
         <div className="w-full xl:w-1/5 flex flex-col items-start mb-4">
           <InputWithLabel
-            className="w-full ps-2 py-2 md:text-base rounded-md"
+            className="w-full mt-2 ps-2 py-2 md:text-base rounded-md"
             type="text"
             ref={inputName}
             placeholder="이름을 입력해 주세요."
@@ -152,7 +149,7 @@ const FindPasswordPage = () => {
         {isEmailSent !== undefined && isEmailSent && (
           <div className="w-full xl:w-1/5 flex flex-col items-start mb-4">
             <InputWithLabel
-              className="w-full ps-2 py-2 md:text-base rounded-md"
+              className="w-full mt-2 ps-2 py-2 md:text-base rounded-md"
               type="text"
               value={inputCode}
               placeholder="인증번호를 입력해 주세요."
@@ -189,7 +186,7 @@ const FindPasswordPage = () => {
         <div className="w-full flex flex-col mt-3 px-4 items-center">
           <div className="w-full xl:w-1/5 flex flex-col items-start mb-4">
             <InputWithLabel
-              className="w-full ps-2 py-2 md:text-base rounded-md"
+              className="w-full mt-2 ps-2 py-2 md:text-base rounded-md"
               type="password"
               value={newPassword}
               placeholder="새로운 비밀번호를 입력하세요."
@@ -203,7 +200,7 @@ const FindPasswordPage = () => {
           </div>
           <div className="w-full xl:w-1/5 flex flex-col items-start mb-4">
             <InputWithLabel
-              className="w-full ps-2 py-2 md:text-base rounded-md"
+              className="w-full mt-2 ps-2 py-2 md:text-base rounded-md"
               type="password"
               value={newPasswordCheck}
               placeholder="비밀번호를 다시 입력하세요."
