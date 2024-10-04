@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
+export const data = [
   {
     name: "2019년",
     폐어구류: 4000,
