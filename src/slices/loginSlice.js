@@ -24,7 +24,6 @@ export const loginPostAsync = createAsyncThunk(
   async (param, { rejectWithValue }) => {
     try {
       const response = await loginPost(param);
-      console.log(response);
 
       return response;
     } catch (err) {
@@ -56,6 +55,8 @@ const loginSlice = createSlice({
 
         if (!payload.error) {
           setCookie("member", JSON.stringify(payload), 1);
+          console.log(payload);
+
           state.username = payload.username;
           state.role = payload.roleNames[0];
           state.name = payload.name;

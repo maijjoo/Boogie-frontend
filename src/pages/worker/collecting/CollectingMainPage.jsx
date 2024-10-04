@@ -7,6 +7,7 @@ import KakaoMap from "../../../components/commons/KakaoMap";
 import CardImages from "../../../assets/images/CardImages.jpg";
 import { pickUpSpot } from "../../../datas/pickUpSpot.js";
 import DetailedSpot from "./component/DetailedSpot.jsx";
+import { getSpot } from "../../../api/pickUpApi.js";
 
 const CollectingMainPage = () => {
   const { isLoggedIn, isDriver, memberInfo } = useAuth();
@@ -31,10 +32,12 @@ const CollectingMainPage = () => {
       alert("수거작업은 차량을 등록해야 진행할 수 있습니다.");
       navigate("/workerMain", { replace: true });
     }
-  }, [isLoggedIn, isDriver]);
+  }, [isLoggedIn, navigate, isDriver]);
 
   useEffect(() => {
     const managerId = memberInfo.managerId;
+    console.log(memberInfo);
+
     console.log(managerId);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -44,6 +47,10 @@ const CollectingMainPage = () => {
         alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
       }
     );
+
+    getSpot(6).then((data) => {
+      console.log("-------data-------", data);
+    });
 
     // get("/api/pickUp/managerId")로
     // 내 담당 관리자의 담당구역에서
@@ -55,7 +62,9 @@ const CollectingMainPage = () => {
     // 그러면 자동으로 이 useEffect 가 실행되고
     // 다시 get 으로 "배정안된" 것만 불러옴
     // 지도의 중심좌표도 다시 현재위치로 수정됨
-  }, [pickedSpots]);
+  }, [pickedSpots, memberInfo]);
+
+  console.log(pickedSpots);
 
   const onSpotDetail = (spotId) => {
     setIsOnDetailed(true);
@@ -63,10 +72,32 @@ const CollectingMainPage = () => {
     setDetailedSpot(spotId);
   };
 
+  const onAddSpot = (id) => {
+    const spotExists = pickedSpots.some((spot) => spot === id);
+
+    if (!spotExists) {
+      // 구역이 없다면 추가
+      setPickedSpots((prevState) => [...prevState, id]);
+      console.log("구역이 추가되었습니다:", id);
+    } else {
+      // 구역이 이미 있을 경우
+      console.log("이미 해당 구역이 추가되어 있습니다:", id);
+    }
+  };
+
   // 수거완료 버튼 클릭시
   const onCompletePickUp = (spotId) => {
     // post("api/pickUp/id")로 상태변경해서 보내기
     // 요청 성공시 pickedSpots 에서 지우기
+    // try{
+    //   getPickupSpot.then
+    // }catch(error){
+    // }
+    setPickedSpots((prevState) =>
+      // 임시로 title로 지움
+      // id로 바꾸기
+      prevState.filter((spot) => spot !== spotId)
+    );
   };
 
   return (
@@ -89,7 +120,12 @@ const CollectingMainPage = () => {
       {onWork && (
         <div className="w-full xl:w-3/4 mb-12 xl:mb-14 border border-black rounded-b-md h-2/3 xl:h-1/2">
           {isOnDetailed && (
-            <DetailedSpot spot={detailedSpot} onClose={setIsOnDetailed} />
+            <DetailedSpot
+              spot={detailedSpot}
+              onClose={setIsOnDetailed}
+              onAddSpot={onAddSpot}
+              onClearSpot={onCompletePickUp}
+            />
           )}
         </div>
       )}

@@ -2,6 +2,9 @@ import React, { useEffect } from "react";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
 import CardImages from "../../assets/images/CardImages.jpg";
 import TrashPile from "../../assets/icons/workerMode/Trash Pile.svg";
+import RedPin from "../../assets/icons/write/ic-location-red.svg";
+import BlackPin from "../../assets/icons/write/ic-location-black.svg";
+import GrayPin from "../../assets/icons/write/ic-location-gray.svg";
 
 const KakaoMap = ({ myCoords, spots, setDetail }) => {
   return (
@@ -23,7 +26,7 @@ const KakaoMap = ({ myCoords, spots, setDetail }) => {
             position={{ lat: spot.latitude, lng: spot.longitude }}
             title={spot.title}
             image={{
-              src: TrashPile,
+              src: BlackPin,
               size: {
                 width: 24,
                 height: 35,
