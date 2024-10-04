@@ -2,8 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import dot from "../../../assets/icons/write/Circle.svg";
 import plus from "../../../assets/icons/write/Plus.svg";
 import cancel from "../../../assets/icons/write/Cancel.svg";
-import { json, useNavigate } from "react-router-dom";
-import InputWithLabel from "../../../components/commons/InputWithLabel.jsx";
+import { useNavigate } from "react-router-dom";
 import MobileHeader from "../../../components/menus/MobileHeader.jsx";
 import MobileFooter from "../../../components/menus/MobileFooter.jsx";
 import { NaturalDisasterList } from "../../../datas/NaturalDisasterList.js";
@@ -16,48 +15,26 @@ import Button from "../../../components/commons/Button.jsx";
 import CleaningFormSub from "../../../components/commons/CleaningFormSub.jsx";
 import { MatchUsername } from "../../../datas/MatchUsername.js";
 import { postAdd } from "../../../api/cleaningApi.js";
-import { API_SERVER_HOST } from "../../../api/commonApi.js";
-import axios from "axios";
-
-const initState = {
-  cleanerUsername: "",
-  beachName: "",
-  realTrashAmount: "",
-  expectedTrashAmount: "",
-  weather: "",
-  specialNote: "",
-};
+import { useAuth } from "../../../hooks/useAuth.js";
 
 const CleaningMainPage = () => {
   const navigate = useNavigate();
+  const { username, isLoggedIn } = useAuth();
 
-  // 임시저장 모달을 띄우기 위한 state
-  // const [isTempExists, setIsTempExists] = useState(false);
-
-  const [subs, setSubs] = useState([]);
-  const [imgs, setImgs] = useState([]);
-  const [formImgs, setFormImgs] = useState([]);
-  const [trashAmount, setTrashAmount] = useState(0);
-  const [formComplete, setFormComplete] = useState(false);
-  const uploadRef = useRef();
   const [result, setResult] = useState(false);
   const [isMainFormComplete, setIsMainFormComplete] = useState(false);
   const [isComplete, setIsComplete] = useState();
 
-  const [isSubOnWrite, setIsSubOnWrite] = useState(false);
   const [startCoords, setStartCoords] = useState();
   const [endCoords, setEndCoords] = useState();
   const [subData, setSubData] = useState({});
   const [isMainFormCollapsed, setIsMainFormCollapsed] = useState(undefined);
-  const [canSubmit, setCanSubmit] = useState(false);
-  const [isSubFormComplete, setIsSubFormComplete] = useState(false); // 하위 컴포넌트의 상태
 
   const [bsource, setBSource] = useState([]);
   const [asource, setASource] = useState([]);
 
   // 해안명 관리 state
   const [beachName, setBeachName] = useState("");
-
   // 해안명 자동완성 드랍다운
   const [beachNameOptions, setBeachNameOptions] = useState([]);
 
@@ -87,19 +64,24 @@ const CleaningMainPage = () => {
 
   // 조사 시작 여부 파악하는 state
   const [isCleaning, setIsCleaning] = useState(false);
-
-  // 조사 메인폼 접기 펴기
-  const [isFlipped, setIsFlipped] = useState(undefined);
-
   // 팀원 리스트 state
   const [teamList, setTeamList] = useState([]);
-
   // 체크박스 관리 state
   const [selected, setSelected] = useState(null);
 
   const handleCheckboxChange = (index) => {
     setSelected(selected === index ? null : index);
   };
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/", { replace: true });
+    }
+    if (result === "success") {
+      alert("등록완료");
+      navigate("/cleaningSelect", { replace: true });
+    }
+  }, [result, isLoggedIn, navigate]);
 
   useEffect(() => {
     setIsMainFormComplete(
@@ -119,15 +101,11 @@ const CleaningMainPage = () => {
   const handleDeleteTeam = (username) => {
     // 팀원 지우기
     setTeamList((prevTeam) => prevTeam.filter((team) => team !== username));
-    console.log(imgs);
   };
-
-  const hasActiveSubForm = isSubOnWrite;
 
   const handleStartCleaning = () => {
     setIsCleaning(true);
     setIsMainFormCollapsed(true);
-    setIsSubOnWrite(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setStartCoords([pos.coords.latitude, pos.coords.longitude]);
@@ -137,19 +115,6 @@ const CleaningMainPage = () => {
       }
     );
   };
-
-  // const handleAddNewSubForm = () => {
-  //   setIsSubOnWrite(true);
-  //   setCanSubmit(false);
-  //   navigator.geolocation.getCurrentPosition(
-  //     (pos) => {
-  //       setStartCoords([pos.coords.latitude, pos.coords.longitude]);
-  //     },
-  //     (error) => {
-  //       alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
-  //     }
-  //   );
-  // };
 
   const onMainFormSubmit = async () => {
     try {
@@ -161,32 +126,23 @@ const CleaningMainPage = () => {
           alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
         }
       );
-      console.log("---1---");
 
-      const main = {
-        cleanerUsername: "W_testWorker", // 작성자
-        beachName: beachName, //beachName
-        totalBeachLength: "", //각 sub의 위경도로 길이 구한 총합 빈값으로 보내도됨
-        realTrashAmount: subData.realTrashAmount,
-        mainTrashType: subData.mainTrashType,
-        startLatitude: startCoords[0], //  청소 시작 위치 위도
-        startLongitude: startCoords[1], // 청소 시작 위치 경도
-        endLatitude: endCoords[0], //  청소 끝 위치 위도
-        endLongitude: endCoords[1], // 청소 끝 위치 경도
-        specialNote: NaturalDisasterList[selected], // 재연재해 값
-      };
-
-      console.log(main);
-
-      // console.log("=----------d이미지스", formImgs);
-
-      console.log("main----------", main);
-
+      // const main = {
+      //   cleanerUsername: username, // 작성자
+      //   beachName: beachName, //beachName
+      //   totalBeachLength: "", //각 sub의 위경도로 길이 구한 총합 빈값으로 보내도됨
+      //   realTrashAmount: subData.realTrashAmount,
+      //   mainTrashType: subData.mainTrashType,
+      //   startLatitude: startCoords[0], //  청소 시작 위치 위도
+      //   startLongitude: startCoords[1], // 청소 시작 위치 경도
+      //   endLatitude: endCoords[0], //  청소 끝 위치 위도
+      //   endLongitude: endCoords[1], // 청소 끝 위치 경도
+      //   specialNote: NaturalDisasterList[selected], // 재연재해 값
+      // };
       console.log("----요청 전송--------------");
 
       const formData = new FormData();
 
-      // 이미지 ref 로 연결하기
       const beforeFiles = bsource;
       const afterFiles = asource;
 
@@ -201,8 +157,8 @@ const CleaningMainPage = () => {
           formData.append("afterFiles", afterFiles[i]);
         }
       }
-      console.log("---------formData", formData.get("afterFiles"));
-      formData.append("cleanerUsername", "W_testWorker"); // 작성자
+
+      formData.append("cleanerUsername", username); // 작성자
       formData.append("beachName", beachName); // 해안명
       formData.append("totalBeachLength", ""); // 총 길이 (빈 값)
       formData.append("realTrashAmount", subData.realTrashAmount); // 실제 수거량
@@ -213,18 +169,13 @@ const CleaningMainPage = () => {
       formData.append("endLongitude", endCoords[1]); // 청소 끝 위치 경도
       formData.append("specialNote", NaturalDisasterList[selected]); // 재연재해 값
 
-      console.log("----------------" + formData);
+      console.log("-------after inject main at form data---------" + formData);
 
       // 나중에 바꿔야함
       postAdd(formData).then((data) => {
         setResult(data.result);
-        console.log("-------------------");
-        console.log(data.result);
+        console.log("---------result----------: ", data.result);
       });
-
-      // const result = await postAdd(formData);
-      // console.log("API Response: ", result);
-      // setResult(result.result);
     } catch (error) {
       console.error("Error submitting form: ", error);
     }

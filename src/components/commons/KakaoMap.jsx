@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
 import CardImages from "../../assets/images/CardImages.jpg";
-import TrashPile from "../../assets/icons/workerMode/Trash Pile.svg";
+import RedPin from "../../assets/icons/write/ic-location-red.svg";
+import BlackPin from "../../assets/icons/write/ic-location-black.svg";
 
 const KakaoMap = ({ myCoords, spots, setDetail }) => {
   return (
@@ -16,21 +17,21 @@ const KakaoMap = ({ myCoords, spots, setDetail }) => {
       }}
       level={3} // 지도의 확대 레벨
     >
-      {spots.map((spot, index) => {
+      {spots.map((spot) => {
         return (
           <MapMarker
-            key={spot.title}
+            key={spot.id}
             position={{ lat: spot.latitude, lng: spot.longitude }}
-            title={spot.title}
+            title={spot.pickUpPlace}
             image={{
-              src: TrashPile,
+              src: BlackPin,
               size: {
                 width: 24,
                 height: 35,
               },
             }}
             onClick={() => {
-              setDetail(spot.title);
+              setDetail(spot.id);
             }}
           />
         );
