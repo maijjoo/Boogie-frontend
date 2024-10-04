@@ -6,6 +6,7 @@ import {
   AdminMain,
   WorkerMain,
   ResearchMain,
+  CleaningSelectMain,
   CleaningMain,
   PickUpMain,
   CollectingMain,
@@ -33,6 +34,10 @@ const root = createBrowserRouter([
   {
     path: "researchMain",
     element: <ResearchMain />,
+  },
+  {
+    path: "cleaningSelect",
+    element: <CleaningSelectMain />,
   },
   {
     path: "cleaningMain",

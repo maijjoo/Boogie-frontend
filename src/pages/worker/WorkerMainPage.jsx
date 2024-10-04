@@ -46,7 +46,7 @@ const WorkerMainPage = () => {
         <Button
           className="w-full xl:w-1/5 p-2 m-2 flex items-center justify-center md:text-base rounded-md border-2 shadow-md"
           color="white"
-          onClick={() => navigate("/cleaningMain")}
+          onClick={() => navigate("/cleaningSelect")}
         >
           <img className="w-8 xl:w-8 me-1" src={clean} alt="research" />
           <p className="font-bold ms-1">청소</p>

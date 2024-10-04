@@ -7,6 +7,9 @@ export const WorkerMain = lazy(() => import("./worker/WorkerMainPage.jsx"));
 export const ResearchMain = lazy(() =>
   import("./worker/research/ResearchMainPage.jsx")
 );
+export const CleaningSelectMain = lazy(() =>
+  import("./worker/cleaning/CleanerTaskSelectPage.jsx")
+);
 export const CleaningMain = lazy(() =>
   import("./worker/cleaning/CleaningMainPage.jsx")
 );
