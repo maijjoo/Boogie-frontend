@@ -4,6 +4,7 @@ import YearAndMonthCondition from "../../components/searchCondition/YearAndMonth
 import YearCondition from "../../components/searchCondition/YearCondition";
 import Search from "../../components/searchCondition/Search";
 import PeriodCondition from "../../components/searchCondition/PeriodCondition";
+import MainTrashMap from "../../components/map/MainTrashMap";
 
 const MainTrashDistributionChart = () => {
   return (
@@ -54,8 +55,9 @@ const MainTrashDistributionChart = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow px-14 py-8 mb-8">
-          {/* 차트 및 통계 */}
+        <div className="bg-white rounded-lg shadow px-14 py-14 mb-8 h-[700px]">
+          {/* 주요쓰레기 분포도 */}
+          <MainTrashMap />
         </div>
       </div>
     </SidebarLayout>
