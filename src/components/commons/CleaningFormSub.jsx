@@ -2,16 +2,29 @@ import React, { useEffect, useState } from "react";
 import CheckBoxWithLabel from "./CheckboxWithLabel.jsx";
 import { MainTrashList } from "../../datas/MainTrashList.js";
 
-const CleaningFormSub = ({ beachName, setSubs, isComplete }) => {
+const CleaningFormSub = ({ setIsComplete, subData }) => {
   const [selectedTrash, setSelectedTrash] = useState(null);
-  const [realTrashAmount, setRealTrashAmount] = useState("");
+  const [realTrashAmount, setRealTrashAmount] = useState(0);
   const [isSubFormComplete, setIsSubFormComplete] = useState(false);
 
   useEffect(() => {
     const complete = selectedTrash !== null && realTrashAmount > 0;
     setIsSubFormComplete(complete);
-    isComplete(complete); // 상위 컴포넌트로 상태 전달
-  }, [selectedTrash, realTrashAmount]);
+    setIsComplete(isSubFormComplete); // 상위 컴포넌트로 상태 전달
+    if (complete) {
+      onSubmit();
+    }
+  }, [selectedTrash, realTrashAmount, isSubFormComplete]);
+
+  const onSubmit = () => {
+    if (selectedTrash !== null && MainTrashList[selectedTrash]) {
+      const subDataObject = {
+        mainTrashType: MainTrashList[selectedTrash].type,
+        realTrashAmount: realTrashAmount,
+      };
+      subData(subDataObject);
+    }
+  };
 
   const handleTrashChange = (index) => {
     setSelectedTrash(selectedTrash === index ? null : index);
@@ -24,11 +37,17 @@ const CleaningFormSub = ({ beachName, setSubs, isComplete }) => {
         <label className="me-2 w-full">50L 마대</label>
         <input
           type="number"
-          onInput={(e) => setRealTrashAmount(e.target.value)}
+          onChange={(e) => setRealTrashAmount(e.target.value)}
           value={realTrashAmount === 0 ? "" : realTrashAmount}
           className="border border-stone-300 rounded-md p-1 w-1/2 me-1 no-spinner"
         />{" "}
         개
+        <label
+          type="number"
+          className="border border-stone-300 rounded-md p-1 w-1/2 me-1 ms-3 no-spinner"
+        >
+          {realTrashAmount * 50}L
+        </label>
       </div>
 
       <div className="w-full flex flex-col justify-start">

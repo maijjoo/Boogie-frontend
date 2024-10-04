@@ -26,16 +26,6 @@ const initState = {
   expectedTrashAmount: "",
   weather: "",
   specialNote: "",
-  cleaningSubList: [
-    {
-      beachNameWithIndex: "",
-      startLatitude: "",
-      startLongitude: "",
-      endLatitude: "",
-      endLongitude: "",
-      mainTrashType: "",
-    },
-  ],
 };
 
 const CleaningMainPage = () => {
@@ -52,13 +42,18 @@ const CleaningMainPage = () => {
   const uploadRef = useRef();
   const [result, setResult] = useState(false);
   const [isMainFormComplete, setIsMainFormComplete] = useState(false);
+  const [isComplete, setIsComplete] = useState();
 
   const [isSubOnWrite, setIsSubOnWrite] = useState(false);
   const [startCoords, setStartCoords] = useState();
-
+  const [endCoords, setEndCoords] = useState();
+  const [subData, setSubData] = useState({});
   const [isMainFormCollapsed, setIsMainFormCollapsed] = useState(undefined);
   const [canSubmit, setCanSubmit] = useState(false);
   const [isSubFormComplete, setIsSubFormComplete] = useState(false); // 하위 컴포넌트의 상태
+
+  const [bsource, setBSource] = useState([]);
+  const [asource, setASource] = useState([]);
 
   // 해안명 관리 state
   const [beachName, setBeachName] = useState("");
@@ -91,7 +86,7 @@ const CleaningMainPage = () => {
   };
 
   // 조사 시작 여부 파악하는 state
-  const [isResearching, setIsResearching] = useState(false);
+  const [isCleaning, setIsCleaning] = useState(false);
 
   // 조사 메인폼 접기 펴기
   const [isFlipped, setIsFlipped] = useState(undefined);
@@ -112,7 +107,7 @@ const CleaningMainPage = () => {
     );
   }, [beachName, teamList, selected]);
 
-  const canSubmitForm = isMainFormComplete && isSubFormComplete;
+  const canSubmitForm = isMainFormComplete && isComplete;
 
   const handleValidTeam = (username) => {
     if (username.trim() !== "") {
@@ -130,7 +125,7 @@ const CleaningMainPage = () => {
   const hasActiveSubForm = isSubOnWrite;
 
   const handleStartCleaning = () => {
-    setIsResearching(true);
+    setIsCleaning(true);
     setIsMainFormCollapsed(true);
     setIsSubOnWrite(true);
     navigator.geolocation.getCurrentPosition(
@@ -158,17 +153,32 @@ const CleaningMainPage = () => {
 
   const onMainFormSubmit = async () => {
     try {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setEndCoords([pos.coords.latitude, pos.coords.longitude]);
+        },
+        (error) => {
+          alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
+        }
+      );
+      console.log("---1---");
+
       const main = {
         cleanerUsername: "W_testWorker", // 작성자
         beachName: beachName, //beachName
         totalBeachLength: "", //각 sub의 위경도로 길이 구한 총합 빈값으로 보내도됨
-        expectedTrashAmount: trashAmount, // 각 sub의 trashAmount 총합
-        weather: "", // api 로 따와서 넘김
+        realTrashAmount: subData.realTrashAmount,
+        mainTrashType: subData.mainTrashType,
+        startLatitude: startCoords[0], //  청소 시작 위치 위도
+        startLongitude: startCoords[1], // 청소 시작 위치 경도
+        endLatitude: endCoords[0], //  청소 끝 위치 위도
+        endLongitude: endCoords[1], // 청소 끝 위치 경도
         specialNote: NaturalDisasterList[selected], // 재연재해 값
-        cleaningSubList: subs, //서브조사 리스트
       };
 
-      console.log("=----------d이미지스", formImgs);
+      console.log(main);
+
+      // console.log("=----------d이미지스", formImgs);
 
       console.log("main----------", main);
 
@@ -177,29 +187,29 @@ const CleaningMainPage = () => {
       const formData = new FormData();
 
       // 이미지 ref 로 연결하기
-      const files = formImgs;
+      const beforeFiles = bsource;
+      const afterFiles = asource;
 
-      console.log("--------------------files: ", files);
-
-      if (files !== null && files.length !== 0) {
-        for (let i = 0; i < files.length; i++) {
-          formData.append("files", files[i]);
-          console.log("---------files[i]", files[i]);
+      if (beforeFiles !== null && beforeFiles.length !== 0) {
+        for (let i = 0; i < beforeFiles.length; i++) {
+          formData.append("beforeFiles", beforeFiles[i]);
         }
       }
-      console.log("---------formData", formData.get("files"));
+
+      if (afterFiles !== null && afterFiles.length !== 0) {
+        for (let i = 0; i < afterFiles.length; i++) {
+          formData.append("afterFiles", afterFiles[i]);
+        }
+      }
+      console.log("---------formData", formData.get("afterFiles"));
       formData.append("json", JSON.stringify(main));
 
-      // 나중에 바꿔야함
-      // postAdd(formData).then((data) => {
-      //   setResult(data.result);
-      //   console.log("-------------------");
-      //   console.log(data.result);
-      // });
+      console.log("----------------" + formData);
 
+      // 나중에 바꿔야함
       postAdd(formData).then((data) => {
         setResult(data.result);
-        console.log("-----------data.result");
+        console.log("-------------------");
         console.log(data.result);
       });
 
@@ -362,58 +372,20 @@ const CleaningMainPage = () => {
         )}
       </div>
 
-      {isResearching && <CleaningCameraController setSource={setFormImgs} />}
-      {isResearching && (
-        <CleaningAfterCameraController setSource={setFormImgs} />
-      )}
+      {isCleaning && <CleaningCameraController setSource={setBSource} />}
+      {isCleaning && <CleaningAfterCameraController setSource={setASource} />}
 
-      {isResearching && (
+      {isCleaning && (
         <div className="w-full xl:w-1/3 mt-2">
-          {subs.map((sub, index) => (
-            <CleaningFormSub
-              key={index}
-              beachName={beachName}
-              setSubs={setSubs}
-              isComplete={(state) => setIsSubFormComplete(state)} // 상태 전달
-            />
-          ))}
-        </div>
-      )}
-
-      {/* subs 의 길이에 따라 formsub 렌더링, 있는건 데이터 가져와서 렌더링, 마지막에 빈거 한개 렌더링 */}
-      {isResearching && (
-        <div className="w-full xl:w-1/3 mt-2">
-          {/* 완료된 서브 폼들 (접힌 상태로 표시) */}
-          {subs.map((sub, index) => (
-            <CleaningFormSub
-              key={index}
-              beachName={beachName}
-              subIdx={index}
-              setSubs={setSubs}
-              isCollapsed={true}
-              data={sub}
-            />
-          ))}
-
-          {/* 현재 작성 중인 서브 폼 */}
-          {isSubOnWrite && (
-            <CleaningFormSub
-              beachName={beachName}
-              setSubs={setSubs}
-              setSubWrite={setIsSubOnWrite}
-              startcoord={startCoords}
-              setAmount={setTrashAmount}
-              onComplete={() => {
-                setIsSubOnWrite(false);
-                setCanSubmit(true);
-              }}
-            />
-          )}
+          <CleaningFormSub
+            subData={setSubData}
+            setIsComplete={setIsComplete} // 상태 전달
+          />
         </div>
       )}
 
       <div className="w-full xl:w-1/3 mt-3">
-        {!isResearching && isMainFormComplete && (
+        {!isCleaning && isMainFormComplete && (
           <Button
             className="w-full py-4 rounded-lg"
             color="blue"
