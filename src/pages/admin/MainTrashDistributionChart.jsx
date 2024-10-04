@@ -17,7 +17,7 @@ const MainTrashDistributionChart = () => {
         <div className="bg-white rounded-lg shadow px-14 py-4 mb-8 h-24">
           <div className="flex items-center justify-between w-full">
             {/* ConditionTabs와 YearCondition, Search 사이에 간격 추가 */}
-            <ConditionTabs className="m-0" />
+            {<ConditionTabs className="m-0" />}
 
             {/* YearCondition과 Search는 나란히 배치 */}
             <div className="flex items-center space-x-4">
