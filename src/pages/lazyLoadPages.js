@@ -16,3 +16,6 @@ export const PickUpMain = lazy(() =>
 export const CollectingMain = lazy(() =>
   import("./worker/collecting/CollectingMainPage.jsx")
 );
+export const BasicStatistics = lazy(() =>
+  import("./admin/BasicStatisticsPage.jsx")
+);
