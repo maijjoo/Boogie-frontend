@@ -19,3 +19,6 @@ export const CollectingMain = lazy(() =>
 export const BasicStatistics = lazy(() =>
   import("./admin/BasicStatisticsPage.jsx")
 );
+export const MainTrashDistributionChart = lazy(() =>
+  import("./admin/MainTrashDistributionChart.jsx")
+);

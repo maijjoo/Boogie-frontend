@@ -48,7 +48,7 @@ const Sidebar = () => {
       {/* 상단 로고 및 사용자 정보 */}
       <div className="text-center border-b border-b-white px-1 py-5 mb-5">
         <div className="flex items-start mb-4">
-          <Link to={"/"}>
+          <Link to={"/adminMain"}>
             <img src={logo} className="w-12 h-12" alt="Logo" />
           </Link>
           <div className="ml-4 text-left justify-between">
@@ -84,7 +84,10 @@ const Sidebar = () => {
           onMouseEnter={() => setHoverMenu("data")}
           onMouseLeave={() => setHoverMenu("")}
         >
-          <Link to={"/"} className="flex items-center">
+          <Link
+            to={"/MainTrashDistributionChart"}
+            className="flex items-center"
+          >
             <img
               src={
                 activeMenu === "data" || hoverMenu === "data"
@@ -106,7 +109,7 @@ const Sidebar = () => {
           >
             <div className="flex flex-col items-start mt-2 ml-4">
               <Link
-                to={"/"}
+                to={"/MainTrashDistributionChart"}
                 className={`text-[#1E1E23] font-semibold my-4 cursor-pointer hover:text-[#014EB6] hover:font-semibold ${
                   activeSubMenu === "new"
                     ? "!text-[#014EB6] !font-semibold"
