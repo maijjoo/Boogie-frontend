@@ -1,16 +1,52 @@
 import { API_SERVER_HOST } from "./commonApi";
 import jwtAxios from "../util/jwtUtil";
 
-const prefix = `${API_SERVER_HOST}/api/pickUp`;
+const prefix = `${API_SERVER_HOST}/api/pick-up`;
 
-export const getPickUpsByManagerId = async (managerId) => {
-  console.log("------------" + managerId);
+// 내 관리자 id로 등록된 모든 집하지 리스트 받아옴
+export const getSpots = async (adminId) => {
+  console.log(
+    "-----------pickUp get api called by: managerId( ",
+    adminId,
+    " )"
+  );
 
-  const res = await jwtAxios.get(`${prefix}/`, managerId, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  const res = await jwtAxios.get(`${prefix}/${adminId}`);
+
+  console.log("-----------pickUp get api response: ", res);
+
+  return res.data;
+};
+
+// 특정 집하지의 state 를 added 로 바꿈
+export const updateToAdded = async (spotId) => {
+  console.log("-----------pickUp patch api called by: spotId( ", spotId, " )");
+
+  const res = await jwtAxios.patch(`${prefix}/added-route/${spotId}`);
+
+  console.log("-----------pickUp patch api response: ", res);
+
+  return res.data;
+};
+
+// 특정 집하지의 state 를 completed 로 바꿈
+export const updateToCompleted = async (spotId) => {
+  console.log("-----------pickUp patch api called by: spotId( ", spotId, " )");
+
+  const res = await jwtAxios.patch(`${prefix}/completed/${spotId}`);
+
+  console.log("-----------pickUp patch api response: ", res);
+
+  return res.data;
+};
+
+// 특정 집하지의 state 를 needed 로 롤백
+export const updateToNeeded = async (spotId) => {
+  console.log("-----------pickUp patch api called by: spotId( ", spotId, " )");
+
+  const res = await jwtAxios.patch(`${prefix}/cancel/${spotId}`);
+
+  console.log("-----------pickUp patch api response: ", res);
 
   return res.data;
 };

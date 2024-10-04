@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios"; // axios를 사용하여 API 호출
 import { loginPost } from "../../api/memberApi"; // 로그인 API를 불러옴
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../../assets/images/logoOnly.png";
 import dataMenu from "../../assets/icons/sidebar/Combo Chart.svg";
@@ -10,35 +10,41 @@ import workMenu from "../../assets/icons/sidebar/Todo List.svg";
 import onWorkMenu from "../../assets/icons/sidebar/Todo List-1.svg";
 import memberMenu from "../../assets/icons/sidebar/User Settings.svg";
 import onMemberMenu from "../../assets/icons/sidebar/User Settings-1.svg";
+import { useAuth } from "../../hooks/useAuth";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+  const { logout, isLoggedIn, memberInfo } = useAuth();
+
   const [activeMenu, setActiveMenu] = useState(""); // 클릭된 메뉴 상태 관리
   const [hoverMenu, setHoverMenu] = useState(""); // hover 상태 관리
   const [activeSubMenu, setActiveSubMenu] = useState(""); // 하위 메뉴 클릭 상태 관리
-  const [userName, setUserName] = useState(""); // 사용자 이름 상태
   const [email, setEmail] = useState(""); // 사용자 이메일 상태 (로그인 후 받아온 값)
 
   // 로그인 API 호출 예시
-  const handleLogin = async () => {
-    const loginParam = { email: "user@example.com", pw: "password123" }; // 로그인 정보
-    try {
-      const loginResponse = await loginPost(loginParam); // 로그인 API 호출
-      const userEmail = loginResponse.email; // 로그인 응답에서 이메일 추출
-      setEmail(userEmail); // 이메일 상태 저장
+  // const handleLogin = async () => {
+  //   const loginParam = { email: "user@example.com", pw: "password123" }; // 로그인 정보
+  //   try {
+  //     const loginResponse = await loginPost(loginParam); // 로그인 API 호출
+  //     const userEmail = loginResponse.email; // 로그인 응답에서 이메일 추출
+  //     setEmail(userEmail); // 이메일 상태 저장
 
-      // 로그인 후 이메일로 회원 정보 가져오기
-      const memberInfoResponse = await axios.get(
-        `API_SERVER_HOST/api/member/info?email=${userEmail}`
-      );
-      setUserName(memberInfoResponse.data.name); // 회원 이름을 상태로 저장
-    } catch (error) {
-      console.error("로그인 중 오류 발생:", error);
-    }
-  };
+  //     // 로그인 후 이메일로 회원 정보 가져오기
+  //     const memberInfoResponse = await axios.get(
+  //       `API_SERVER_HOST/api/member/info?email=${userEmail}`
+  //     );
+  //     setUserName(memberInfoResponse.data.name); // 회원 이름을 상태로 저장
+  //   } catch (error) {
+  //     console.error("로그인 중 오류 발생:", error);
+  //   }
+  // };
 
   useEffect(() => {
-    handleLogin(); // 컴포넌트 로드 시 로그인 처리 실행
-  }, []);
+    //   handleLogin(); // 컴포넌트 로드 시 로그인 처리 실행
+    if (!isLoggedIn) {
+      navigate("/", { replace: true });
+    }
+  }, [isLoggedIn, navigate]);
 
   return (
     <div
@@ -53,10 +59,12 @@ const Sidebar = () => {
           </Link>
           <div className="ml-4 text-left justify-between">
             {/* 받아온 사용자 이름을 홍길동 대신 표시 */}
-            <span className="text-[12pt] font-semibold">{userName}</span>
+            <span className="text-[12pt] font-semibold">{memberInfo.name}</span>
             <span className="text-[10pt] ">님</span>
 
-            <div className="text-[10pt]">해운대구청 해양수산과</div>
+            <div className="text-[10pt]">
+              {memberInfo.workPlace + " " + memberInfo.department + "과"}
+            </div>
           </div>
         </div>
         {/* 하단 마이페이지 및 로그아웃 */}
@@ -65,9 +73,12 @@ const Sidebar = () => {
             마이페이지
           </Link>
           <div className="text-sm mr-4 text-[10pt]">|</div>
-          <Link to={"/"} className="text-white text-[10pt]">
+          <div
+            onClick={() => logout()}
+            className="text-white text-[10pt] cursor-pointer"
+          >
             로그아웃
-          </Link>
+          </div>
         </div>
       </div>
       {/* 메뉴 섹션 */}

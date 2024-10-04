@@ -5,8 +5,9 @@ import MobileHeader from "../../../components/menus/MobileHeader";
 import MobileFooter from "../../../components/menus/MobileFooter";
 import KakaoMap from "../../../components/commons/KakaoMap";
 import CardImages from "../../../assets/images/CardImages.jpg";
-import { pickUpSpot } from "../../../datas/pickUpSpot.js";
+//import { pickUpSpot } from "../../../datas/pickUpSpot.js";
 import DetailedSpot from "./component/DetailedSpot.jsx";
+import { getSpots } from "../../../api/collectApi.js";
 
 const CollectingMainPage = () => {
   const { isLoggedIn, isDriver, memberInfo } = useAuth();
@@ -16,6 +17,8 @@ const CollectingMainPage = () => {
   // 작업 추가, 상세확인 등 화면 하단에 작업 진행중인지
   // true 면 지도 크기 줄어듬
   const [onWork, setOnWork] = useState(false);
+
+  const [pickUpSpot, setPickUpSpot] = useState([]);
   // 수거경로 추가한 집하지
   const [pickedSpots, setPickedSpots] = useState([]);
   // 마커 클릭 시 상세정보로 출력되는 집하지
@@ -31,19 +34,41 @@ const CollectingMainPage = () => {
       alert("수거작업은 차량을 등록해야 진행할 수 있습니다.");
       navigate("/workerMain", { replace: true });
     }
-  }, [isLoggedIn, isDriver]);
+  }, [isLoggedIn, isDriver, navigate]);
 
   useEffect(() => {
-    const managerId = memberInfo.managerId;
-    console.log(managerId);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setMyCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-      },
-      (error) => {
-        alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
+    const getLocation = async () => {
+      try {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setMyCoords({
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+            });
+          },
+          (error) => {
+            alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
+          }
+        );
+      } catch (error) {
+        console.error("위치 정보 가져오기 에러: ", error);
       }
-    );
+    };
+
+    const fetchData = async () => {
+      const adminId = memberInfo.managerId;
+
+      try {
+        const res = await getSpots(adminId);
+        console.log("----------------resdata: ", res);
+        setPickUpSpot(res);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    getLocation();
+    fetchData();
 
     // get("/api/pickUp/managerId")로
     // 내 담당 관리자의 담당구역에서
@@ -55,7 +80,7 @@ const CollectingMainPage = () => {
     // 그러면 자동으로 이 useEffect 가 실행되고
     // 다시 get 으로 "배정안된" 것만 불러옴
     // 지도의 중심좌표도 다시 현재위치로 수정됨
-  }, [pickedSpots]);
+  }, []);
 
   const onSpotDetail = (spotId) => {
     setIsOnDetailed(true);
@@ -89,7 +114,11 @@ const CollectingMainPage = () => {
       {onWork && (
         <div className="w-full xl:w-3/4 mb-12 xl:mb-14 border border-black rounded-b-md h-2/3 xl:h-1/2">
           {isOnDetailed && (
-            <DetailedSpot spot={detailedSpot} onClose={setIsOnDetailed} />
+            <DetailedSpot
+              pickUpSpot={pickUpSpot}
+              spot={detailedSpot}
+              onClose={setIsOnDetailed}
+            />
           )}
         </div>
       )}
