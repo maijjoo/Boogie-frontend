@@ -25,3 +25,6 @@ export const BasicStatistics = lazy(() =>
 export const MainTrashDistribution = lazy(() =>
   import("./admin/MainTrashDistributionPage.jsx")
 );
+export const PickupPredict = lazy(() =>
+  import("./admin/PickupPredictPage.jsx")
+);

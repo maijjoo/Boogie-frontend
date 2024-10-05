@@ -103,7 +103,7 @@ const Sidebar = () => {
                 주요 쓰레기 분포도
               </Link>
               <Link
-                to={"/"}
+                to={"/pickupPredict"}
                 className={`text-[#1E1E23] font-semibold mb-4 cursor-pointer hover:text-[#014EB6] hover:font-semibold ${
                   activeSubMenu === "view"
                     ? "!text-[#014EB6] !font-semibold"

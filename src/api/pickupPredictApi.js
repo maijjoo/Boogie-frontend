@@ -3,7 +3,7 @@ import jwtAxios from "../util/jwtUtil";
 
 const prefix = `${API_SERVER_HOST}/api/admin`;
 
-export const getSearched = async (searchParam) => {
+export const getPredicted = async (searchParam) => {
   console.log(
     "---trash distribution get api called with: {year: ",
     searchParam.year,
@@ -16,11 +16,11 @@ export const getSearched = async (searchParam) => {
     "}---"
   );
 
-  const res = await jwtAxios.get(`${prefix}/trash-distribution`, {
+  const res = await jwtAxios.get(`${prefix}/collect-prediction`, {
     params: searchParam,
   });
 
-  console.log("-----------trash distribution get api response: ", res);
+  console.log("-----------pickup predict get api response: ", res);
 
   return res;
 };

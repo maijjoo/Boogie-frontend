@@ -5,8 +5,6 @@ export const useAuth = () => {
   const memberInfo = useSelector((state) => state.login);
   const dispatch = useDispatch();
 
-  console.log(memberInfo);
-
   const isLoggedIn = !!memberInfo?.username;
 
   const role = memberInfo?.roleNames?.[0] || "Guest";
