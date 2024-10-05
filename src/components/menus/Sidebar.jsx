@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios"; // axios를 사용하여 API 호출
-import { loginPost } from "../../api/memberApi"; // 로그인 API를 불러옴
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../../assets/images/logoOnly.png";
@@ -19,7 +17,6 @@ const Sidebar = () => {
   const [activeMenu, setActiveMenu] = useState(""); // 클릭된 메뉴 상태 관리
   const [hoverMenu, setHoverMenu] = useState(""); // hover 상태 관리
   const [activeSubMenu, setActiveSubMenu] = useState(""); // 하위 메뉴 클릭 상태 관리
-  const [email, setEmail] = useState(""); // 사용자 이메일 상태 (로그인 후 받아온 값)
 
   return (
     <div
@@ -73,10 +70,7 @@ const Sidebar = () => {
           onMouseEnter={() => setHoverMenu("data")}
           onMouseLeave={() => setHoverMenu("")}
         >
-          <Link
-            to={"/MainTrashDistributionChart"}
-            className="flex items-center"
-          >
+          <Link to={"/mainTrashDistribution"} className="flex items-center">
             <img
               src={
                 activeMenu === "data" || hoverMenu === "data"
@@ -98,7 +92,7 @@ const Sidebar = () => {
           >
             <div className="flex flex-col items-start mt-2 ml-4">
               <Link
-                to={"/MainTrashDistributionChart"}
+                to={"/mainTrashDistribution"}
                 className={`text-[#1E1E23] font-semibold my-4 cursor-pointer hover:text-[#014EB6] hover:font-semibold ${
                   activeSubMenu === "new"
                     ? "!text-[#014EB6] !font-semibold"
