@@ -44,7 +44,7 @@ const ResearchMainPage = () => {
   const [result, setResult] = useState(false);
 
   // 임시저장 모달을 띄우기 위한 state
-  // const [isTempExists, setIsTempExists] = useState(false);
+  const [isTempExists, setIsTempExists] = useState(false);
 
   // 서브조사리스트
   const [subs, setSubs] = useState([]);
@@ -277,7 +277,7 @@ const ResearchMainPage = () => {
                     onChange={handleBeachNameChange}
                     className="block p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 w-full"
                     list="beachoptions"
-                    placeholder="해안명을 입력하세요"
+                    placeholder="해안명을 입력해 주세요"
                   />
                   <datalist id="beachoptions">
                     {beachNameOptions.map((option, index) => (
@@ -296,6 +296,7 @@ const ResearchMainPage = () => {
                   <input
                     value={inputName}
                     onChange={handleInputNameChange}
+                    placeholder="조사자를 입력해 주세요"
                     className="p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-10"
                     list="nameoptions"
                   />
