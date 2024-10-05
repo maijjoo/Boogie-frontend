@@ -6,6 +6,7 @@ const BeachCondition = ({
   onYearlyDataChange = () => {},
   onMonthlyDataChange = () => {},
   onDailyDataChange = () => {},
+  selectedYear = "",
 }) => {
   const [guGunOptions, setGuGunOptions] = useState([]);
   const [beachOptions, setBeachOptions] = useState([]);
@@ -69,7 +70,7 @@ const BeachCondition = ({
     if (selectedBeach && onMonthlyDataChange) {
       axios
         .get(
-          `http://localhost:8080/api/admin/basic-statistics?tapCondition=월별&beachName=${selectedBeach}`
+          `http://localhost:8080/api/admin/basic-statistics?tapCondition=월별&year=${selectedYear}&beachName=${selectedBeach}`
         )
         .then((response) => {
           onMonthlyDataChange(response.data.monthly); // 월별 통계 데이터를 부모 컴포넌트로 전달
@@ -80,7 +81,7 @@ const BeachCondition = ({
     } else {
       onMonthlyDataChange([]); // 해안이 선택되지 않았을 때 빈 데이터 전달
     }
-  }, [selectedBeach, onMonthlyDataChange]);
+  }, [selectedBeach, selectedYear, onMonthlyDataChange]);
 
   // 선택된 해안에 따라 일별 데이터 설정
   useEffect(() => {
