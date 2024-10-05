@@ -170,7 +170,7 @@ const Sidebar = () => {
           >
             <div className="flex flex-col items-start mt-2 ml-4">
               <Link
-                to={"/"}
+                to={"/newWorks"}
                 className={`text-[#1E1E23] font-semibold my-4 cursor-pointer hover:text-[#014EB6] hover:font-semibold ${
                   activeSubMenu === "newWorks"
                     ? "!text-[#014EB6] !font-semibold"

@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import circle from "../../assets/icons/write/circle.svg";
+import searchIcon from "../../assets/icons/write/Search.png";
 
 const BeachCondition = ({
   onYearlyDataChange = () => {},
   onMonthlyDataChange = () => {},
   onDailyDataChange = () => {},
   selectedYear = "",
+  selectedYears = "",
+  selectedMonth = "",
+  onSearch,
 }) => {
   const [guGunOptions, setGuGunOptions] = useState([]);
   const [beachOptions, setBeachOptions] = useState([]);
   const [selectedGuGun, setSelectedGuGun] = useState("");
   const [selectedBeach, setSelectedBeach] = useState("");
+  const [tempBeach, setTempBeach] = useState("");
 
   // 페이지 로드 시 구/군 데이터 가져오기
   useEffect(() => {
@@ -46,6 +51,12 @@ const BeachCondition = ({
       setBeachOptions([]);
     }
   }, [selectedGuGun]);
+
+  const handleSearch = () => {
+    // $$$ 새로운 함수 추가
+    setSelectedBeach(tempBeach); // 선택된 해안가 명을 설정
+    onSearch(tempBeach); // Search 버튼 클릭 시 부모 컴포넌트에 선택된 해안가 명 전달
+  };
 
   // 선택된 해안에 따라 연도별 데이터 설정
   useEffect(() => {
@@ -88,7 +99,7 @@ const BeachCondition = ({
     if (selectedBeach) {
       axios
         .get(
-          `http://localhost:8080/api/admin/basic-statistics?tapCondition=일별&beachName=${selectedBeach}`
+          `http://localhost:8080/api/admin/basic-statistics?tapCondition=일별&year=${selectedYears}&month=${selectedMonth}&beachName=${selectedBeach}`
         )
         .then((response) => {
           onDailyDataChange(response.data.days); // 연도별 통계 데이터를 부모 컴포넌트로 전달
@@ -99,7 +110,7 @@ const BeachCondition = ({
     } else {
       onDailyDataChange([]); // 해안이 선택되지 않았을 때 빈 데이터 전달
     }
-  }, [selectedBeach, onDailyDataChange]);
+  }, [selectedBeach, selectedYears, selectedMonth, onDailyDataChange]);
 
   return (
     <div className="flex items-center space-x-2 ml-auto">
@@ -114,7 +125,7 @@ const BeachCondition = ({
           value={selectedGuGun}
           onChange={(e) => setSelectedGuGun(e.target.value)}
         >
-          <option value="">전체</option>
+          <option value="">선택</option>
           {guGunOptions.map((gu, index) => (
             <option key={index} value={gu}>
               {gu}
@@ -125,10 +136,10 @@ const BeachCondition = ({
         {/* 해안 선택 */}
         <select
           className="p-2 w-44 border rounded-s border-gray-300"
-          value={selectedBeach}
-          onChange={(e) => setSelectedBeach(e.target.value)}
+          value={tempBeach}
+          onChange={(e) => setTempBeach(e.target.value)}
         >
-          <option value="">전체</option>
+          <option value="">선택</option>
           {beachOptions.map((beach, index) => (
             <option key={index} value={beach}>
               {beach}
@@ -136,6 +147,13 @@ const BeachCondition = ({
           ))}
         </select>
       </div>
+      <button
+        className="px-4 py-2 w-24 h-12 bg-blue-700 text-white rounded-md flex items-center justify-evenly ml-5"
+        onClick={handleSearch} // $$$ Search 버튼 클릭 시 handleSearch 호출
+      >
+        <img src={searchIcon} alt="searchIcon" className="w-5 h-5" />
+        <div>검색</div>
+      </button>
     </div>
   );
 };

@@ -33,7 +33,7 @@ const BasicStatisticsYearlyTable = ({ yearlyData }) => {
               key={year}
               className="px-4 py-2 border text-center align-middle"
             >
-              {year}
+              {year}년
             </th>
           ))}
         </tr>

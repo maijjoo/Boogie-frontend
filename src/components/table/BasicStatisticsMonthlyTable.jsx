@@ -1,6 +1,6 @@
 import React from "react";
 
-const BasicStatisticsMonthlyTable = ({ monthlyData }) => {
+const BasicStatisticsMonthlyTable = ({ monthlyData, selectedYear }) => {
   console.log("monthlyData:", monthlyData); // 데이터가 제대로 전달되고 있는지 확인
 
   // 1월부터 12월까지의 월을 정의하는 배열
@@ -42,14 +42,16 @@ const BasicStatisticsMonthlyTable = ({ monthlyData }) => {
     <table className="w-full text-left">
       <thead>
         <tr className="border-b border-b-gray-200 bg-gray-100">
-          <th className="px-4 py-2 border w-44 text-center align-middle">월</th>
+          <th className="px-4 py-2 border w-44 text-center align-middle">
+            {selectedYear ? `${selectedYear}년` : "연도 선택"}
+          </th>
           {/* 월 배열을 순회하면서 각 월의 헤더 셀을 생성 */}
           {monthes.map((month) => (
             <th
               key={month}
               className="px-4 py-2 border text-center align-middle"
             >
-              {month}
+              {month}월
             </th>
           ))}
         </tr>
