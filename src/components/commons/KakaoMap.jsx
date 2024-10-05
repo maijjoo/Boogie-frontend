@@ -6,14 +6,15 @@ import orangeLife from "../../assets/icons/adminMode/orangeLife.png";
 import greenTire from "../../assets/icons/adminMode/greenTire.png";
 import purpleTree from "../../assets/icons/adminMode/purpleTree.png";
 import blueFishing from "../../assets/icons/adminMode/blueFishing.png";
+import { useEffect, useState } from "react";
 
 const KakaoMap = ({
   myCoords,
-  spots,
-  setDetail,
-  nowView,
-  searchedData,
-  predictedData,
+  spots = null,
+  setDetail = null,
+  nowView = null,
+  searchedData = null,
+  predictedData = null,
 }) => {
   const trashToPin = {
     부표류: redBuyo,
@@ -23,9 +24,19 @@ const KakaoMap = ({
     폐어구류: blueFishing,
   };
 
-  const trashAmounts = predictedData.map((item) => item.expectedTrashAmount);
-  const minTrashAmount = Math.min(...trashAmounts);
-  const maxTrashAmount = Math.max(...trashAmounts);
+  const [trashAmount, setTrashAmount] = useState([]);
+
+  useEffect(() => {
+    if (predictedData && predictedData.length > 0) {
+      const trashAmounts = predictedData.map(
+        (item) => item.expectedTrashAmount
+      );
+      setTrashAmount(trashAmounts);
+    }
+  }, [predictedData]);
+
+  const minTrashAmount = Math.min(...trashAmount);
+  const maxTrashAmount = Math.max(...trashAmount);
 
   function getTrashAmountCategory(amount) {
     const range = (maxTrashAmount - minTrashAmount) / 5; // 5개 구간으로 나누기

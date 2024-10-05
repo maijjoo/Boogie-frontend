@@ -16,7 +16,7 @@ const MobileFooter = ({ homeroot, writeroot }) => {
   });
 
   return (
-    <div className="w-full fixed bottom-0 left-0 h-12 xl:h-14 z-10 flex border-t-2 border-t-slate-200 justify-center">
+    <div className="w-full fixed bottom-0 left-0 h-12 xl:h-14 z-10 flex  border-t-2 border-t-slate-200 justify-center">
       <div className="w-1/3 flex justify-center p-3 cursor-pointer">
         <img
           src={myPage}
