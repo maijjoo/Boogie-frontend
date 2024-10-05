@@ -8,8 +8,8 @@ import BasicStatisticsMonthlyChart from "../../components/chart/BasicStatisticsM
 import BasicStatisticsMonthlyTable from "../../components/table/BasicStatisticsMonthlyTable";
 import BasicStatisticsDailyChart from "../../components/chart/BasicStatisticsDailyChart";
 import BasicStatisticsDailyTable from "../../components/table/BasicStatisticsDailyTable";
-import YearAndMonthCondition from "../../components/searchCondition/YearAndMonthCondition";
-import YearCondition from "../../components/searchCondition/YearCondition";
+import YearAndMonthCondition from "../../components/searchCondition/basic/YearAndMonthCondition.jsx";
+import YearCondition from "../../components/searchCondition/basic/YearCondition";
 import ExcelIcon from "../../assets/icons/write/ExcelIcon.png";
 import * as XLSX from "xlsx"; // 엑셀 라이브러리 추가
 
