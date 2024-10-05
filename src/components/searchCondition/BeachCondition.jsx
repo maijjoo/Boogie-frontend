@@ -5,6 +5,8 @@ import circle from "../../assets/icons/write/circle.svg";
 const BeachCondition = ({
   onYearlyDataChange = () => {},
   onMonthlyDataChange = () => {},
+  onDailyDataChange = () => {},
+  selectedYear = "",
 }) => {
   const [guGunOptions, setGuGunOptions] = useState([]);
   const [beachOptions, setBeachOptions] = useState([]);
@@ -68,7 +70,7 @@ const BeachCondition = ({
     if (selectedBeach && onMonthlyDataChange) {
       axios
         .get(
-          `http://localhost:8080/api/admin/basic-statistics?tapCondition=월별&beachName=${selectedBeach}`
+          `http://localhost:8080/api/admin/basic-statistics?tapCondition=월별&year=${selectedYear}&beachName=${selectedBeach}`
         )
         .then((response) => {
           onMonthlyDataChange(response.data.monthly); // 월별 통계 데이터를 부모 컴포넌트로 전달
@@ -79,25 +81,25 @@ const BeachCondition = ({
     } else {
       onMonthlyDataChange([]); // 해안이 선택되지 않았을 때 빈 데이터 전달
     }
-  }, [selectedBeach, onMonthlyDataChange]);
+  }, [selectedBeach, selectedYear, onMonthlyDataChange]);
 
   // 선택된 해안에 따라 일별 데이터 설정
-  // useEffect(() => {
-  //   if (selectedBeach) {
-  //     axios
-  //       .get(
-  //         `http://localhost:8080/api/admin/basic-statistics?tapCondition=연도별&beachName=${selectedBeach}`
-  //       )
-  //       .then((response) => {
-  //         onYearlyDataChange(response.data.years); // 연도별 통계 데이터를 부모 컴포넌트로 전달
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error fetching yearly data:", error);
-  //       });
-  //   } else {
-  //     onYearlyDataChange([]); // 해안이 선택되지 않았을 때 빈 데이터 전달
-  //   }
-  // }, [selectedBeach, onYearlyDataChange]);
+  useEffect(() => {
+    if (selectedBeach) {
+      axios
+        .get(
+          `http://localhost:8080/api/admin/basic-statistics?tapCondition=일별&beachName=${selectedBeach}`
+        )
+        .then((response) => {
+          onDailyDataChange(response.data.days); // 연도별 통계 데이터를 부모 컴포넌트로 전달
+        })
+        .catch((error) => {
+          console.error("Error fetching daily data:", error);
+        });
+    } else {
+      onDailyDataChange([]); // 해안이 선택되지 않았을 때 빈 데이터 전달
+    }
+  }, [selectedBeach, onDailyDataChange]);
 
   return (
     <div className="flex items-center space-x-2 ml-auto">

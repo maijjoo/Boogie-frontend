@@ -16,7 +16,13 @@ const BasicStatisticsPage = () => {
   const [activeTab, setActiveTab] = useState("year");
   const [yearlyData, setYearlyData] = useState([]); // 연도별 데이터를 저장할 상태
   const [monthlyData, setMonthlyData] = useState([]); // 월별 데이터를 저장할 상태
+  const [dailyData, setDailyData] = useState([]); // 일별 데이터를 저장할 상태
   const [chartData, setChartData] = useState([]); // 차트에 사용할 데이터 상태
+  const [selectedYear, setSelectedYear] = useState(""); // YearCondition에서 선택한 연도 상태
+
+  const handleYearChange = (year) => {
+    setSelectedYear(year);
+  };
 
   // yearlyData가 변경될 때마다 차트 데이터를 업데이트
   useEffect(() => {
@@ -51,6 +57,22 @@ const BasicStatisticsPage = () => {
     }
   }, [monthlyData]);
 
+  useEffect(() => {
+    if (dailyData && dailyData.length > 0) {
+      const formattedData = dailyData.map((item) => ({
+        name: `${item.day}일`, // 일
+        폐어구류: item.fishingGearWasteTons || 0,
+        초목류: item.vegetationWasteTons || 0,
+        "대형 투기쓰레기류": item.largeDisposalWasteTons || 0,
+        생활쓰레기류: item.householdWasteTons || 0,
+        부표류: item.buoyDebrisTons || 0,
+      }));
+      setChartData(formattedData);
+    } else {
+      setChartData([]);
+    }
+  }, [dailyData]);
+
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
@@ -80,10 +102,13 @@ const BasicStatisticsPage = () => {
                 setActiveTab={setActiveTab}
               />
               {/* BeachCondition에서 데이터 상태를 업데이트하도록 설정 */}
-              <BeachCondition onMonthlyDataChange={setMonthlyData} />
+              <BeachCondition
+                onMonthlyDataChange={setMonthlyData}
+                selectedYear={selectedYear}
+              />
               <Search />
             </div>
-            <YearCondition />
+            <YearCondition onChangeYear={handleYearChange} />
           </div>
         )}
 
@@ -94,8 +119,7 @@ const BasicStatisticsPage = () => {
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
               />
-
-              <BeachCondition />
+              <BeachCondition onDailyDataChange={setDailyData} />
               <Search />
             </div>
             <YearAndMonthCondition />
@@ -119,8 +143,8 @@ const BasicStatisticsPage = () => {
           )}
           {activeTab === "day" && (
             <>
-              <BasicStatisticsDailyChart />
-              <BasicStatisticsDailyTable />
+              <BasicStatisticsDailyChart data={chartData} />
+              <BasicStatisticsDailyTable dailyData={dailyData} />
             </>
           )}
         </div>
