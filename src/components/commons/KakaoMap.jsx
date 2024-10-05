@@ -1,10 +1,8 @@
-import React, { useEffect } from "react";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
-import CardImages from "../../assets/images/CardImages.jpg";
 import RedPin from "../../assets/icons/write/ic-location-red.svg";
 import BlackPin from "../../assets/icons/write/ic-location-black.svg";
 
-const KakaoMap = ({ myCoords, spots, setDetail }) => {
+const KakaoMap = ({ myCoords, spots, setDetail, nowView }) => {
   return (
     <Map
       center={{
@@ -18,18 +16,19 @@ const KakaoMap = ({ myCoords, spots, setDetail }) => {
       level={3} // 지도의 확대 레벨
     >
       {spots.map((spot) => {
+        const markerImage = {
+          size: { width: 35, height: 35 },
+          src:
+            spot.id === nowView || spot.status === "ASSIGNMENT_ADDED_TO_ROUTE"
+              ? RedPin
+              : BlackPin,
+        };
         return (
           <MapMarker
             key={spot.id}
             position={{ lat: spot.latitude, lng: spot.longitude }}
             title={spot.pickUpPlace}
-            image={{
-              src: BlackPin,
-              size: {
-                width: 24,
-                height: 35,
-              },
-            }}
+            image={markerImage}
             onClick={() => {
               setDetail(spot.id);
             }}
