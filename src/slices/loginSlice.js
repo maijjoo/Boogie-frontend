@@ -6,8 +6,15 @@ const initState = {
   email: "",
   username: "",
   roleNames: [],
+  role: "",
   isLoading: false,
   error: null,
+  workPlace: "",
+  department: null,
+  name: "",
+  managerId: null,
+  vehicleCapacity: undefined,
+  workGroup: undefined,
 };
 
 export const loadMemberCookie = () => {
@@ -56,14 +63,8 @@ const loginSlice = createSlice({
 
         if (!payload.error) {
           setCookie("member", JSON.stringify(payload), 1);
-          state.username = payload.username;
-          state.role = payload.roleNames[0];
-          state.name = payload.name;
-          state.workGroup = payload.workGroup;
-          state.department =
-            payload.roleNames[0] === "Admin" ? payload.department : null;
-          state.vehicleCapacity = payload.vehicleCapacity;
-          state.managerId = payload.managerId;
+
+          Object.assign(state, payload);
         }
         state.isLoading = false;
         state.error = payload.error;

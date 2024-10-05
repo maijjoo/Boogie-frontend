@@ -210,50 +210,20 @@ const ResearchMainPage = () => {
   };
 
   return (
-    <div className="w-full h-dvh flex flex-col items-center p-3">
+    <div className="w-full overflow-hidden h-dvh flex flex-col items-center p-3">
       <MobileHeader>조사 보고서</MobileHeader>
 
       {/* 메인 폼 */}
-      <div className="w-full xl:w-1/3 border border-black rounded-md mt-12 xl:mt-14 mb-2 p-6">
-        {isMainFormCollapsed ? (
-          <div className="flex flex-col items-center justify-center">
-            <div className="w-full flex flex-col mb-2">
-              <div className="flex w-full justify-between">
-                <label className="w-full">
-                  <img src={dot} alt="dot" className="w-1 me-2 inline" />
-                  해안명
-                </label>
-                <div
-                  className="w-full xl:w-1/3 flex justify-end cursor-pointer"
-                  onClick={() => {
-                    setIsMainFormCollapsed((prev) => !prev);
-                  }}
-                >
-                  <p>
-                    {isMainFormCollapsed !== undefined
-                      ? isMainFormCollapsed
-                        ? "펴기▼"
-                        : "접기▲"
-                      : null}
-                  </p>
-                </div>
-              </div>
-              <div className="w-full mt-3">
-                <label className="block p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 w-full">
-                  {beachName}
-                </label>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center">
-            <div className="w-full flex flex-col mb-2">
-              <div className="flex w-full justify-between">
-                <label className="w-full">
-                  <img src={dot} alt="dot" className="w-1 me-2 inline" />
-                  해안명
-                </label>
-                {isMainFormCollapsed !== undefined && (
+      <div className="absolute top-14 bottom-32 overflow-y-auto w-full p-3">
+        <div className="w-full xl:w-1/3 border border-black rounded-md mb-2 p-6">
+          {isMainFormCollapsed ? (
+            <div className="flex flex-col items-center justify-center">
+              <div className="w-full flex flex-col mb-2">
+                <div className="flex w-full justify-between">
+                  <label className="w-full">
+                    <img src={dot} alt="dot" className="w-1 me-2 inline" />
+                    해안명
+                  </label>
                   <div
                     className="w-full xl:w-1/3 flex justify-end cursor-pointer"
                     onClick={() => {
@@ -268,177 +238,211 @@ const ResearchMainPage = () => {
                         : null}
                     </p>
                   </div>
-                )}
-              </div>
-              <div className="w-full mt-3">
-                <input
-                  value={beachName}
-                  onChange={handleBeachNameChange}
-                  className="block p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 w-full"
-                  list="beachoptions"
-                  placeholder="해안명을 입력하세요"
-                />
-                <datalist id="beachoptions">
-                  {beachNameOptions.map((option, index) => (
-                    <option key={index} value={option} />
-                  ))}
-                </datalist>
-              </div>
-              {/* 이쁘게 바꾸기 */}
-            </div>
-            <div className="w-full flex flex-col justify-start mb-2">
-              <label className="inline mb-2">
-                <img src={dot} alt="dot" className="w-1 me-2 inline" />
-                조사 인원
-              </label>
-              <div className="flex items-center justify-between">
-                <input
-                  value={inputName}
-                  onChange={handleInputNameChange}
-                  className="p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-10"
-                  list="nameoptions"
-                />
-                <datalist id="nameoptions">
-                  {inputNameOptions.map((option, index) => (
-                    <option key={index} value={option} />
-                  ))}
-                </datalist>
-                <div className="ml-2">
-                  <img
-                    src={plus}
-                    alt="plus"
-                    className="inline w-8 cursor-pointer"
-                    onClick={() => {
-                      handleValidTeam(inputName);
-                    }}
-                  />
+                </div>
+                <div className="w-full mt-3">
+                  <label className="block p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 w-full">
+                    {beachName}
+                  </label>
                 </div>
               </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center">
+              <div className="w-full flex flex-col mb-2">
+                <div className="flex w-full justify-between">
+                  <label className="w-full">
+                    <img src={dot} alt="dot" className="w-1 me-2 inline" />
+                    해안명
+                  </label>
+                  {isMainFormCollapsed !== undefined && (
+                    <div
+                      className="w-full xl:w-1/3 flex justify-end cursor-pointer"
+                      onClick={() => {
+                        setIsMainFormCollapsed((prev) => !prev);
+                      }}
+                    >
+                      <p>
+                        {isMainFormCollapsed !== undefined
+                          ? isMainFormCollapsed
+                            ? "펴기▼"
+                            : "접기▲"
+                          : null}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className="w-full mt-3">
+                  <input
+                    value={beachName}
+                    onChange={handleBeachNameChange}
+                    className="block p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 w-full"
+                    list="beachoptions"
+                    placeholder="해안명을 입력하세요"
+                  />
+                  <datalist id="beachoptions">
+                    {beachNameOptions.map((option, index) => (
+                      <option key={index} value={option} />
+                    ))}
+                  </datalist>
+                </div>
+                {/* 이쁘게 바꾸기 */}
+              </div>
+              <div className="w-full flex flex-col justify-start mb-2">
+                <label className="inline mb-2">
+                  <img src={dot} alt="dot" className="w-1 me-2 inline" />
+                  조사 인원
+                </label>
+                <div className="flex items-center justify-between">
+                  <input
+                    value={inputName}
+                    onChange={handleInputNameChange}
+                    className="p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-10"
+                    list="nameoptions"
+                  />
+                  <datalist id="nameoptions">
+                    {inputNameOptions.map((option, index) => (
+                      <option key={index} value={option} />
+                    ))}
+                  </datalist>
+                  <div className="ml-2">
+                    <img
+                      src={plus}
+                      alt="plus"
+                      className="inline w-8 cursor-pointer"
+                      onClick={() => {
+                        handleValidTeam(inputName);
+                      }}
+                    />
+                  </div>
+                </div>
 
-              {teamList.length > 0 && (
-                <ul className="flex flex-wrap gap-2">
-                  {teamList.map((team, index) => (
-                    <li key={index} className="my-1 me-1 flex items-center">
-                      <div className="flex items-center justify-between p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600">
-                        <span>{team}</span>
-                        <img
-                          src={cancel}
-                          alt="cancel"
-                          className="inline w-5 ms-1 cursor-pointer"
-                          onClick={() => handleDeleteTeam(team)}
-                        />
-                      </div>
+                {teamList.length > 0 && (
+                  <ul className="flex flex-wrap gap-2">
+                    {teamList.map((team, index) => (
+                      <li key={index} className="my-1 me-1 flex items-center">
+                        <div className="flex items-center justify-between p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600">
+                          <span>{team}</span>
+                          <img
+                            src={cancel}
+                            alt="cancel"
+                            className="inline w-5 ms-1 cursor-pointer"
+                            onClick={() => handleDeleteTeam(team)}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="w-full flex flex-col justify-start mb-2">
+                <label className="inline mb-1">
+                  <img src={dot} alt="dot" className="w-1 me-2 inline" />
+                  자연재해 유무
+                </label>
+                <p className="text-xs">
+                  최근 5일 이내 발생한 자연재해를 선택해 주세요
+                </p>
+              </div>
+              <div className="w-full">
+                <ul className="items-center">
+                  {NaturalDisasterList.map((list, index) => (
+                    <li key={index} className="text-start">
+                      <CheckBoxWithLabel
+                        checked={selected === index}
+                        onChange={() => handleCheckboxChange(index)}
+                      >
+                        {list}
+                      </CheckBoxWithLabel>
                     </li>
                   ))}
                 </ul>
-              )}
+              </div>
             </div>
-            <div className="w-full flex flex-col justify-start mb-2">
-              <label className="inline mb-1">
-                <img src={dot} alt="dot" className="w-1 me-2 inline" />
-                자연재해 유무
-              </label>
-              <p className="text-xs">
-                최근 5일 이내 발생한 자연재해를 선택해 주세요
-              </p>
-            </div>
-            <div className="w-full">
-              <ul className="items-center">
-                {NaturalDisasterList.map((list, index) => (
-                  <li key={index} className="text-start">
-                    <CheckBoxWithLabel
-                      checked={selected === index}
-                      onChange={() => handleCheckboxChange(index)}
-                    >
-                      {list}
-                    </CheckBoxWithLabel>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          )}
+        </div>
+
+        {isResearching && <CameraController setSource={setFormImgs} />}
+
+        {/* subs 의 길이에 따라 formsub 렌더링, 있는건 데이터 가져와서 렌더링, 마지막에 빈거 한개 렌더링 */}
+        {isResearching && (
+          <div className="w-full xl:w-1/3 mt-2">
+            {/* 완료된 서브 폼들 (접힌 상태로 표시) */}
+            {subs.map((sub, index) => (
+              <FormSub
+                key={index}
+                beachName={beachName}
+                subIdx={index}
+                isCollapsed={sub.isCollapsed}
+                setCollapse={() =>
+                  setSubs((prevSubs) => {
+                    return prevSubs.map((sub, i) => {
+                      if (i === index) {
+                        return {
+                          ...sub,
+                          isCollapsed: !sub.isCollapsed,
+                        };
+                      }
+                      return sub;
+                    });
+                  })
+                }
+                deleteSub={() =>
+                  setSubs((prevSubs) => prevSubs.filter((_, i) => i !== index))
+                }
+                _trashAmount={sub.trashAmount}
+                mainTrashIndex={sub.data.mainTrashType}
+              />
+            ))}
+
+            {/* 현재 작성 중인 서브 폼 */}
+            {isSubOnWrite && (
+              <FormSub
+                beachName={beachName}
+                subIdx={subs.length}
+                setSubs={setSubs}
+                setSubWrite={setIsSubOnWrite}
+                startcoord={startCoords}
+                setAmount={setTrashAmount}
+                isCollapsed={undefined}
+                onComplete={() => {
+                  setIsSubOnWrite(false);
+                }}
+              />
+            )}
           </div>
         )}
       </div>
 
-      {isResearching && <CameraController setSource={setFormImgs} />}
+      <div className="fixed bottom-14 left-0 w-full xl:w-1/3 mt-3 flex flex-col justify-center">
+        <div className="w-full mt-3 flex items-center p-2">
+          {!isResearching && isMainFormComplete && (
+            <Button
+              className="w-full py-3 rounded-lg"
+              color="blue"
+              onClick={handleStartResearch}
+            >
+              조사시작
+            </Button>
+          )}
 
-      {/* subs 의 길이에 따라 formsub 렌더링, 있는건 데이터 가져와서 렌더링, 마지막에 빈거 한개 렌더링 */}
-      {isResearching && (
-        <div className="w-full xl:w-1/3 mt-2">
-          {/* 완료된 서브 폼들 (접힌 상태로 표시) */}
-          {subs.map((sub, index) => (
-            <FormSub
-              key={index}
-              beachName={beachName}
-              subIdx={index}
-              isCollapsed={sub.isCollapsed}
-              setCollapse={() =>
-                setSubs((prevSubs) => {
-                  return prevSubs.map((sub, i) => {
-                    if (i === index) {
-                      return {
-                        ...sub,
-                        isCollapsed: !sub.isCollapsed,
-                      };
-                    }
-                    return sub;
-                  });
-                })
-              }
-              deleteSub={() =>
-                setSubs((prevSubs) => prevSubs.filter((_, i) => i !== index))
-              }
-              _trashAmount={sub.trashAmount}
-              mainTrashIndex={sub.data.mainTrashType}
-            />
-          ))}
-
-          {/* 현재 작성 중인 서브 폼 */}
-          {isSubOnWrite && (
-            <FormSub
-              beachName={beachName}
-              subIdx={subs.length}
-              setSubs={setSubs}
-              setSubWrite={setIsSubOnWrite}
-              startcoord={startCoords}
-              setAmount={setTrashAmount}
-              isCollapsed={undefined}
-              onComplete={() => {
-                setIsSubOnWrite(false);
-              }}
-            />
+          {isResearching && !isSubOnWrite && (
+            <Button
+              className="w-full py-3 rounded-lg"
+              color="blue"
+              onClick={handleAddNewSubForm}
+            >
+              구역 추가
+            </Button>
           )}
         </div>
-      )}
 
-      <div className="w-full xl:w-1/3 mt-3">
-        {!isResearching && isMainFormComplete && (
-          <Button
-            className="w-full py-4 rounded-lg"
-            color="blue"
-            onClick={handleStartResearch}
-          >
-            조사시작
-          </Button>
-        )}
-
-        {isResearching && !isSubOnWrite && (
-          <Button
-            className="w-full py-4 rounded-lg"
-            color="blue"
-            onClick={handleAddNewSubForm}
-          >
-            구역 추가
-          </Button>
-        )}
-
-        <div className="w-full mt-3 flex">
-          <div className="w-1/2 m-1">
+        <div className="w-full mt-1 flex items-center p-2 gap-2">
+          <div className="w-1/2">
             <Button className="w-full py-3 rounded-lg" color="blue">
               임시저장
             </Button>
           </div>
-          <div className="w-1/2 m-1">
+          <div className="w-1/2">
             <Button
               className="w-full py-3 rounded-lg"
               color={canSubmitForm ? "blue" : "gray"}

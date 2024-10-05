@@ -50,3 +50,23 @@ export const updateToNeeded = async (spotId) => {
 
   return res.data;
 };
+
+export const getImageByFileName = async (filename) => {
+  console.log(
+    "-----------pickUp get api called by: imageName( ",
+    filename,
+    " )"
+  );
+
+  const res = await jwtAxios.get(`${prefix}/view/${filename}`, {
+    responseType: "blob",
+  });
+
+  console.log("-----------pickUp get api response: ", res);
+
+  const url = URL.createObjectURL(res.data);
+
+  console.log("-----------file to blob: ", url);
+
+  return url;
+};

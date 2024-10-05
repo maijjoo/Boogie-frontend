@@ -182,11 +182,11 @@ const CleaningMainPage = () => {
   };
 
   return (
-    <div className="w-full max-h-full flex flex-col items-center px-3">
+    <div className="w-full h-dvh flex flex-col items-center p-3">
       <MobileHeader>청소 보고서</MobileHeader>
 
       {/* 메인 폼 */}
-      <div className="w-full xl:w-1/3 border border-black rounded-md mt-4 mb-2 p-6">
+      <div className="w-full xl:w-1/3 mt-12 xl:mt-14 border border-black rounded-md p-3">
         {isMainFormCollapsed ? (
           <div className="flex flex-col items-center justify-center">
             <div className="w-full flex flex-col mb-2">
@@ -344,24 +344,26 @@ const CleaningMainPage = () => {
         </div>
       )}
 
-      <div className="w-full xl:w-1/3 mt-3">
-        {!isCleaning && isMainFormComplete && (
-          <Button
-            className="w-full py-4 rounded-lg"
-            color="blue"
-            onClick={handleStartCleaning}
-          >
-            청소시작
-          </Button>
-        )}
+      <div className="fixed bottom-14 left-0 w-full xl:w-1/3 mt-3 flex flex-col justify-center">
+        <div className="w-full mt-3 flex items-center p-2">
+          {!isCleaning && isMainFormComplete && (
+            <Button
+              className="w-full py-3 rounded-lg"
+              color="blue"
+              onClick={handleStartCleaning}
+            >
+              청소시작
+            </Button>
+          )}
+        </div>
 
-        <div className="w-full mt-3 flex">
-          <div className="w-1/2 m-1">
+        <div className="w-full mt-1 flex items-center p-2 gap-2">
+          <div className="w-1/2">
             <Button className="w-full py-3 rounded-lg" color="blue">
               임시저장
             </Button>
           </div>
-          <div className="w-1/2 m-1">
+          <div className="w-1/2">
             <Button
               className="w-full py-3 rounded-lg"
               color={canSubmitForm ? "blue" : "gray"}

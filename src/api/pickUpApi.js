@@ -1,7 +1,7 @@
 import { API_SERVER_HOST } from "./commonApi";
 import jwtAxios from "../util/jwtUtil";
 
-const prefix = `${API_SERVER_HOST}/api/pickUp`;
+const prefix = `${API_SERVER_HOST}/api/pick-up`;
 
 export const postAdd = async (pickUpobj) => {
   console.log("-------" + pickUpobj.get("json"));
