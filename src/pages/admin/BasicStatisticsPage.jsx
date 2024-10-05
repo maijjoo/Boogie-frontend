@@ -18,6 +18,11 @@ const BasicStatisticsPage = () => {
   const [monthlyData, setMonthlyData] = useState([]); // 월별 데이터를 저장할 상태
   const [dailyData, setDailyData] = useState([]); // 일별 데이터를 저장할 상태
   const [chartData, setChartData] = useState([]); // 차트에 사용할 데이터 상태
+  const [selectedYear, setSelectedYear] = useState(""); // YearCondition에서 선택한 연도 상태
+
+  const handleYearChange = (year) => {
+    setSelectedYear(year);
+  };
 
   // yearlyData가 변경될 때마다 차트 데이터를 업데이트
   useEffect(() => {
@@ -97,10 +102,13 @@ const BasicStatisticsPage = () => {
                 setActiveTab={setActiveTab}
               />
               {/* BeachCondition에서 데이터 상태를 업데이트하도록 설정 */}
-              <BeachCondition onMonthlyDataChange={setMonthlyData} />
+              <BeachCondition
+                onMonthlyDataChange={setMonthlyData}
+                selectedYear={selectedYear}
+              />
               <Search />
             </div>
-            <YearCondition />
+            <YearCondition onChangeYear={handleYearChange} />
           </div>
         )}
 
