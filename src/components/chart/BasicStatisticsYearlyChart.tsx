@@ -11,10 +11,25 @@ import {
 } from "recharts";
 
 const BasicStatisticsYearlyChart = ({ data }) => {
+  const fixedYears = ["2019년", "2020년", "2021년", "2022년", "2023년"];
+
+  const filledData = fixedYears.map((year) => {
+    const found = data.find((item) => item.name === year);
+    return (
+      found || {
+        name: year,
+        폐어구류: 0,
+        초목류: 0,
+        "대형 투기쓰레기류": 0,
+        생활쓰레기류: 0,
+        부표류: 0,
+      }
+    );
+  });
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart
-        data={data} // 부모 컴포넌트에서 받은 데이터로 차트를 렌더링
+        data={filledData} // 부모 컴포넌트에서 받은 데이터로 차트를 렌더링
         margin={{
           top: 20,
           right: 20,
@@ -24,7 +39,7 @@ const BasicStatisticsYearlyChart = ({ data }) => {
         barCategoryGap="10%"
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
+        <XAxis dataKey="name" ticks={fixedYears} />
         <YAxis />
         <Tooltip />
         <Legend wrapperStyle={{ paddingLeft: "40px" }} />

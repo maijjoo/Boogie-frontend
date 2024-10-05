@@ -16,7 +16,7 @@ const Search = ({ condition, searchParam, onSearch }) => {
       onClick={onSearch}
     >
       <img src={searchIcon} alt="searchIcon" className="w-5 h-5" />
-      <div>검색</div>
+      <div className="ms-2">검색</div>
     </button>
   );
 };
