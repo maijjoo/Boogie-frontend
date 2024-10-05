@@ -10,7 +10,7 @@ const BeachCondition = ({
   selectedYear = "",
   selectedYears = "",
   selectedMonth = "",
-  onSearch,
+  onSearch = () => {},
 }) => {
   const [guGunOptions, setGuGunOptions] = useState([]);
   const [beachOptions, setBeachOptions] = useState([]);
