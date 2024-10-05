@@ -13,7 +13,7 @@ const YearCondition = ({ onChangeYear }) => {
       </div>
       <div>
         <select
-          className="p-2 w-30 border rounded-s border-gray-300 mr-3"
+          className="p-2 w-44 border rounded-s border-gray-300 mr-3"
           onChange={handleYearChange} // 연도 선택 시 이벤트 핸들러 호출
         >
           <option value="">선택</option>
