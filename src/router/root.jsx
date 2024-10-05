@@ -11,7 +11,7 @@ import {
   PickUpMain,
   CollectingMain,
   BasicStatistics,
-  MainTrashDistributionChart,
+  MainTrashDistribution,
 } from "../pages/lazyLoadPages.js";
 
 const root = createBrowserRouter([
@@ -57,8 +57,8 @@ const root = createBrowserRouter([
     element: <BasicStatistics />,
   },
   {
-    path: "MainTrashDistributionChart",
-    element: <MainTrashDistributionChart />,
+    path: "mainTrashDistribution",
+    element: <MainTrashDistribution />,
   },
 ]);
 
