@@ -116,7 +116,12 @@ const BasicStatisticsPage = () => {
                 setActiveTab={setActiveTab}
               />
               {/* BeachCondition에서 데이터 상태를 업데이트하도록 설정 */}
-              <BeachCondition onYearlyDataChange={setYearlyData} />
+              <BeachCondition
+                onYearlyDataChange={setYearlyData}
+                onSearch={(selectedBeach) =>
+                  console.log("선택된 해안:", selectedBeach)
+                }
+              />
             </div>
           </div>
         )}

@@ -30,7 +30,7 @@ const BasicStatisticsDailyChart = ({ data, selectedYears, selectedMonth }) => {
           name: day,
           폐어구류: 0,
           초목류: 0,
-          대형투기쓰레기류: 0,
+          "대형 투기쓰레기류": 0,
           생활쓰레기류: 0,
           부표류: 0,
           합계: 0,
@@ -74,7 +74,7 @@ const BasicStatisticsDailyChart = ({ data, selectedYears, selectedMonth }) => {
         />
         <Line
           type="monotone"
-          dataKey="대형투기쓰레기류"
+          dataKey="대형 투기쓰레기류"
           stroke="#82ca9d"
           strokeWidth={2}
         />
