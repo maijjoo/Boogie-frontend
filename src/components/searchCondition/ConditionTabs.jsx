@@ -1,6 +1,6 @@
 import React from "react";
 
-const ConditionTabs = ({ activeTab, setActiveTab }) => {
+const ConditionTabs = ({ activeTab, setActiveTab, initSearchParam }) => {
   return (
     <div className="flex items-center justify-center space-x-4 h-16 me-10">
       {/* 버튼 탭: 클릭 시 setActiveTab 함수 호출하여 activeTab 상태 변경 */}
@@ -10,7 +10,10 @@ const ConditionTabs = ({ activeTab, setActiveTab }) => {
             ? "bg-blue-700 text-white" // 활성화된 탭
             : "bg-white text-blue-700 border-2 border-blue-700" // 비활성화된 탭
         } text-[12pt] rounded-lg transition-colors duration-200`}
-        onClick={() => setActiveTab("year")}
+        onClick={() => {
+          setActiveTab("year");
+          initSearchParam({ year: null, month: null, start: null, end: null });
+        }}
       >
         연도별
       </button>
@@ -20,7 +23,10 @@ const ConditionTabs = ({ activeTab, setActiveTab }) => {
             ? "bg-blue-700 text-white" // 활성화된 탭
             : "bg-white text-blue-700 border-2 border-blue-700" // 비활성화된 탭
         } text-[12pt] rounded-lg transition-colors duration-200`}
-        onClick={() => setActiveTab("month")}
+        onClick={() => {
+          setActiveTab("month");
+          initSearchParam({ year: null, month: null, start: null, end: null });
+        }}
       >
         월별
       </button>
@@ -30,7 +36,10 @@ const ConditionTabs = ({ activeTab, setActiveTab }) => {
             ? "bg-blue-700 text-white" // 활성화된 탭
             : "bg-white text-blue-700 border-2 border-blue-700" // 비활성화된 탭
         } text-[12pt] rounded-lg transition-colors duration-200`}
-        onClick={() => setActiveTab("day")}
+        onClick={() => {
+          setActiveTab("day");
+          initSearchParam({ year: null, month: null, start: null, end: null });
+        }}
       >
         일별
       </button>

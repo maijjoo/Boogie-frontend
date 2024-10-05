@@ -8,9 +8,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { replace, useNavigate } from "react-router-dom";
 import KakaoMap from "../../components/commons/KakaoMap";
-import { getSearched } from "../../api/mainTrashDistributionApi";
+import { getPredicted } from "../../api/pickupPredictApi";
 
-const MainTrashDistributionPage = () => {
+const PickupPredictPage = () => {
   const { isLoggedIn, role } = useAuth();
   const navigate = useNavigate();
   const [condition, setCondition] = useState("year");
@@ -21,7 +21,8 @@ const MainTrashDistributionPage = () => {
     start: null,
     end: null,
   });
-  const [searchedData, setSearchedData] = useState([]);
+  const [predictedData, setPredictedData] = useState([]);
+  const [trashs, setTrashs] = useState([]);
 
   useEffect(() => {
     if (!isLoggedIn || role !== "ADMIN") {
@@ -51,7 +52,7 @@ const MainTrashDistributionPage = () => {
     getLocation();
   }, []);
 
-  const getSearchData = () => {
+  const getPredictedData = () => {
     if (condition === "year" && searchParam.year !== null) {
       setSearchParam((prev) => ({
         year: prev.year,
@@ -83,27 +84,60 @@ const MainTrashDistributionPage = () => {
       }));
     }
 
-    const doSearch = async () => {
+    const doPredict = async () => {
       try {
-        const res = await getSearched(searchParam);
+        const res = await getPredicted(searchParam);
         if (res.data && res.data.length > 0) {
           console.log(res);
+          const mergedData = res.data.reduce((acc, curr) => {
+            // 현재 구역이 이미 결과 배열에 있는지 확인
+            const existing = acc.find(
+              (item) => item.beachName === curr.beachName
+            );
 
-          setSearchedData(res.data);
+            if (existing) {
+              // 이미 있는 구역이면 쓰레기양을 합산
+              existing.expectedTrashAmount += curr.expectedTrashAmount;
+            } else {
+              acc.push({ ...curr });
+            }
+
+            return acc;
+          }, []);
+          setPredictedData(mergedData);
+          const trashAmounts = mergedData.map(
+            (item) => item.expectedTrashAmount
+          );
+          const minTrashAmount = Math.min(...trashAmounts);
+          const maxTrashAmount = Math.max(...trashAmounts);
+          const range = (maxTrashAmount - minTrashAmount) / 5;
+          const bins = [];
+
+          for (let i = 0; i < 5; i++) {
+            const binMin = Math.round(minTrashAmount + range * i);
+            const binMax = Math.round(minTrashAmount + range * (i + 1));
+
+            bins.push({
+              binMin: binMin,
+              binMax: binMax,
+              label: `${binMax} ~ ${binMin} 톤(t)`,
+            });
+          }
+          setTrashs(bins);
         }
       } catch (error) {
         console.log(error);
       }
     };
 
-    doSearch();
+    doPredict();
   };
 
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
         <h1 className="text-xl font-bold mb-2 text-blue-700">
-          주요 쓰레기 분포
+          수거 예측량 분포
         </h1>
         {/* 조건 선택 탭 */}
         <div className="bg-white rounded-lg shadow px-14 py-4 mb-8 h-24">
@@ -128,7 +162,7 @@ const MainTrashDistributionPage = () => {
               )}
               <Search
                 condition={condition}
-                onSearch={getSearchData}
+                onSearch={getPredictedData}
                 searchParam={searchParam}
               />
             </div>
@@ -136,37 +170,45 @@ const MainTrashDistributionPage = () => {
         </div>
 
         <div className="flex flex-col items-center bg-white rounded-lg shadow px-14 py-14 mb-8 h-[700px]">
-          <KakaoMap myCoords={myCoords} searchedData={searchedData} />
-          <div className="w-full flex flex-wrap justify-center mt-4">
-            <div className="flex items-center mr-4">
-              <div className="w-4 h-4 bg-[#EB3223] mr-2"></div>
-              <span className="text-[#EB3223] font-extrabold">부표류</span>
+          <KakaoMap myCoords={myCoords} predictedData={predictedData} />
+          {trashs && trashs.length > 0 && (
+            <div className="w-full flex flex-wrap justify-center mt-4">
+              <div className="flex items-center mr-4">
+                <div className="w-4 h-4 bg-[#EB3223] mr-2"></div>
+                <span className="text-[#EB3223] font-extrabold">
+                  {trashs[4].label}
+                </span>
+              </div>
+              <div className="flex items-center mr-4">
+                <div className="w-4 h-4 bg-[#F29D38] mr-2"></div>
+                <span className="text-[#F29D38] font-extrabold">
+                  {trashs[3].label}
+                </span>
+              </div>
+              <div className="flex items-center mr-4">
+                <div className="w-4 h-4 bg-[#00D93A] mr-2"></div>
+                <span className="text-[#00D93A] font-extrabold">
+                  {trashs[2].label}
+                </span>
+              </div>
+              <div className="flex items-center mr-4">
+                <div className="w-4 h-4 bg-[#8B2CF5] mr-2"></div>
+                <span className="text-[#8B2CF5] font-extrabold">
+                  {trashs[1].label}
+                </span>
+              </div>
+              <div className="flex items-center mr-4">
+                <div className="w-4 h-4 bg-[#0021F5] mr-2"></div>
+                <span className="text-[#0021F5] font-extrabold">
+                  {trashs[0].label}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center mr-4">
-              <div className="w-4 h-4 bg-[#F29D38] mr-2"></div>
-              <span className="text-[#F29D38] font-extrabold">
-                생활쓰레기류
-              </span>
-            </div>
-            <div className="flex items-center mr-4">
-              <div className="w-4 h-4 bg-[#00D93A] mr-2"></div>
-              <span className="text-[#00D93A] font-extrabold">
-                대형 투기쓰레기류
-              </span>
-            </div>
-            <div className="flex items-center mr-4">
-              <div className="w-4 h-4 bg-[#8B2CF5] mr-2"></div>
-              <span className="text-[#8B2CF5] font-extrabold">초목류</span>
-            </div>
-            <div className="flex items-center mr-4">
-              <div className="w-4 h-4 bg-[#0021F5] mr-2"></div>
-              <span className="text-[#0021F5] font-extrabold">폐어구류</span>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </SidebarLayout>
   );
 };
 
-export default MainTrashDistributionPage;
+export default PickupPredictPage;
