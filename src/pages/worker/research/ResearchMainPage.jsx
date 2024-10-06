@@ -210,11 +210,11 @@ const ResearchMainPage = () => {
   };
 
   return (
-    <div className="w-full overflow-hidden h-dvh flex flex-col items-center p-3">
+    <div className="w-full flex flex-col items-center p-3">
       <MobileHeader>조사 보고서</MobileHeader>
 
       {/* 메인 폼 */}
-      <div className="absolute top-14 bottom-32 overflow-y-auto w-full p-3">
+      <div className="w-full p-3">
         <div className="w-full xl:w-1/3 border border-black rounded-md mb-2 p-6">
           {isMainFormCollapsed ? (
             <div className="flex flex-col items-center justify-center">
@@ -414,8 +414,8 @@ const ResearchMainPage = () => {
         )}
       </div>
 
-      <div className="fixed bottom-14 left-0 w-full xl:w-1/3 mt-3 flex flex-col justify-center">
-        <div className="w-full mt-3 flex items-center p-2">
+      <div className="w-full xl:w-1/3 mt-3 flex flex-col justify-center">
+        <div className="w-full mt-7 flex items-center p-2">
           {!isResearching && isMainFormComplete && (
             <Button
               className="w-full py-3 rounded-lg"
@@ -437,7 +437,7 @@ const ResearchMainPage = () => {
           )}
         </div>
 
-        <div className="w-full mt-1 flex items-center p-2 gap-2">
+        <div className="w-full mt-1 mb-5 flex items-center p-2 gap-2">
           <div className="w-1/2">
             <Button className="w-full py-3 rounded-lg" color="blue">
               임시저장
