@@ -57,7 +57,7 @@ const Login = () => {
   return (
     <div className="w-full h-dvh flex flex-col items-center">
       <div className="flex items-center mt-3">
-        <img className="w-52 xl:w-64" src={logo} alt="logo" />
+        <img className="w-44 xl:w-64" src={logo} alt="logo" />
       </div>
 
       <div className="w-full flex flex-col mt-9 px-4 items-center">
@@ -110,7 +110,7 @@ const Login = () => {
         <p>비밀번호 찾기</p>
       </div>
 
-      <div className="flex items-center mt-4 justify-end">
+      <div className="flex items-center mt-auto justify-end">
         <img className="w-full" src={wave} alt="wave" />
       </div>
     </div>
