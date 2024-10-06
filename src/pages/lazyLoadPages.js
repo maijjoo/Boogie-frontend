@@ -29,3 +29,4 @@ export const PickupPredict = lazy(() =>
   import("./admin/PickupPredictPage.jsx")
 );
 export const NewWorks = lazy(() => import("./admin/NewWorksPage.jsx"));
+export const AiAnalysis = lazy(() => import("./admin/AiAnalysis.jsx"));
