@@ -74,6 +74,12 @@ const CleaningMainPage = () => {
   };
 
   useEffect(() => {
+    if (result === "success") {
+      navigate("/cleaningSelect");
+    }
+  }, [result, navigate]);
+
+  useEffect(() => {
     if (!isLoggedIn) {
       navigate("/", { replace: true });
     }
@@ -182,11 +188,12 @@ const CleaningMainPage = () => {
   };
 
   return (
-    <div className="w-full h-dvh flex flex-col items-center p-3">
+    <div className="w-full h-full flex flex-col items-center p-3">
       <MobileHeader>청소 보고서</MobileHeader>
 
       {/* 메인 폼 */}
-      <div className="w-full xl:w-1/3 mt-12 xl:mt-14 border border-black rounded-md p-3">
+
+      <div className="w-full xl:w-1/3 mt-6 xl:mt-14 border border-black rounded-md p-3">
         {isMainFormCollapsed ? (
           <div className="flex flex-col items-center justify-center">
             <div className="w-full flex flex-col mb-2">
@@ -344,7 +351,7 @@ const CleaningMainPage = () => {
         </div>
       )}
 
-      <div className="fixed bottom-14 left-0 w-full xl:w-1/3 mt-3 flex flex-col justify-center">
+      <div className="w-full xl:w-1/3 flex flex-col justify-center">
         <div className="w-full mt-3 flex items-center p-2">
           {!isCleaning && isMainFormComplete && (
             <Button
