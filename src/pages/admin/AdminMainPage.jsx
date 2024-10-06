@@ -10,6 +10,8 @@ const AdminMainPage = () => {
   useEffect(() => {
     if (!isLoggedIn || role !== "ADMIN") {
       navigate("/", { replace: true });
+    } else {
+      navigate("/mainTrashDistribution");
     }
   }, [isLoggedIn, role, navigate]);
 

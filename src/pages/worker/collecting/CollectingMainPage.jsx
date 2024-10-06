@@ -190,15 +190,10 @@ const CollectingMainPage = () => {
   };
 
   return (
-    <div className="w-full flex flex-col items-center px-3 h-screen">
+    <div className="w-full h-screen flex flex-col items-center px-3">
       <MobileHeader>집하지 지도</MobileHeader>
-      <div className="py-12 xl:py-14">
-        <div
-          className={`fixed left-0 w-full transition-all duration-300 bg-gray-200 z-10 ${
-            isMapExpanded ? "top-14 bottom-14" : "h-[40vh] top-14"
-          }`}
-          onDoubleClick={toggleMap}
-        >
+      <div className="py-5 h-full xl:py-7">
+        <div className="w-full h-full bg-gray-200" onDoubleClick={toggleMap}>
           <div className="w-full h-full flex items-center justify-center border border-black rounded-md">
             <KakaoMap
               myCoords={myCoords}
@@ -208,12 +203,8 @@ const CollectingMainPage = () => {
             />
           </div>
         </div>
-        <div
-          className={`${
-            isMapExpanded ? "hidden" : "relative"
-          } mt-[50vh] pb-4 z-0`}
-        >
-          <div className="max-w-lg mx-auto px-4">
+        {/* <div className={`${isMapExpanded ? "hidden" : "relative"} pb-4 z-0`}>
+          <div className="max-w-lg px-4">
             {isOnDetailed && (
               <DetailedSpot
                 fetchAddress={fetchAddress}
@@ -238,7 +229,7 @@ const CollectingMainPage = () => {
                 />
               ))}
           </div>
-        </div>
+        </div> */}
       </div>
       <MobileFooter homeroot={"/collectingMain"} />
     </div>
