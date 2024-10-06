@@ -125,7 +125,7 @@ const Sidebar = () => {
                 기초 통계
               </Link>
               <Link
-                to={"/"}
+                to={"/aiAnalysis"}
                 className={`text-[#1E1E23] font-semibold cursor-pointer hover:text-[#014EB6] hover:font-semibold ${
                   activeSubMenu === "ai" ? "!text-[#014EB6] !font-semibold" : ""
                 }`}
