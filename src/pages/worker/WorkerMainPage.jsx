@@ -67,7 +67,7 @@ const WorkerMainPage = () => {
         </Button>
       </div>
 
-      <div className="flex items-center mt-4 justify-end">
+      <div className="flex items-end mt-auto w-full">
         <img className="w-full" src={wave} alt="wave" />
       </div>
     </div>
