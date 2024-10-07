@@ -21,25 +21,25 @@ const CameraController = ({ setSource }) => {
     fileInputRef.current.click();
   };
   return (
-    <div className="w-full xl:w-1/3 h-fit p-3 mt-3 flex flex-col border border-gray-600 rounded-md shadow-md">
+    <div className="w-full xl:w-1/3 h-fit p-3 mt-3 flex flex-col border bg-white border-gray-400 rounded-md">
       <div className="my-2">
-        <label>
+        <label className="font-semibold">
           <img src={dot} alt="dot" className="w-1 me-2 inline" />
           해안가 사진
         </label>
       </div>
-      <div className="border border-black rounded-md w-full overflow-x-auto">
-        <div className="flex p-2">
+      <div className="w-full overflow-x-auto">
+        <div className="flex p-2 gap-2">
           <div
             onClick={sources.length >= 30 ? null : handleSvgClick}
-            className="flex-shrink-0 w-24 h-24 flex items-center justify-center cursor-pointer border border-dashed border-gray-300 rounded-md"
+            className="flex-shrink-0 w-24 h-24 flex items-center justify-center cursor-pointer border border-solid border-black rounded-md"
           >
             <img src={addImage} alt="add Image" className="w-8 h-8" />
           </div>
           {sources.map((source, index) => (
             <div
               key={index}
-              className="flex-shrink-0 w-24 h-24 mr-2 cursor-pointer"
+              className="flex-shrink-0 w-24 h-24 cursor-pointer"
               onClick={() => {
                 if (confirm("사진을 삭제하시겠습니까?")) {
                   setSources(
@@ -51,7 +51,7 @@ const CameraController = ({ setSource }) => {
               <img
                 src={source}
                 alt={`snap-${index}`}
-                className="w-full h-full object-cover rounded-md"
+                className="w-full h-full object-cover rounded-md border border-black"
               />
             </div>
           ))}
