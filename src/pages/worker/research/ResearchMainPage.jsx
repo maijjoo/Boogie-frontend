@@ -210,17 +210,17 @@ const ResearchMainPage = () => {
   };
 
   return (
-    <div className="w-full flex flex-col items-center p-3">
-      <MobileHeader>조사 보고서</MobileHeader>
+    <div className="w-full flex flex-col items-center bg-gray-50">
+      <MobileHeader className="fixed top-0 z-50 ">조사 보고서</MobileHeader>
 
       {/* 메인 폼 */}
-      <div className="w-full p-3">
-        <div className="w-full xl:w-1/3 border border-black rounded-md mb-2 p-6">
+      <div className="w-full px-5 p-3 mt-12 mb-24 bg-gray-50">
+        <div className="w-full xl:w-1/3 border border-gray-400 rounded-md mb-2 p-4 bg-white">
           {isMainFormCollapsed ? (
             <div className="flex flex-col items-center justify-center">
-              <div className="w-full flex flex-col mb-2">
+              <div className="w-full flex flex-col mb-4">
                 <div className="flex w-full justify-between">
-                  <label className="w-full">
+                  <label className="w-full font-semibold">
                     <img src={dot} alt="dot" className="w-1 me-2 inline" />
                     해안명
                   </label>
@@ -248,9 +248,9 @@ const ResearchMainPage = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center">
-              <div className="w-full flex flex-col mb-2">
+              <div className="w-full flex flex-col mb-4">
                 <div className="flex w-full justify-between">
-                  <label className="w-full">
+                  <label className="w-full font-semibold">
                     <img src={dot} alt="dot" className="w-1 me-2 inline" />
                     해안명
                   </label>
@@ -287,8 +287,8 @@ const ResearchMainPage = () => {
                 </div>
                 {/* 이쁘게 바꾸기 */}
               </div>
-              <div className="w-full flex flex-col justify-start mb-2">
-                <label className="inline mb-2">
+              <div className="w-full flex flex-col justify-start mb-4">
+                <label className="inline mb-2 font-semibold">
                   <img src={dot} alt="dot" className="w-1 me-2 inline" />
                   조사 인원
                 </label>
@@ -297,7 +297,7 @@ const ResearchMainPage = () => {
                     value={inputName}
                     onChange={handleInputNameChange}
                     placeholder="조사자를 입력해 주세요"
-                    className="p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-10"
+                    className="p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-2"
                     list="nameoptions"
                   />
                   <datalist id="nameoptions">
@@ -320,7 +320,7 @@ const ResearchMainPage = () => {
                 {teamList.length > 0 && (
                   <ul className="flex flex-wrap gap-2">
                     {teamList.map((team, index) => (
-                      <li key={index} className="my-1 me-1 flex items-center">
+                      <li key={index} className="me-1 flex items-center">
                         <div className="flex items-center justify-between p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600">
                           <span>{team}</span>
                           <img
@@ -336,7 +336,7 @@ const ResearchMainPage = () => {
                 )}
               </div>
               <div className="w-full flex flex-col justify-start mb-2">
-                <label className="inline mb-1">
+                <label className="inline mb-1 font-semibold">
                   <img src={dot} alt="dot" className="w-1 me-2 inline" />
                   자연재해 유무
                 </label>
@@ -366,7 +366,7 @@ const ResearchMainPage = () => {
 
         {/* subs 의 길이에 따라 formsub 렌더링, 있는건 데이터 가져와서 렌더링, 마지막에 빈거 한개 렌더링 */}
         {isResearching && (
-          <div className="w-full xl:w-1/3 mt-2">
+          <div className="w-full xl:w-1/3 mt-3">
             {/* 완료된 서브 폼들 (접힌 상태로 표시) */}
             {subs.map((sub, index) => (
               <FormSub
@@ -412,10 +412,7 @@ const ResearchMainPage = () => {
             )}
           </div>
         )}
-      </div>
-
-      <div className="w-full xl:w-1/3 mt-3 flex flex-col justify-center">
-        <div className="w-full mt-7 flex items-center p-2">
+        <div className="w-full flex items-center p-3">
           {!isResearching && isMainFormComplete && (
             <Button
               className="w-full py-3 rounded-lg"
@@ -436,26 +433,33 @@ const ResearchMainPage = () => {
             </Button>
           )}
         </div>
+      </div>
 
-        <div className="w-full mt-1 mb-5 flex items-center p-2 gap-2">
-          <div className="w-1/2">
-            <Button className="w-full py-3 rounded-lg" color="blue">
-              임시저장
-            </Button>
+      <div className="w-full xl:w-1/3 mt-3 flex flex-col justify-center">
+        <div className="border-t-2 fixed bottom-0 z-50 bg-white w-full flex flex-col justify-center gap-2">
+          <div className="flex mt-2 px-2 gap-2">
+            <div className="w-1/2 inline-block">
+              <Button className="w-full py-3 rounded-lg" color="blue">
+                임시저장
+              </Button>
+            </div>
+            <div className="w-1/2 inline-block">
+              <Button
+                className="w-full py-3 rounded-lg"
+                color={canSubmitForm ? "blue" : "gray"}
+                disabled={!canSubmitForm}
+                onClick={onMainFormSubmit}
+              >
+                제출하기
+              </Button>
+            </div>
           </div>
-          <div className="w-1/2">
-            <Button
-              className="w-full py-3 rounded-lg"
-              color={canSubmitForm ? "blue" : "gray"}
-              disabled={!canSubmitForm}
-              onClick={onMainFormSubmit}
-            >
-              제출하기
-            </Button>
-          </div>
+          <MobileFooter
+            // className="bottom-0 fixed z-50"
+            homeroot="/workerMain"
+          />
         </div>
       </div>
-      <MobileFooter homeroot="/workerMain" />
     </div>
   );
 };
