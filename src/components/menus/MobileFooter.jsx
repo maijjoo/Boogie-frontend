@@ -5,7 +5,7 @@ import home from "../../assets/icons/nav/Home.svg";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
-const MobileFooter = ({ homeroot, writeroot }) => {
+const MobileFooter = ({ homeroot, writeroot, className }) => {
   const navigate = useNavigate();
   const { isLoggedIn, logout } = useAuth();
 
@@ -16,7 +16,9 @@ const MobileFooter = ({ homeroot, writeroot }) => {
   });
 
   return (
-    <div className="w-full  h-12 xl:h-14 z-10 flex  border-t-2 border-t-slate-200 justify-center">
+    <div
+      className={`${className} bg-white w-full  h-12 xl:h-14 z-10 flex  border-t-2 border-t-slate-200 justify-center`}
+    >
       <div className="w-1/3 flex justify-center p-3 cursor-pointer">
         <img
           src={myPage}

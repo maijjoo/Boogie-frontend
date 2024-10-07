@@ -59,7 +59,7 @@ const FormSub = ({
 
   if (isCollapsed) {
     return (
-      <div className="w-full border border-gray-600 rounded-md p-3 mb-2">
+      <div className="w-full border border-gray-400 rounded-md p-3 mb-3 bg-white">
         <div className="flex justify-between">
           <h1 className="w-full text-left font-bold">{`${beachName}${subindex}`}</h1>
           <div
@@ -75,7 +75,7 @@ const FormSub = ({
 
   return (
     <>
-      <div className="w-full border border-gray-600 rounded-md p-3">
+      <div className="w-full border border-gray-400 rounded-md p-3 mb-3 bg-white ">
         <div className="flex justify-between">
           <h1 className="w-full text-left font-bold">{`${beachName}${subindex}`}</h1>
           {isCollapsed !== undefined && (
@@ -88,17 +88,17 @@ const FormSub = ({
           )}
         </div>
 
-        <div className="w-full flex justify-between my-2 pt-2">
-          <label className="inline">
+        <div className="w-full flex justify-between my-2 pt-2 items-center ">
+          <label className="font-semibold inline w-1/2">
             <img src={dot} alt="dot" className="w-1 me-2 inline" />
             쓰레기 예측량(L)
           </label>
           {isCollapsed === undefined ? (
             <input
               type="number"
-              value={trashAmount}
+              value={trashAmount === 0 ? "" : trashAmount}
               onChange={(e) => setTrashAmount(e.target.value)}
-              className="p-1 text-right border border-black rounded-md"
+              className="p-1 text-right border border-black rounded-md w-1/2"
             />
           ) : (
             <label className="w-1/4 p-1 text-right border border-black rounded-md">
@@ -107,7 +107,7 @@ const FormSub = ({
           )}
         </div>
         <div className="w-full flex flex-col justify-start">
-          <label className="inline">
+          <label className="inline font-semibold">
             <img src={dot} alt="dot" className="w-1 me-2 inline" />
             주요 쓰레기 종류(택 1)
           </label>
@@ -139,7 +139,7 @@ const FormSub = ({
 
         <div className="w-full mt-3">
           <Button
-            className="w-full py-4 rounded-lg"
+            className="w-full py-3 rounded-lg"
             color={
               isCollapsed !== undefined ? "blue" : isComplete ? "blue" : "gray"
             }
