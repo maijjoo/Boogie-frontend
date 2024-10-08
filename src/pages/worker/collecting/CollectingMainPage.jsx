@@ -12,6 +12,7 @@ import {
   updateToCompleted,
 } from "../../../api/collectApi.js";
 import PickedSpot from "./component/PickedSpot.jsx";
+import FooterInfo from "./component/FooterInfo.jsx";
 
 const CollectingMainPage = () => {
   const { isLoggedIn, isDriver, memberInfo } = useAuth();
@@ -125,16 +126,6 @@ const CollectingMainPage = () => {
     );
   }, [pickUpSpot]);
 
-  useEffect(() => {
-    console.log(pickedSpots);
-
-    if (pickedSpots.length > 0) {
-      setMapSize("300px");
-    } else {
-      setMapSize("600px");
-    }
-  }, [mapSize, pickedSpots]);
-
   const onSpotDetail = (spotId) => {
     setIsOnDetailed(true);
     setOnWork(true);
@@ -199,14 +190,11 @@ const CollectingMainPage = () => {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col items-center px-3">
-      <MobileHeader>집하지 지도</MobileHeader>
-      <div className="py-5 w-full xl:py-7">
+    <div className="w-full flex flex-col items-center bg-gray-50">
+      <div className="w-full fixed top-0 z-50">
+        <MobileHeader>집하지 지도</MobileHeader>
         <div className="w-full bg-gray-200">
-          <div
-            className="w-full flex items-center justify-center border border-black rounded-md"
-            style={{ height: mapSize }}
-          >
+          <div className="w-full h-[566px] flex items-center justify-center border border-black">
             <KakaoMap
               myCoords={myCoords}
               spots={pickUpSpot}
@@ -215,6 +203,8 @@ const CollectingMainPage = () => {
             />
           </div>
         </div>
+      </div>
+      <div className="py-5 w-full xl:py-7">
         <div className="pb-4">
           <div className="px-3">
             {isOnDetailed && (
@@ -243,7 +233,10 @@ const CollectingMainPage = () => {
           </div>
         </div>
       </div>
-      <MobileFooter homeroot={"/collectingMain"} />
+      <div className="w-full fixed bottom-0">
+        <FooterInfo pickedSpot={pickedSpots} />
+        <MobileFooter homeroot={"/collectingMain"} />
+      </div>
     </div>
   );
 };
