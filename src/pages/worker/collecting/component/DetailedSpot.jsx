@@ -42,7 +42,7 @@ const DetailedSpot = ({
   }, [spot]);
 
   return (
-    <div className="flex flex-col justify-center items-left p-7">
+    <div className="flex flex-col justify-center items-left p-7 border border-gray-500 mt-1">
       <div className="flex justify-between mb-3">
         <h1 className="inline font-bold text-red-500 text-2xl">
           {spotInfo.pickUpPlace}

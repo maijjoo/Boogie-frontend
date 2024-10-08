@@ -1,6 +1,10 @@
 import { Map, MapMarker } from "react-kakao-maps-sdk";
 import RedPin from "../../assets/icons/write/ic-location-red.svg";
 import BlackPin from "../../assets/icons/write/ic-location-black.svg";
+import blackSpot from "../../assets/icons/workerMode/pickupPin_needed.png";
+import greenSpot from "../../assets/icons/workerMode/pickupPin_added_green.png";
+import blueSpot from "../../assets/icons/workerMode/pickupPin_added_blue.png";
+import redSpot from "../../assets/icons/workerMode/pickupPin_view.png";
 import redBuyo from "../../assets/icons/adminMode/redBuyo.png";
 import orangeLife from "../../assets/icons/adminMode/orangeLife.png";
 import greenTire from "../../assets/icons/adminMode/greenTire.png";
@@ -80,9 +84,11 @@ const KakaoMap = ({
           const markerImage = {
             size: { width: 35, height: 35 },
             src:
-              spot.id === nowView || spot.status === "ASSIGNMENT_ADDED_TO_ROUTE"
-                ? RedPin
-                : BlackPin,
+              spot.id === nowView
+                ? redSpot
+                : spot.status === "ASSIGNMENT_ADDED_TO_ROUTE"
+                ? greenSpot
+                : blackSpot,
           };
           return (
             <MapMarker

@@ -29,9 +29,8 @@ const CollectingMainPage = () => {
   const [detailedSpot, setDetailedSpot] = useState();
   // 마커 클릭해서 상세정보 보고있는 상태인지
   const [isOnDetailed, setIsOnDetailed] = useState(false);
-
-  const [isPickedSpotsCollapsed, setIsPickedSpotsCollapsed] = useState(false);
   const [isMapExpanded, setIsMapExpanded] = useState(false);
+  const [mapSize, setMapSize] = useState();
 
   const getAddress = useCallback((lat, lng) => {
     return new Promise((resolve, reject) => {
@@ -126,6 +125,16 @@ const CollectingMainPage = () => {
     );
   }, [pickUpSpot]);
 
+  useEffect(() => {
+    console.log(pickedSpots);
+
+    if (pickedSpots.length > 0) {
+      setMapSize("300px");
+    } else {
+      setMapSize("600px");
+    }
+  }, [mapSize, pickedSpots]);
+
   const onSpotDetail = (spotId) => {
     setIsOnDetailed(true);
     setOnWork(true);
@@ -192,9 +201,12 @@ const CollectingMainPage = () => {
   return (
     <div className="w-full h-screen flex flex-col items-center px-3">
       <MobileHeader>집하지 지도</MobileHeader>
-      <div className="py-5 h-full xl:py-7">
-        <div className="w-full h-full bg-gray-200" onDoubleClick={toggleMap}>
-          <div className="w-full h-full flex items-center justify-center border border-black rounded-md">
+      <div className="py-5 w-full xl:py-7">
+        <div className="w-full bg-gray-200">
+          <div
+            className="w-full flex items-center justify-center border border-black rounded-md"
+            style={{ height: mapSize }}
+          >
             <KakaoMap
               myCoords={myCoords}
               spots={pickUpSpot}
@@ -203,8 +215,8 @@ const CollectingMainPage = () => {
             />
           </div>
         </div>
-        {/* <div className={`${isMapExpanded ? "hidden" : "relative"} pb-4 z-0`}>
-          <div className="max-w-lg px-4">
+        <div className="pb-4">
+          <div className="px-3">
             {isOnDetailed && (
               <DetailedSpot
                 fetchAddress={fetchAddress}
@@ -229,7 +241,7 @@ const CollectingMainPage = () => {
                 />
               ))}
           </div>
-        </div> */}
+        </div>
       </div>
       <MobileFooter homeroot={"/collectingMain"} />
     </div>
