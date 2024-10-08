@@ -211,7 +211,7 @@ const ResearchMainPage = () => {
 
   return (
     <div className="w-full flex flex-col items-center bg-gray-50">
-      <MobileHeader className="fixed top-0 z-50 ">조사 보고서</MobileHeader>
+      <MobileHeader className="fixed top-0 z-50">조사 보고서</MobileHeader>
 
       {/* 메인 폼 */}
       <div className="w-full px-5 p-3 mt-12 mb-24 bg-gray-50">
@@ -285,7 +285,6 @@ const ResearchMainPage = () => {
                     ))}
                   </datalist>
                 </div>
-                {/* 이쁘게 바꾸기 */}
               </div>
               <div className="w-full flex flex-col justify-start mb-4">
                 <label className="inline mb-2 font-semibold">
@@ -297,7 +296,7 @@ const ResearchMainPage = () => {
                     value={inputName}
                     onChange={handleInputNameChange}
                     placeholder="조사자를 입력해 주세요"
-                    className="p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-2"
+                    className="p-1 mb-2 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-2"
                     list="nameoptions"
                   />
                   <datalist id="nameoptions">
@@ -362,7 +361,15 @@ const ResearchMainPage = () => {
           )}
         </div>
 
-        {isResearching && <CameraController setSource={setFormImgs} />}
+        {isResearching && (
+          <CameraController
+            setSource={setFormImgs}
+            title="해안가 사진"
+            max="30"
+            min="3"
+            border="p-3 border border-gray-400 rounded-md"
+          />
+        )}
 
         {/* subs 의 길이에 따라 formsub 렌더링, 있는건 데이터 가져와서 렌더링, 마지막에 빈거 한개 렌더링 */}
         {isResearching && (
@@ -454,10 +461,7 @@ const ResearchMainPage = () => {
               </Button>
             </div>
           </div>
-          <MobileFooter
-            // className="bottom-0 fixed z-50"
-            homeroot="/workerMain"
-          />
+          <MobileFooter homeroot="/workerMain" />
         </div>
       </div>
     </div>
