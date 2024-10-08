@@ -16,6 +16,7 @@ import CleaningFormSub from "../../../components/commons/CleaningFormSub.jsx";
 import { MatchUsername } from "../../../datas/MatchUsername.js";
 import { postAdd } from "../../../api/cleaningApi.js";
 import { useAuth } from "../../../hooks/useAuth.js";
+import CameraController from "../../../components/commons/CameraController.jsx";
 
 const CleaningMainPage = () => {
   const navigate = useNavigate();
@@ -188,51 +189,20 @@ const CleaningMainPage = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col items-center p-3">
-      <MobileHeader>청소 보고서</MobileHeader>
+    <div className="w-full h-full flex flex-col items-center">
+      <MobileHeader className="fixed top-0 z-50">청소 보고서</MobileHeader>
 
       {/* 메인 폼 */}
-
-      <div className="w-full xl:w-1/3 mt-6 xl:mt-14 border border-black rounded-md p-3">
-        {isMainFormCollapsed ? (
-          <div className="flex flex-col items-center justify-center">
-            <div className="w-full flex flex-col mb-2">
-              <div className="flex w-full justify-between">
-                <label className="w-full">
-                  <img src={dot} alt="dot" className="w-1 me-2 inline" />
-                  해안명
-                </label>
-                <div
-                  className="w-full xl:w-1/3 flex justify-end cursor-pointer"
-                  onClick={() => {
-                    setIsMainFormCollapsed((prev) => !prev);
-                  }}
-                >
-                  <p>
-                    {isMainFormCollapsed !== undefined
-                      ? isMainFormCollapsed
-                        ? "펴기▼"
-                        : "접기▲"
-                      : null}
-                  </p>
-                </div>
-              </div>
-              <div className="w-full mt-3">
-                <label className="block p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 w-full">
-                  {beachName}
-                </label>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center">
-            <div className="w-full flex flex-col mb-2">
-              <div className="flex w-full justify-between">
-                <label className="w-full">
-                  <img src={dot} alt="dot" className="w-1 me-2 inline" />
-                  해안명
-                </label>
-                {isMainFormCollapsed !== undefined && (
+      <div className="w-full px-5 p-3 mt-12 mb-24 bg-gray-50">
+        <div className="w-full xl:w-1/3 border border-gray-400 rounded-md mb-2 p-4 bg-white">
+          {isMainFormCollapsed ? (
+            <div className="flex flex-col items-center justify-center">
+              <div className="w-full flex flex-col mb-4">
+                <div className="flex w-full justify-between">
+                  <label className="w-full font-semibold">
+                    <img src={dot} alt="dot" className="w-1 me-2 inline" />
+                    해안명
+                  </label>
                   <div
                     className="w-full xl:w-1/3 flex justify-end cursor-pointer"
                     onClick={() => {
@@ -247,142 +217,193 @@ const CleaningMainPage = () => {
                         : null}
                     </p>
                   </div>
-                )}
-              </div>
-              <div className="w-full mt-3">
-                <input
-                  value={beachName}
-                  onChange={handleBeachNameChange}
-                  className="block p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 w-full"
-                  list="beachoptions"
-                  placeholder="해안명을 입력하세요"
-                />
-                <datalist id="beachoptions">
-                  {beachNameOptions.map((option, index) => (
-                    <option key={index} value={option} />
-                  ))}
-                </datalist>
-              </div>
-              {/* 이쁘게 바꾸기 */}
-            </div>
-            <div className="w-full flex flex-col justify-start mb-2">
-              <label className="inline mb-2">
-                <img src={dot} alt="dot" className="w-1 me-2 inline" />
-                청소 인원
-              </label>
-              <div className="flex items-center justify-between">
-                <input
-                  value={inputName}
-                  onChange={handleInputNameChange}
-                  className="p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-10"
-                  list="nameoptions"
-                />
-                <datalist id="nameoptions">
-                  {inputNameOptions.map((option, index) => (
-                    <option key={index} value={option} />
-                  ))}
-                </datalist>
-                <div className="ml-2">
-                  <img
-                    src={plus}
-                    alt="plus"
-                    className="inline w-8 cursor-pointer"
-                    onClick={() => {
-                      handleValidTeam(inputName);
-                    }}
-                  />
+                </div>
+                <div className="w-full mt-3">
+                  <label className="block p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 w-full">
+                    {beachName}
+                  </label>
                 </div>
               </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center">
+              <div className="w-full flex flex-col mb-4">
+                <div className="flex w-full justify-between">
+                  <label className="w-full font-semibold">
+                    <img src={dot} alt="dot" className="w-1 me-2 inline" />
+                    해안명
+                  </label>
+                  {isMainFormCollapsed !== undefined && (
+                    <div
+                      className="w-full xl:w-1/3 flex justify-end cursor-pointer"
+                      onClick={() => {
+                        setIsMainFormCollapsed((prev) => !prev);
+                      }}
+                    >
+                      <p>
+                        {isMainFormCollapsed !== undefined
+                          ? isMainFormCollapsed
+                            ? "펴기▼"
+                            : "접기▲"
+                          : null}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className="w-full mt-3">
+                  <input
+                    value={beachName}
+                    onChange={handleBeachNameChange}
+                    className="block p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 w-full"
+                    list="beachoptions"
+                    placeholder="해안명을 입력하세요"
+                  />
+                  <datalist id="beachoptions">
+                    {beachNameOptions.map((option, index) => (
+                      <option key={index} value={option} />
+                    ))}
+                  </datalist>
+                </div>
+              </div>
+              <div className="w-full flex flex-col justify-start mb-4">
+                <label className="inline mb-2 font-semibold">
+                  <img src={dot} alt="dot" className="w-1 me-2 inline" />
+                  청소 인원
+                </label>
+                <div className="flex items-center justify-between">
+                  <input
+                    value={inputName}
+                    onChange={handleInputNameChange}
+                    className="p-1 mb-2 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-2"
+                    list="nameoptions"
+                  />
+                  <datalist id="nameoptions">
+                    {inputNameOptions.map((option, index) => (
+                      <option key={index} value={option} />
+                    ))}
+                  </datalist>
+                  <div className="ml-2">
+                    <img
+                      src={plus}
+                      alt="plus"
+                      className="inline w-8 cursor-pointer"
+                      onClick={() => {
+                        handleValidTeam(inputName);
+                      }}
+                    />
+                  </div>
+                </div>
 
-              {teamList.length > 0 && (
-                <ul className="flex flex-wrap gap-2">
-                  {teamList.map((team, index) => (
-                    <li key={index} className="my-1 me-1 flex items-center">
-                      <div className="flex items-center justify-between p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600">
-                        <span>{team}</span>
-                        <img
-                          src={cancel}
-                          alt="cancel"
-                          className="inline w-5 ms-1 cursor-pointer"
-                          onClick={() => handleDeleteTeam(team)}
-                        />
-                      </div>
+                {teamList.length > 0 && (
+                  <ul className="flex flex-wrap gap-2">
+                    {teamList.map((team, index) => (
+                      <li key={index} className="me-1 flex items-center">
+                        <div className="flex items-center justify-between p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600">
+                          <span>{team}</span>
+                          <img
+                            src={cancel}
+                            alt="cancel"
+                            className="inline w-5 ms-1 cursor-pointer"
+                            onClick={() => handleDeleteTeam(team)}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="w-full flex flex-col justify-start mb-2">
+                <label className="inline mb-1 font-semibold">
+                  <img src={dot} alt="dot" className="w-1 me-2 inline" />
+                  자연재해 유무
+                </label>
+                <p className="text-xs">
+                  최근 5일 이내 발생한 자연재해를 선택해 주세요
+                </p>
+              </div>
+              <div className="w-full">
+                <ul className="items-center">
+                  {NaturalDisasterList.map((list, index) => (
+                    <li key={index} className="text-start">
+                      <CheckBoxWithLabel
+                        checked={selected === index}
+                        onChange={() => handleCheckboxChange(index)}
+                      >
+                        {list}
+                      </CheckBoxWithLabel>
                     </li>
                   ))}
                 </ul>
-              )}
+              </div>
             </div>
-            <div className="w-full flex flex-col justify-start mb-2">
-              <label className="inline mb-1">
-                <img src={dot} alt="dot" className="w-1 me-2 inline" />
-                자연재해 유무
-              </label>
-              <p className="text-xs">
-                최근 5일 이내 발생한 자연재해를 선택해 주세요
-              </p>
-            </div>
-            <div className="w-full">
-              <ul className="items-center">
-                {NaturalDisasterList.map((list, index) => (
-                  <li key={index} className="text-start">
-                    <CheckBoxWithLabel
-                      checked={selected === index}
-                      onChange={() => handleCheckboxChange(index)}
-                    >
-                      {list}
-                    </CheckBoxWithLabel>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {isCleaning && <CleaningCameraController setSource={setBSource} />}
-      {isCleaning && <CleaningAfterCameraController setSource={setASource} />}
-
-      {isCleaning && (
-        <div className="w-full xl:w-1/3 mt-2">
-          <CleaningFormSub
-            subData={setSubData}
-            setIsComplete={setIsComplete} // 상태 전달
-          />
-        </div>
-      )}
-
-      <div className="w-full xl:w-1/3 flex flex-col justify-center">
-        <div className="w-full mt-3 flex items-center p-2">
-          {!isCleaning && isMainFormComplete && (
-            <Button
-              className="w-full py-3 rounded-lg"
-              color="blue"
-              onClick={handleStartCleaning}
-            >
-              청소시작
-            </Button>
           )}
         </div>
 
-        <div className="w-full mt-1 flex items-center p-2 gap-2">
-          <div className="w-1/2">
-            <Button className="w-full py-3 rounded-lg" color="blue">
-              임시저장
-            </Button>
+        {isCleaning && (
+          <CameraController
+            setSource={setBSource}
+            title="청소전 사진"
+            max="15"
+            min="3"
+            border="p-3 border border-gray-400 rounded-md"
+          />
+        )}
+        {isCleaning && (
+          <CameraController
+            setSource={setASource}
+            title="청소후 사진"
+            max="15"
+            min="3"
+            border="p-3 border border-gray-400 rounded-md"
+          />
+        )}
+
+        {isCleaning && (
+          <div className="w-full xl:w-1/3 mt-3">
+            <CleaningFormSub
+              subData={setSubData}
+              setIsComplete={setIsComplete} // 상태 전달
+            />
           </div>
-          <div className="w-1/2">
-            <Button
-              className="w-full py-3 rounded-lg"
-              color={canSubmitForm ? "blue" : "gray"}
-              disabled={!canSubmitForm}
-              onClick={onMainFormSubmit}
-            >
-              제출하기
-            </Button>
+        )}
+
+        <div className="w-full xl:w-1/3 flex flex-col justify-center">
+          <div className="w-full mt-3 flex items-center p-3">
+            {!isCleaning && isMainFormComplete && (
+              <Button
+                className="w-full py-3 rounded-lg"
+                color="blue"
+                onClick={handleStartCleaning}
+              >
+                청소시작
+              </Button>
+            )}
           </div>
         </div>
       </div>
-      <MobileFooter homeroot="/workerMain" />
+
+      <div className="w-full xl:w-1/3 mt-3 flex flex-col justify-center">
+        <div className="border-t-2 fixed bottom-0 z-50 bg-white w-full flex flex-col justify-center gap-2">
+          <div className="flex mt-2 px-2 gap-2">
+            <div className="w-1/2 inline-block">
+              <Button className="w-full py-3 rounded-lg" color="blue">
+                임시저장
+              </Button>
+            </div>
+            <div className="w-1/2 inline-block">
+              <Button
+                className="w-full py-3 rounded-lg"
+                color={canSubmitForm ? "blue" : "gray"}
+                disabled={!canSubmitForm}
+                onClick={onMainFormSubmit}
+              >
+                제출하기
+              </Button>
+            </div>
+          </div>
+          <MobileFooter homeroot="/workerMain" />
+        </div>
+      </div>
     </div>
   );
 };

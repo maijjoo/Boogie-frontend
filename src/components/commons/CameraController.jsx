@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import addImage from "../../assets/icons/write/Add Image.svg";
 import dot from "../../assets/icons/write/Circle.svg";
 
-const CameraController = ({ setSource }) => {
+const CameraController = ({ setSource, title, max, min, border = null }) => {
   const [sources, setSources] = useState([]);
   const fileInputRef = useRef(null);
 
@@ -21,17 +21,19 @@ const CameraController = ({ setSource }) => {
     fileInputRef.current.click();
   };
   return (
-    <div className="w-full xl:w-1/3 h-fit p-3 mt-3 flex flex-col border bg-white border-gray-400 rounded-md">
+    <div
+      className={`w-full xl:w-1/3 h-fit mt-3 flex flex-col bg-white ${border}`}
+    >
       <div className="my-2">
         <label className="font-semibold">
           <img src={dot} alt="dot" className="w-1 me-2 inline" />
-          해안가 사진
+          {title}
         </label>
       </div>
       <div className="w-full overflow-x-auto">
         <div className="flex p-2 gap-2">
           <div
-            onClick={sources.length >= 30 ? null : handleSvgClick}
+            onClick={sources.length >= Number(max) ? null : handleSvgClick}
             className="flex-shrink-0 w-24 h-24 flex items-center justify-center cursor-pointer border border-solid border-black rounded-md"
           >
             <img src={addImage} alt="add Image" className="w-8 h-8" />
@@ -59,11 +61,15 @@ const CameraController = ({ setSource }) => {
       </div>
       <div className="mt-2">
         <p
-          className={`${sources.length < 3 ? "text-red-600" : "text-gray-500"}`}
+          className={`${
+            sources.length < Number(min) || sources.length === Number(max)
+              ? "text-red-600"
+              : "text-gray-500"
+          }`}
         >
-          {sources.length < 3
-            ? "사진을 3장 이상 첨부해주세요"
-            : `${sources.length}/30`}
+          {sources.length < min
+            ? `사진을 ${min}장 이상 첨부해주세요`
+            : `${sources.length}/${max}`}
         </p>
       </div>
       <input
