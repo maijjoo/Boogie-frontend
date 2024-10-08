@@ -201,6 +201,7 @@ const CollectingMainPage = () => {
               setDetail={onSpotDetail}
               nowView={detailedSpot}
             />
+            {/* 여기에 그냥 조건에따라 맵, 디테일, 픽트스팟 렌더링하는걸로 */}
           </div>
         </div>
       </div>

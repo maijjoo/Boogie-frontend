@@ -110,7 +110,7 @@ const Login = () => {
         <p>비밀번호 찾기</p>
       </div>
 
-      <div className="flex items-center mt-auto justify-end">
+      <div className="fixed bottom-0">
         <img className="w-full" src={wave} alt="wave" />
       </div>
     </div>
