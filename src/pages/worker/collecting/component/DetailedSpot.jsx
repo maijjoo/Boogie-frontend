@@ -42,23 +42,23 @@ const DetailedSpot = ({
   }, [spot]);
 
   return (
-    <div className="flex flex-col justify-center items-left p-7 border border-gray-500 mt-1">
+    <div className="flex flex-col justify-center items-left p-3 border border-gray-500 bg-white">
       <div className="flex justify-between mb-3">
-        <h1 className="inline font-bold text-red-500 text-2xl">
+        <h1 className="inline font-bold text-red-500 text-xl">
           {spotInfo.pickUpPlace}
         </h1>
         <img
-          className="inline cursor-pointer w-8"
+          className="inline cursor-pointer w-6"
           src={Cancel}
           onClick={() => onClose(false)}
         />
       </div>
       <div className="flex w-full items-center gap-2">
-        <label className="inline w-full border border-gray-500 rounded-md my-2 px-3 py-2 text-lg">
+        <label className="inline w-full border border-gray-500 rounded-md my-1 px-2 py-1 text-md">
           {address ? address : "주소를 불러오는 중..."}
         </label>
         <img
-          className="inline cursor-pointer w-12"
+          className="inline cursor-pointer w-8"
           src={Copy}
           onClick={() => {
             // 클립보드 복사 라이브러리
@@ -71,29 +71,27 @@ const DetailedSpot = ({
             spotImgs.map((img, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 w-40 h-40 flex items-center justify-center border border-dashed border-gray-300 rounded-md"
+                className="flex-shrink-0 w-28 h-28 flex items-center justify-center border border-dashed border-gray-300 rounded-md"
               >
                 <img src={img} alt="spotImages" className="w-full h-full" />
               </div>
             ))
           ) : (
-            <div className="flex-shrink-0 w-40 h-40 flex items-center justify-center border border-dashed border-gray-300 rounded-md">
+            <div className="flex-shrink-0 w-28 h-28 flex items-center justify-center border border-dashed border-gray-300 rounded-md">
               <img src={DefaultImgs} alt="no Image" className="w-full h-full" />
             </div>
           )}
         </div>
       </div>
 
-      <div className="w-full">
-        <div className="flex mt-2 items-center gap-2">
+      <div className="w-full flex mt-2 justify-between items-center">
+        <div className="flex items-center gap-2">
           <img src={Circle} alt="point" className="inline" />
           <label className="inline font-semibold">주요 쓰레기 종류</label>
         </div>
-        <div className="flex w-full mt-2">
-          <label className="border border-gray-400 rounded-md w-full px-3 py-2">
-            {spotInfo.mainTrashType}
-          </label>
-        </div>
+        <label className="inline border border-gray-400 rounded-md w-1/2 px-2 py-1 ">
+          {spotInfo.mainTrashType}
+        </label>
       </div>
       <div className="flex w-full items-center mt-4 gap-3">
         <div className="flex w-1/3 items-center gap-2">
