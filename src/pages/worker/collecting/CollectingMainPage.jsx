@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { replace, useNavigate } from "react-router-dom";
 import MobileHeader from "../../../components/menus/MobileHeader";
-import MobileFooter from "../../../components/menus/MobileFooter";
 import KakaoMap from "../../../components/commons/KakaoMap";
 import DetailedSpot from "./component/DetailedSpot.jsx";
 import {
@@ -11,25 +10,19 @@ import {
   updateToNeeded,
   updateToCompleted,
 } from "../../../api/collectApi.js";
-import PickedSpot from "./component/PickedSpot.jsx";
 import FooterInfo from "./component/FooterInfo.jsx";
 
 const CollectingMainPage = () => {
-  const { isLoggedIn, isDriver, memberInfo } = useAuth();
+  const { isLoggedIn, isDriver, memberInfo, id } = useAuth();
   const navigate = useNavigate();
   // 지도 중심좌표로 보낼 현재 위치 좌표
   const [myCoords, setMyCoords] = useState({ lat: 0, lng: 0 });
-  // 작업 추가, 상세확인 등 화면 하단에 작업 진행중인지
-  // true 면 지도 크기 줄어듬
-  const [onWork, setOnWork] = useState(false);
 
   const [pickUpSpot, setPickUpSpot] = useState([]);
   // 수거경로 추가한 집하지
   const [pickedSpots, setPickedSpots] = useState([]);
   // 마커 클릭 시 상세정보로 출력되는 집하지
   const [detailedSpot, setDetailedSpot] = useState();
-  // 마커 클릭해서 상세정보 보고있는 상태인지
-  const [isOnDetailed, setIsOnDetailed] = useState(false);
 
   const [onDetail, setOnDetail] = useState(false);
   const [onList, setOnList] = useState(false);
@@ -54,9 +47,11 @@ const CollectingMainPage = () => {
   const fetchAddress = async (setAddress, lat, lng) => {
     try {
       const address = await getAddress(lat, lng);
+      console.log(address);
+
       setAddress(address); // 주소 값을 상태로 설정
     } catch (error) {
-      console.log();
+      console.log(error);
     }
   };
 
@@ -91,6 +86,7 @@ const CollectingMainPage = () => {
 
     const fetchData = async () => {
       const adminId = memberInfo.managerId;
+      console.log("managerId: ", adminId, ", Id: ", id);
 
       try {
         const res = await getSpots(adminId);
@@ -100,7 +96,6 @@ const CollectingMainPage = () => {
             setPickUpSpot((prevState) => [...prevState, data]);
           }
         });
-        setPickUpSpot(res);
       } catch (error) {
         console.error(error);
       }
@@ -119,16 +114,24 @@ const CollectingMainPage = () => {
     // 그러면 자동으로 이 useEffect 가 실행되고
     // 다시 get 으로 "배정안된" 것만 불러옴
     // 지도의 중심좌표도 다시 현재위치로 수정됨
-  }, [memberInfo.managerId]);
+  }, [memberInfo.managerId, pickedSpots]);
 
-  useEffect(() => {
+  // 자기가 경로 추가한 구역만 할꺼?
+  // 지금은 그냥 나랑 같은 관리자로 등록된 모든글 중
+  // 상태가 added_to_route 인걸 가져옴
+  const loadPickedSpots = () => {
     setPickedSpots(
       pickUpSpot.filter((spot) => spot.status === "ASSIGNMENT_ADDED_TO_ROUTE")
     );
-  }, [pickUpSpot]);
+  };
+
+  useEffect(() => {
+    loadPickedSpots();
+  }, []);
 
   const onSpotDetail = (spotId) => {
     setOnDetail(true);
+    setOnList(false);
     setDetailedSpot(spotId);
   };
 
@@ -142,7 +145,6 @@ const CollectingMainPage = () => {
         console.log("-----------res: ", add);
         alert("집하지가 수거목록에 추가되었습니다.");
         setPickedSpots((prevState) => [...prevState, id]);
-        setOnWork(true);
       } catch (error) {
         console.error(error);
       }
@@ -151,6 +153,9 @@ const CollectingMainPage = () => {
       console.log("already added at spot id: ", id);
       alert("이미 추가된 집하지입니다.");
     }
+
+    setOnDetail(false);
+    setDetailedSpot();
   };
 
   const onDropAdded = async (id) => {
@@ -177,9 +182,7 @@ const CollectingMainPage = () => {
       console.log("update added -> complete at spot id: ", spotId);
       console.log("-----------res: ", drop);
 
-      setPickedSpots((prevState) =>
-        prevState.filter((prevId) => prevId !== spotId)
-      );
+      loadPickedSpots();
     } catch (error) {
       console.error(error);
     }
@@ -252,7 +255,7 @@ const CollectingMainPage = () => {
         <MobileHeader>집하지 지도</MobileHeader>
         <div
           className="w-full flex items-center justify-center border"
-          style={{ height: onDetail ? "273px" : "560px" }}
+          style={{ height: onDetail ? "200px" : "560px" }}
         >
           <KakaoMap
             myCoords={myCoords}
@@ -264,12 +267,31 @@ const CollectingMainPage = () => {
 
         {/** 디테일은 여기서 해야될듯? 지도 크기 줄이고 DetailedSpot 컴포넌트 ㄱㄱ */}
       </div>
+      {onDetail && (
+        <div
+          className="w-full flex items-center justify-center border mt-72 mb-48"
+          style={{ height: "360px" }}
+        >
+          <DetailedSpot
+            fetchAddress={fetchAddress}
+            pickUpSpot={pickUpSpot}
+            spot={detailedSpot}
+            onClose={setOnDetail}
+            onAddSpot={onAddSpot}
+            onClearSpot={onCompletePickUp}
+          />
+        </div>
+      )}
 
       {/** 모바일푸터 + 총예상수거량 카드 + 버튼누르면 위로 올라와서 수거경로 리스트까지 나오게하는 개쩌는친구 */}
       <FooterInfo
         pickedSpot={pickedSpots}
+        loadSpots={loadPickedSpots}
         onList={onList}
         setOnList={setOnList}
+        fetchAddress={fetchAddress}
+        onDrop={onDropAdded}
+        onClearSpot={onCompletePickUp}
       />
     </div>
   );

@@ -6,9 +6,19 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 import MobileFooter from "../../../../components/menus/MobileFooter";
 import PickedSpot from "./PickedSpot";
 
-const FooterInfo = ({ pickedSpot, onList, setOnList }) => {
+const FooterInfo = ({
+  pickedSpot,
+  onList,
+  setOnList,
+  loadSpots,
+  fetchAddress,
+  onDrop,
+  onClearSpot,
+}) => {
   const [selectedTrashAmount, setSelectedTrashAmount] = useState();
   useEffect(() => {
+    loadSpots();
+
     if (pickedSpot && pickedSpot.length > 0) {
       const amount = pickedSpot.reduce(
         (total, spot) => total + spot.actualCollectedVolume,
@@ -16,7 +26,7 @@ const FooterInfo = ({ pickedSpot, onList, setOnList }) => {
       );
       setSelectedTrashAmount(amount);
     }
-  }, [pickedSpot]);
+  }, [onList]);
 
   // return (
   //   <div className="w-full flex flex-col">
@@ -70,7 +80,7 @@ const FooterInfo = ({ pickedSpot, onList, setOnList }) => {
           style={{
             transform: onList
               ? "translateY(0)"
-              : `translateY(calc(100% - 144px))`,
+              : `translateY(calc(100% - 103px))`,
           }}
         >
           {/* 핸들 바 */}
@@ -87,25 +97,25 @@ const FooterInfo = ({ pickedSpot, onList, setOnList }) => {
 
           {/* 리스트 영역 */}
           {onList && (
-            <div className="h-[calc(100%-200px)] overflow-y-auto bg-gray-50 p-4">
+            <div className="h-[calc(100%-103px)] overflow-y-auto p-4">
               {pickedSpot.map((spot, index) => (
-                // <Card key={spot.id} className="mb-4">
-                //   <CardContent className="p-4">
-                //     <h3 className="font-bold text-lg mb-2">
-                //       수거지 {index + 1}
-                //     </h3>
-                //     <p>주소: {spot.address}</p>
-                //     <p>예상 수거량: {spot.actualCollectedVolume}L</p>
-                //   </CardContent>
-                // </Card>
                 // 여기 PickedSpot 컴포넌트 쓰면됨
-                <div key={index}></div>
+                <div key={index}>
+                  <PickedSpot
+                    spot={spot}
+                    index={index}
+                    fetchAddress={fetchAddress}
+                    loadSpots={loadSpots}
+                    onDrop={onDrop}
+                    onClearSpot={onClearSpot}
+                  />
+                </div>
               ))}
             </div>
           )}
 
           {/* 요약 정보 카드 - 항상 표시 */}
-          <div className="bg-blue-800 px-6 py-2 fixed bottom-16 left-0 right-0 z-40">
+          <div className="bg-blue-800 px-6 py-2 z-40">
             <div className="flex justify-between">
               <h1 className="text-white font-bold text-lg">총 예상 수거량</h1>
             </div>
