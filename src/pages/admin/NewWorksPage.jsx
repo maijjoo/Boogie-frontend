@@ -11,7 +11,7 @@ import NoticeIcon from "../../assets/images/notice.png";
 
 const NewWorksPage = ({ onSearchInputChange }) => {
   // 관리자 id, 역할
-  const { isLoggedIn, role } = useAuth();
+  const { isLoggedIn, role, id } = useAuth();
   const navigate = useNavigate();
 
   // 조회 조건 탭(조사 완료/청소 완료)
@@ -19,7 +19,8 @@ const NewWorksPage = ({ onSearchInputChange }) => {
 
   // 조회 파라미터(해안명)
   const [searchParam, setSearchParam] = useState({
-    beachName: "", // 초기 값은 빈 문자열
+    tabCondition: condition,
+    beachSearch: null, // 초기 값은 빈 문자열
   });
 
   // 조회 결과 데이터
@@ -30,24 +31,26 @@ const NewWorksPage = ({ onSearchInputChange }) => {
     if (!isLoggedIn || role !== "ADMIN") {
       navigate("/", { replace: true });
     }
+    console.log(id);
   }, [isLoggedIn, role, navigate]);
 
   // 유저가 입력한 검색어로 searchParam 업데이트
   const handleSearchInputChange = (inputValue) => {
     setSearchParam((prev) => ({
       ...prev,
-      beachName: inputValue, // 검색어를 beachName으로 설정
+      beachSearch: inputValue, // 검색어를 beachSearch으로 설정
     }));
   };
 
   // API 호출 함수
   const fetchNewWorks = async () => {
     try {
-      const response = await getNewWorks({
+      const response = await getNewWorks(id, {
         ...searchParam,
         tabCondition: condition === "researchTab" ? "조사 완료" : "청소 완료",
       });
-      setSearchedData(response.data); // API 응답 데이터 설정
+      setSearchedData(response.data.dtoList); // API 응답 데이터 설정
+      console.log("==========", searchedData);
     } catch (error) {
       console.error("데이터 검색 중 오류 발생:", error);
     }
@@ -66,8 +69,8 @@ const NewWorksPage = ({ onSearchInputChange }) => {
     onSearchInputChange(value); // 부모 컴포넌트로 검색어 전달
   };
 
-  const handleSearch = (beachName) => {
-    console.log("검색 조건:", beachName); // 검색 조건 확인
+  const handleSearch = (beachSearch) => {
+    console.log("검색 조건:", beachSearch); // 검색 조건 확인
     // 여기에 검색 로직 추가
   };
 
@@ -91,8 +94,8 @@ const NewWorksPage = ({ onSearchInputChange }) => {
             {/* 검색어 입력창과 검색 버튼: 오른쪽 정렬 */}
             <div className="flex items-center space-x-4 rounded-full p-2 w-full justify-end h-12">
               <Searchbar />
-              <SearchButton onSearch={handleSearch} beachName={searchValue} />
-              {/* 검색 버튼에 beachName 전달 */}
+              <SearchButton onSearch={handleSearch} beachSearch={searchValue} />
+              {/* 검색 버튼에 beachSearch 전달 */}
             </div>
           </div>
         </div>
@@ -111,9 +114,9 @@ const NewWorksPage = ({ onSearchInputChange }) => {
                   report.image ||
                   "https://www.jejunews.com/news/photo/202110/2186126_208084_2056.jpg"
                 } // 이미지가 없는 경우 기본값 설정
-                title={report.beachName || "해안가명"}
-                worker={report.worker || "작업 종류"}
-                date={report.date || "날짜 정보 없음"}
+                beachName={report.beachName || "해안가명"}
+                worker={report.researcherName || "작업 종류"}
+                date={report.reportTime || "날짜 정보 없음"}
                 status={report.status || "상태 없음"}
               />
             ))}

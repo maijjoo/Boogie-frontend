@@ -19,6 +19,8 @@ export const useAuth = () => {
 
   const name = memberInfo?.name || "";
 
+  const id = memberInfo?.id || "";
+
   const managerId = memberInfo?.managerId || null;
 
   const handleLogout = () => {
@@ -36,5 +38,6 @@ export const useAuth = () => {
     department,
     name,
     managerId,
+    id,
   };
 };
