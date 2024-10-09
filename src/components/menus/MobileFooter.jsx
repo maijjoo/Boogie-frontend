@@ -17,7 +17,7 @@ const MobileFooter = ({ homeroot, writeroot, className }) => {
 
   return (
     <div
-      className={`${className} bg-white w-full  h-12 xl:h-14 z-10 flex  border-t-2 border-t-slate-200 justify-center`}
+      className={`${className} bg-white w-full h-12 xl:h-14 z-10 flex border-t-2 border-t-slate-200 justify-center`}
     >
       <div className="w-1/3 flex justify-center p-3 cursor-pointer">
         <img

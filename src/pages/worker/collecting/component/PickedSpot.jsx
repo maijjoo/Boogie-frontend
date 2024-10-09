@@ -2,16 +2,8 @@ import React, { useEffect, useState } from "react";
 import Circle from "../../../../assets/icons/write/Circle.svg";
 import Button from "../../../../components/commons/Button";
 
-const PickedSpot = ({
-  key,
-  spot,
-  index,
-  fetchAddress,
-  onDrop,
-  onClearSpot,
-}) => {
+const PickedSpot = ({ spot, index, fetchAddress, onDrop, onClearSpot }) => {
   const [address, setAddress] = useState();
-  console.log(spot);
 
   useEffect(() => {
     fetchAddress(setAddress, spot.latitude, spot.longitude);
@@ -49,10 +41,10 @@ const PickedSpot = ({
         </div>
         <div className="flex w-full gap-1">
           <label className="w-1/2 text-right border border-gray-400 rounded-md px-3 py-2">
-            {Math.floor(spot.actualCollectedVolume)}
+            {Math.floor(spot.realTrashAmount)} 개
           </label>
           <label className="w-1/2 text-right border border-gray-400 rounded-md px-3 py-2">
-            {Math.floor(spot.actualCollectedVolume)}
+            {Math.floor(spot.realTrashAmount * 50)} L
           </label>
         </div>
       </div>
