@@ -55,63 +55,68 @@ const Login = () => {
   };
 
   return (
-    <div className="w-full flex flex-col items-center">
-      <div className="flex items-center mt-12">
-        <img className="w-44 xl:w-64" src={logo} alt="logo" />
+    <div className="w-full h-screen mb-0 mt-0 flex flex-col items-center relative overflow-hidden">
+      {/* Wave 이미지 - 배경으로 설정 */}
+      <div className="fixed bottom-0 left-0 w-full z-0">
+        <img className="w-full block" src={wave} alt="wave" />
       </div>
 
-      <div className="w-full flex flex-col mt-9 px-4 items-center">
-        <div className="w-full xl:w-1/5 flex flex-col items-start mb-4">
-          <InputWithLabel
-            className="w-full mt-2 ps-2 py-2 md:text-base rounded-md"
-            type="text"
-            ref={id}
-            placeholder="아이디를 입력해 주세요."
+      {/* 로그인 폼 */}
+      <div className="z-10 w-full max-w-md p-6 sm:p-8 bg-white rounded-lg lg:shadow-lg flex flex-col items-center">
+        <div className="flex items-center mb-4">
+          <img className="w-44 xl:w-64" src={logo} alt="logo" />
+        </div>
+
+        <div className="w-full flex flex-col mt-4 items-center">
+          <div className="w-full flex flex-col items-start mb-4">
+            <InputWithLabel
+              className="w-full mt-2 px-2 py-2 md:text-base rounded-md"
+              type="text"
+              ref={id}
+              placeholder="아이디를 입력해 주세요."
+            >
+              아이디
+            </InputWithLabel>
+          </div>
+          <div className="w-full flex flex-col items-start mb-1">
+            <InputWithLabel
+              className="w-full mt-2 px-2 py-2 md:text-base rounded-md"
+              type="password"
+              ref={password}
+              placeholder="비밀번호를 입력해 주세요."
+            >
+              비밀번호
+            </InputWithLabel>
+          </div>
+        </div>
+
+        {loginSuccess !== undefined && !loginSuccess && (
+          <div className="text-red-500 text-sm mt-2">
+            <p>아이디 또는 비밀번호가 일치하지 않습니다.</p>
+          </div>
+        )}
+
+        <div className="w-full flex justify-between">
+          <CheckboxWithLabel>아이디 저장</CheckboxWithLabel>
+          <CheckboxWithLabel>자동 로그인</CheckboxWithLabel>
+        </div>
+
+        <div className="flex justify-center w-full mt-6">
+          <Button
+            className="w-full m-4 px-10 py-2 md:text-base rounded-md"
+            color="blue"
+            onClick={handleLogin}
           >
-            아이디
-          </InputWithLabel>
+            로그인
+          </Button>
         </div>
-        <div className="w-full xl:w-1/5 flex flex-col items-start mb-4">
-          <InputWithLabel
-            className="w-full mt-2 ps-2 py-2 md:text-base rounded-md"
-            type="password"
-            ref={password}
-            placeholder="비밀번호를 입력해 주세요."
-          >
-            비밀번호
-          </InputWithLabel>
-        </div>
-      </div>
 
-      {loginSuccess !== undefined && !loginSuccess && (
-        <div>
-          <p className="text-red-500 text-sm">
-            아이디 또는 비밀번호가 일치하지 않습니다.
-          </p>
-        </div>
-      )}
-
-      <div className="w-full xl:w-1/5 px-4 flex justify-between">
-        <CheckboxWithLabel>아이디 저장</CheckboxWithLabel>
-        <CheckboxWithLabel>자동 로그인</CheckboxWithLabel>
-      </div>
-
-      <div className="flex justify-center w-full mt-10">
-        <Button
-          className="w-full xl:w-1/5 m-4 px-10 py-2 md:text-base rounded-md"
-          color="blue"
-          onClick={handleLogin}
+        <div
+          onClick={() => navigate("/findPassword")}
+          className="cursor-pointer text-blue-500 mt-4"
         >
-          로그인
-        </Button>
-      </div>
-
-      <div onClick={() => navigate("/findPassword")} className="cursor-pointer">
-        <p>비밀번호 찾기</p>
-      </div>
-
-      <div className="fixed bottom-0">
-        <img className="w-full" src={wave} alt="wave" />
+          <p>비밀번호 찾기</p>
+        </div>
       </div>
     </div>
   );
