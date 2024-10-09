@@ -12,6 +12,7 @@ const initState = {
   workPlace: "",
   department: null,
   name: "",
+  id: "",
   managerId: null,
   vehicleCapacity: undefined,
   workGroup: undefined,
@@ -19,6 +20,8 @@ const initState = {
 
 export const loadMemberCookie = () => {
   const memberInfo = getCookie("member");
+
+  console.log(memberInfo);
 
   if (memberInfo && memberInfo.username) {
     memberInfo.username = decodeURIComponent(memberInfo.username);
