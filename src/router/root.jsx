@@ -14,6 +14,7 @@ import {
   MainTrashDistribution,
   PickupPredict,
   NewWorks,
+  WorkList,
   AiAnalysis,
 } from "../pages/lazyLoadPages.js";
 
@@ -70,6 +71,10 @@ const root = createBrowserRouter([
   {
     path: "newWorks",
     element: <NewWorks />,
+  },
+  {
+    path: "workList",
+    element: <WorkList />,
   },
   {
     path: "aiAnalysis",
