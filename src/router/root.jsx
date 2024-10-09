@@ -5,6 +5,7 @@ import {
   Find,
   AdminMain,
   WorkerMain,
+  MyPageWorker,
   ResearchMain,
   CleaningSelectMain,
   CleaningMain,
@@ -34,6 +35,10 @@ const root = createBrowserRouter([
   {
     path: "workerMain",
     element: <WorkerMain />,
+  },
+  {
+    path: "myPageWorker",
+    element: <MyPageWorker />,
   },
   {
     path: "researchMain",

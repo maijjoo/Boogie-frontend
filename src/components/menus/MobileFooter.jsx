@@ -5,7 +5,12 @@ import home from "../../assets/icons/nav/Home.svg";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
-const MobileFooter = ({ homeroot, writeroot, className }) => {
+const MobileFooter = ({
+  homeroot,
+  writeroot,
+  className,
+  myPageRoot = "/MyPageWorker",
+}) => {
   const navigate = useNavigate();
   const { isLoggedIn, logout } = useAuth();
 
@@ -20,14 +25,7 @@ const MobileFooter = ({ homeroot, writeroot, className }) => {
       className={`${className} bg-white w-full h-12 xl:h-14 z-10 flex border-t-2 border-t-slate-200 justify-center`}
     >
       <div className="w-1/3 flex justify-center p-3 cursor-pointer">
-        <img
-          src={myPage}
-          alt="my Page"
-          onClick={() => {
-            // 임시로 로그아웃으로 연결해놨음
-            logout();
-          }}
-        />
+        <img src={myPage} alt="my Page" onClick={() => navigate(myPageRoot)} />
       </div>
       <div
         className="w-1/3 flex justify-center p-3 cursor-pointer"
