@@ -92,7 +92,7 @@ const KakaoMap = ({
           };
           return (
             <MapMarker
-              key={spot.id}
+              key={spot.id + "." + Math.random()}
               position={{ lat: spot.latitude, lng: spot.longitude }}
               title={spot.pickUpPlace}
               image={markerImage}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import Copy from "../../../../assets/icons/write/Copy.svg";
 import Cancel from "../../../../assets/icons/write/Cancel.svg";
 import Circle from "../../../../assets/icons/write/Circle.svg";
@@ -22,27 +22,39 @@ const DetailedSpot = ({
   const getSpotInfoBySpotId = async () => {
     const selectedSpot = pickUpSpot.find((spotInfo) => spotInfo.id === spot);
     if (selectedSpot) {
+      console.log("=============selectedSpot============: ", selectedSpot);
+
       setSpotInfo(selectedSpot);
-      fetchAddress(selectedSpot.latitude, selectedSpot.longitude);
+      fetchAddress(setAddress, selectedSpot.latitude, selectedSpot.longitude);
     }
-    if (spotInfo && spotInfo.images.length > 0) {
-      try {
-        const imgUrls = await getImageByFileName(spotInfo.images);
-        setSpotImgs(imgUrls);
-        console.log("-------------spotImgs: ", spotImgs);
-      } catch (error) {
-        console.error(error);
-      }
-    }
+    console.log("=============address============= : ", address);
   };
 
   useEffect(() => {
+    console.log("=============DetailedSpot========== : ", spotInfo);
     getSpotInfoBySpotId();
-    fetchAddress(setAddress, spot.latitude, spot.longitude);
-  }, [spot]);
+    if (spot && spot.latitude && spot.longitude) {
+      fetchAddress(setAddress, spotInfo.latitude, spotInfo.longitude);
+    }
+    console.log("=============address============= : ", address);
+  }, [spot, pickUpSpot, fetchAddress]);
+
+  useEffect(() => {
+    if (spotInfo && spotInfo.images && spotInfo.images.length > 0) {
+      const fetchSpotImages = async () => {
+        try {
+          const imgUrls = await getImageByFileName(spotInfo.images);
+          setSpotImgs(imgUrls);
+        } catch (error) {
+          console.error("Error fetching images:", error);
+        }
+      };
+      fetchSpotImages();
+    }
+  }, [spotInfo]);
 
   return (
-    <div className="flex flex-col justify-center items-left p-3 border border-gray-500 bg-white">
+    <div className="w-full mx-2 flex flex-col justify-center items-left p-3 border border-gray-500 bg-white rounded-md">
       <div className="flex justify-between mb-3">
         <h1 className="inline font-bold text-red-500 text-xl">
           {spotInfo.pickUpPlace}
@@ -67,7 +79,7 @@ const DetailedSpot = ({
       </div>
       <div className="w-full overflow-x-auto mt-2">
         <div className="flex p-2 gap-3">
-          {spotImgs && spotImgs.length > 0 ? (
+          {/* {spotImgs && spotImgs.length > 0 ? (
             spotImgs.map((img, index) => (
               <div
                 key={index}
@@ -76,11 +88,11 @@ const DetailedSpot = ({
                 <img src={img} alt="spotImages" className="w-full h-full" />
               </div>
             ))
-          ) : (
-            <div className="flex-shrink-0 w-28 h-28 flex items-center justify-center border border-dashed border-gray-300 rounded-md">
-              <img src={DefaultImgs} alt="no Image" className="w-full h-full" />
-            </div>
-          )}
+          ) : ( */}
+          <div className="flex-shrink-0 w-28 h-28 flex items-center justify-center border border-dashed border-gray-300 rounded-md">
+            <img src={DefaultImgs} alt="no Image" className="w-full h-full" />
+          </div>
+          {/* )} */}
         </div>
       </div>
 
@@ -94,23 +106,23 @@ const DetailedSpot = ({
         </label>
       </div>
       <div className="flex w-full items-center mt-4 gap-3">
-        <div className="flex w-1/3 items-center gap-2">
+        <div className="flex w-1/2 items-center gap-2">
           <img src={Circle} alt="point" className="inline" />
           <label className="inline font-semibold">실제 쓰레기양</label>
         </div>
-        <div className="flex w-full gap-2">
-          <label className="w-1/2 text-right border border-gray-400 rounded-md px-3 py-2">
-            {spotInfo.actualCollectedVolume}
+        <div className="flex w-2/3 gap-2">
+          <label className="w-1/2 text-right border border-gray-400 rounded-md px-2 py-1">
+            {spotInfo.realTrashAmount} 개
           </label>
-          <label className="w-1/2 text-right border border-gray-400 rounded-md px-3 py-2">
-            {spotInfo.actualCollectedVolume}
+          <label className="w-1/2 text-right border border-gray-400 rounded-md px-2 py-1">
+            {spotInfo.realTrashAmount * 50} L
           </label>
         </div>
       </div>
-      <div className="w-full flex gap-5 mt-4">
+      <div className="w-full flex gap-5 mt-3">
         <Button
           color="white"
-          className="w-1/2 rounded-md px-3 py-2 text-lg"
+          className="w-1/2 rounded-md px-3 py-2 text-md"
           onClick={() => {
             onAddSpot(spotInfo.id);
             onClose(false);
@@ -120,7 +132,7 @@ const DetailedSpot = ({
         </Button>
         <Button
           color="blue"
-          className="w-1/2 rounded-lg px-4 py-3 text-lg"
+          className="w-1/2 rounded-lg px-3 py-2 text-md"
           onClick={() => {
             onClearSpot(spotInfo.title);
             onClose(false);
