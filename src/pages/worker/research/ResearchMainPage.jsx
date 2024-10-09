@@ -38,7 +38,8 @@ const initState = {
 
 const ResearchMainPage = () => {
   const navigate = useNavigate();
-  const { username, isLoggedIn } = useAuth();
+  const { username, isLoggedIn, memberInfo } = useAuth();
+  console.log(memberInfo);
 
   // 등록요청 성공시 리렌더링하기 위함
   const [result, setResult] = useState(false);
