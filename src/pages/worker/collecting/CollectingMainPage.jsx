@@ -49,7 +49,7 @@ const CollectingMainPage = () => {
       const address = await getAddress(lat, lng);
       console.log(address);
 
-      setAddress(address); // 주소 값을 상태로 설정
+      setAddress(address);
     } catch (error) {
       console.log(error);
     }
@@ -103,18 +103,8 @@ const CollectingMainPage = () => {
 
     getLocation();
     fetchData();
-
-    // get("/api/pickUp/managerId")로
-    // 내 담당 관리자의 담당구역에서
-    // 배정안된 상태의 pickupSpot List 받아오기
-
-    // [pickedSpots] 의존성배열 추가하면
-    // 수거 완료할 때마다 post 로 해당 집하지의 state를 수정하고
-    // pickedSpots 에서 해당 집하지를 제외함
-    // 그러면 자동으로 이 useEffect 가 실행되고
-    // 다시 get 으로 "배정안된" 것만 불러옴
-    // 지도의 중심좌표도 다시 현재위치로 수정됨
-  }, [memberInfo.managerId, pickedSpots]);
+    loadPickedSpots();
+  }, []);
 
   // 자기가 경로 추가한 구역만 할꺼?
   // 지금은 그냥 나랑 같은 관리자로 등록된 모든글 중
@@ -123,11 +113,8 @@ const CollectingMainPage = () => {
     setPickedSpots(
       pickUpSpot.filter((spot) => spot.status === "ASSIGNMENT_ADDED_TO_ROUTE")
     );
+    console.log("=====================loadPickedSpots : ", pickedSpots);
   };
-
-  useEffect(() => {
-    loadPickedSpots();
-  }, []);
 
   const onSpotDetail = (spotId) => {
     setOnDetail(true);
@@ -181,81 +168,23 @@ const CollectingMainPage = () => {
       const drop = await updateToCompleted(spotId);
       console.log("update added -> complete at spot id: ", spotId);
       console.log("-----------res: ", drop);
-
       loadPickedSpots();
     } catch (error) {
       console.error(error);
     }
   };
 
-  // return (
-  //   <div className="w-full flex flex-col items-center bg-gray-50">
-  //     <div className="w-full fixed top-0 z-50 flex flex-col">
-  //       <MobileHeader>집하지 지도</MobileHeader>
-  //       {!onList && (
-  //         <div
-  //           className="w-full flex items-center justify-center border"
-  //           style={{ height: onDetail ? "273px" : "560px" }}
-  //         >
-  //           <KakaoMap
-  //             myCoords={myCoords}
-  //             spots={pickUpSpot}
-  //             setDetail={onSpotDetail}
-  //             nowView={detailedSpot}
-  //           />
-  //         </div>
-  //       )}
-  //     </div>
-  //     <div className="w-full mt-12">
-  //       <div className="w-full bg-gray-200">
-  //         <div className="mb-12">
-  //           {onDetail && (
-  //             <DetailedSpot
-  //               fetchAddress={fetchAddress}
-  //               pickUpSpot={pickUpSpot}
-  //               spot={detailedSpot}
-  //               onClose={setOnDetail}
-  //               onAddSpot={onAddSpot}
-  //               onClearSpot={onCompletePickUp}
-  //             />
-  //           )}
-  //           {onList &&
-  //             pickedSpots.map((spot, index) => {
-  //               <PickedSpot
-  //                 fetchAddress={fetchAddress}
-  //                 index={Number(index + 1)}
-  //                 key={spot.id}
-  //                 spot={spot}
-  //                 onDrop={onDropAdded}
-  //                 onClearSpot={onCompletePickUp}
-  //               />;
-  //             })}
-  //         </div>
-  //       </div>
-  //     </div>
-
-  //     <div className="w-full fixed bottom-0 z-50">
-  //       <FooterInfo
-  //         pickedSpot={pickedSpots}
-  //         onList={onList}
-  //         setOnList={setOnList}
-  //       />
-  //       <MobileFooter homeroot={"/collectingMain"} />
-  //     </div>
-  //   </div>
-  // );
-
   return (
     <div className="w-full flex flex-col items-center bg-gray-50">
-      <div
-        className={`w-full fixed top-0 z-30 flex flex-col transition-all duration-300 ${
-          onList ? "transform -translate-y-full" : ""
-        }`}
-      >
+      <div className="w-full fixed top-0 z-40">
         <MobileHeader>집하지 지도</MobileHeader>
+
+        {/** 디테일은 여기서 해야될듯? 지도 크기 줄이고 DetailedSpot 컴포넌트 ㄱㄱ */}
+      </div>
+      <div className="w-full mt-12 mb-14 flex-1">
         <div
-          className="w-full flex items-center justify-center border"
-          style={{ height: onDetail ? "200px" : "560px" }}
+          className="w-full transition-all duration-500"
+          style={{ height: onDetail ? "200px" : "566px" }}
         >
           <KakaoMap
             myCoords={myCoords}
@@ -264,26 +193,32 @@ const CollectingMainPage = () => {
             nowView={detailedSpot}
           />
         </div>
-
-        {/** 디테일은 여기서 해야될듯? 지도 크기 줄이고 DetailedSpot 컴포넌트 ㄱㄱ */}
       </div>
-      {onDetail && (
-        <div
-          className="w-full flex items-center justify-center border mt-72 mb-48"
-          style={{ height: "360px" }}
-        >
-          <DetailedSpot
-            fetchAddress={fetchAddress}
-            pickUpSpot={pickUpSpot}
-            spot={detailedSpot}
-            onClose={setOnDetail}
-            onAddSpot={onAddSpot}
-            onClearSpot={onCompletePickUp}
-          />
-        </div>
-      )}
+      <div
+        className={`w-full fixed z-40 bg-white rounded-t-3xl shadow-lg transition-all duration-500 ease-out`}
+        style={{
+          top: onDetail ? "calc(100vh - 530px)" : "100vh",
+          height: "360px",
+          transform: onList ? "translateY(-100vh)" : "translateY(0)",
+        }}
+      >
+        {onDetail && (
+          <div
+            className="w-full bg-gray-300 rounded-full mb-4"
+            style={{ height: "430px" }}
+          >
+            <DetailedSpot
+              fetchAddress={fetchAddress}
+              pickUpSpot={pickUpSpot}
+              spot={detailedSpot}
+              onClose={setOnDetail}
+              onAddSpot={onAddSpot}
+              onClearSpot={onCompletePickUp}
+            />
+          </div>
+        )}
+      </div>
 
-      {/** 모바일푸터 + 총예상수거량 카드 + 버튼누르면 위로 올라와서 수거경로 리스트까지 나오게하는 개쩌는친구 */}
       <FooterInfo
         pickedSpot={pickedSpots}
         loadSpots={loadPickedSpots}

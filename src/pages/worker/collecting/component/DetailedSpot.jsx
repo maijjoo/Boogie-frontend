@@ -43,8 +43,14 @@ const DetailedSpot = ({
     if (spotInfo && spotInfo.images && spotInfo.images.length > 0) {
       const fetchSpotImages = async () => {
         try {
-          const imgUrls = await getImageByFileName(spotInfo.images);
-          setSpotImgs(imgUrls);
+          // 이미지 배열을 비동기로 처리하고 모든 작업이 끝나길 기다림
+          const imgUrls = await Promise.all(
+            spotInfo.images.map(async (img) => {
+              return await getImageByFileName(img);
+            })
+          );
+          // 이미지를 상태로 저장
+          setSpotImgs([...imgUrls]);
         } catch (error) {
           console.error("Error fetching images:", error);
         }
@@ -54,7 +60,7 @@ const DetailedSpot = ({
   }, [spotInfo]);
 
   return (
-    <div className="w-full mx-2 flex flex-col justify-center items-left p-3 border border-gray-500 bg-white rounded-md">
+    <div className="w-full flex flex-col justify-center items-left p-3 border border-gray-500 bg-white rounded-t-xl pb-10">
       <div className="flex justify-between mb-3">
         <h1 className="inline font-bold text-red-500 text-xl">
           {spotInfo.pickUpPlace}
@@ -79,7 +85,7 @@ const DetailedSpot = ({
       </div>
       <div className="w-full overflow-x-auto mt-2">
         <div className="flex p-2 gap-3">
-          {/* {spotImgs && spotImgs.length > 0 ? (
+          {spotImgs && spotImgs.length > 0 ? (
             spotImgs.map((img, index) => (
               <div
                 key={index}
@@ -88,11 +94,11 @@ const DetailedSpot = ({
                 <img src={img} alt="spotImages" className="w-full h-full" />
               </div>
             ))
-          ) : ( */}
-          <div className="flex-shrink-0 w-28 h-28 flex items-center justify-center border border-dashed border-gray-300 rounded-md">
-            <img src={DefaultImgs} alt="no Image" className="w-full h-full" />
-          </div>
-          {/* )} */}
+          ) : (
+            <div className="flex-shrink-0 w-28 h-28 flex items-center justify-center border border-dashed border-gray-300 rounded-md">
+              <img src={DefaultImgs} alt="no Image" className="w-full h-full" />
+            </div>
+          )}
         </div>
       </div>
 

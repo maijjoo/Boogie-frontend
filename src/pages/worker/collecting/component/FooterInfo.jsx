@@ -21,7 +21,7 @@ const FooterInfo = ({
 
     if (pickedSpot && pickedSpot.length > 0) {
       const amount = pickedSpot.reduce(
-        (total, spot) => total + spot.actualCollectedVolume,
+        (total, spot) => total + spot.realTrashAmount,
         0
       );
       setSelectedTrashAmount(amount);
@@ -74,7 +74,7 @@ const FooterInfo = ({
       <div className="fixed bottom-0 left-0 right-0 z-50">
         {/* 슬라이딩 패널 */}
         <div
-          className={`bg-white transition-transform duration-500 ease-out ${
+          className={` transition-transform duration-500 ease-out ${
             onList ? "h-[calc(100vh-56px)]" : "h-auto"
           }`}
           style={{
@@ -97,7 +97,7 @@ const FooterInfo = ({
 
           {/* 리스트 영역 */}
           {onList && (
-            <div className="h-[calc(100%-103px)] overflow-y-auto p-4">
+            <div className="bg-white h-[calc(100%-103px)] overflow-y-auto p-4">
               {pickedSpot.map((spot, index) => (
                 // 여기 PickedSpot 컴포넌트 쓰면됨
                 <div key={index}>
@@ -108,6 +108,7 @@ const FooterInfo = ({
                     loadSpots={loadSpots}
                     onDrop={onDrop}
                     onClearSpot={onClearSpot}
+                    pickedSpots={pickedSpot}
                   />
                 </div>
               ))}

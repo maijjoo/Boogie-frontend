@@ -2,17 +2,26 @@ import React, { useEffect, useState } from "react";
 import Circle from "../../../../assets/icons/write/Circle.svg";
 import Button from "../../../../components/commons/Button";
 
-const PickedSpot = ({ spot, index, fetchAddress, onDrop, onClearSpot }) => {
+const PickedSpot = ({
+  loadSpots,
+  spot,
+  index,
+  fetchAddress,
+  onDrop,
+  onClearSpot,
+  pickedSpots,
+}) => {
   const [address, setAddress] = useState();
 
   useEffect(() => {
     fetchAddress(setAddress, spot.latitude, spot.longitude);
-  });
+    loadSpots();
+  }, [pickedSpots]);
 
   return (
     <div className="flex flex-col justify-center items-left p-5 mt-5 border border-gray-600 rounded-md">
       <div className="flex justify-between mb-1">
-        <p>경로 {index}</p>
+        <p>경로 {index + 1}</p>
         <h1 className="inline font-bold text-red-500 text-2xl">
           {spot.pickUpPlace}
         </h1>
