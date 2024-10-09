@@ -30,8 +30,9 @@ const CollectingMainPage = () => {
   const [detailedSpot, setDetailedSpot] = useState();
   // 마커 클릭해서 상세정보 보고있는 상태인지
   const [isOnDetailed, setIsOnDetailed] = useState(false);
-  const [isMapExpanded, setIsMapExpanded] = useState(false);
-  const [mapSize, setMapSize] = useState();
+
+  const [onDetail, setOnDetail] = useState(false);
+  const [onList, setOnList] = useState(false);
 
   const getAddress = useCallback((lat, lng) => {
     return new Promise((resolve, reject) => {
@@ -127,8 +128,7 @@ const CollectingMainPage = () => {
   }, [pickUpSpot]);
 
   const onSpotDetail = (spotId) => {
-    setIsOnDetailed(true);
-    setOnWork(true);
+    setOnDetail(true);
     setDetailedSpot(spotId);
   };
 
@@ -185,59 +185,92 @@ const CollectingMainPage = () => {
     }
   };
 
-  const toggleMap = () => {
-    setIsMapExpanded((prev) => !prev);
-  };
+  // return (
+  //   <div className="w-full flex flex-col items-center bg-gray-50">
+  //     <div className="w-full fixed top-0 z-50 flex flex-col">
+  //       <MobileHeader>집하지 지도</MobileHeader>
+  //       {!onList && (
+  //         <div
+  //           className="w-full flex items-center justify-center border"
+  //           style={{ height: onDetail ? "273px" : "560px" }}
+  //         >
+  //           <KakaoMap
+  //             myCoords={myCoords}
+  //             spots={pickUpSpot}
+  //             setDetail={onSpotDetail}
+  //             nowView={detailedSpot}
+  //           />
+  //         </div>
+  //       )}
+  //     </div>
+  //     <div className="w-full mt-12">
+  //       <div className="w-full bg-gray-200">
+  //         <div className="mb-12">
+  //           {onDetail && (
+  //             <DetailedSpot
+  //               fetchAddress={fetchAddress}
+  //               pickUpSpot={pickUpSpot}
+  //               spot={detailedSpot}
+  //               onClose={setOnDetail}
+  //               onAddSpot={onAddSpot}
+  //               onClearSpot={onCompletePickUp}
+  //             />
+  //           )}
+  //           {onList &&
+  //             pickedSpots.map((spot, index) => {
+  //               <PickedSpot
+  //                 fetchAddress={fetchAddress}
+  //                 index={Number(index + 1)}
+  //                 key={spot.id}
+  //                 spot={spot}
+  //                 onDrop={onDropAdded}
+  //                 onClearSpot={onCompletePickUp}
+  //               />;
+  //             })}
+  //         </div>
+  //       </div>
+  //     </div>
+
+  //     <div className="w-full fixed bottom-0 z-50">
+  //       <FooterInfo
+  //         pickedSpot={pickedSpots}
+  //         onList={onList}
+  //         setOnList={setOnList}
+  //       />
+  //       <MobileFooter homeroot={"/collectingMain"} />
+  //     </div>
+  //   </div>
+  // );
 
   return (
     <div className="w-full flex flex-col items-center bg-gray-50">
-      <div className="w-full fixed top-0 z-50">
+      <div
+        className={`w-full fixed top-0 z-30 flex flex-col transition-all duration-300 ${
+          onList ? "transform -translate-y-full" : ""
+        }`}
+      >
         <MobileHeader>집하지 지도</MobileHeader>
-        <div className="w-full bg-gray-200">
-          <div className="w-full h-[566px] flex items-center justify-center border border-black">
-            <KakaoMap
-              myCoords={myCoords}
-              spots={pickUpSpot}
-              setDetail={onSpotDetail}
-              nowView={detailedSpot}
-            />
-            {/* 여기에 그냥 조건에따라 맵, 디테일, 픽트스팟 렌더링하는걸로 */}
-          </div>
+        <div
+          className="w-full flex items-center justify-center border"
+          style={{ height: onDetail ? "273px" : "560px" }}
+        >
+          <KakaoMap
+            myCoords={myCoords}
+            spots={pickUpSpot}
+            setDetail={onSpotDetail}
+            nowView={detailedSpot}
+          />
         </div>
+
+        {/** 디테일은 여기서 해야될듯? 지도 크기 줄이고 DetailedSpot 컴포넌트 ㄱㄱ */}
       </div>
-      <div className="py-5 w-full xl:py-7">
-        <div className="pb-4">
-          <div className="px-3">
-            {isOnDetailed && (
-              <DetailedSpot
-                fetchAddress={fetchAddress}
-                pickUpSpot={pickUpSpot}
-                spot={detailedSpot}
-                onClose={setIsOnDetailed}
-                onAddSpot={onAddSpot}
-                onClearSpot={onCompletePickUp}
-              />
-            )}
-            {!isOnDetailed &&
-              pickedSpots &&
-              pickedSpots.length > 0 &&
-              pickedSpots.map((spot, index) => (
-                <PickedSpot
-                  fetchAddress={fetchAddress}
-                  index={Number(index + 1)}
-                  key={spot.id}
-                  spot={spot}
-                  onDrop={onDropAdded}
-                  onClearSpot={onCompletePickUp}
-                />
-              ))}
-          </div>
-        </div>
-      </div>
-      <div className="w-full fixed bottom-0">
-        <FooterInfo pickedSpot={pickedSpots} />
-        <MobileFooter homeroot={"/collectingMain"} />
-      </div>
+
+      {/** 모바일푸터 + 총예상수거량 카드 + 버튼누르면 위로 올라와서 수거경로 리스트까지 나오게하는 개쩌는친구 */}
+      <FooterInfo
+        pickedSpot={pickedSpots}
+        onList={onList}
+        setOnList={setOnList}
+      />
     </div>
   );
 };
