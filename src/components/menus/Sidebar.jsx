@@ -148,7 +148,7 @@ const Sidebar = () => {
           onMouseEnter={() => setHoverMenu("work")}
           onMouseLeave={() => setHoverMenu("")}
         >
-          <Link to={"/"} className="flex items-center">
+          <Link to={"/newWorks"} className="flex items-center">
             <img
               src={
                 activeMenu === "work" || hoverMenu === "work"
@@ -181,7 +181,7 @@ const Sidebar = () => {
                 NEW 작업
               </Link>
               <Link
-                to={"/"}
+                to={"/workList"}
                 className={`text-[#1E1E23] font-semibold cursor-pointer hover:text-[#014EB6] hover:font-semibold ${
                   activeSubMenu === "workList"
                     ? "!text-[#014EB6] !font-semibold"

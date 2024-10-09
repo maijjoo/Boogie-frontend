@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import SidebarLayout from "../../layouts/SidebarLayout";
-import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { getNewWorks } from "../../api/newWorksApi";
+import { useNavigate } from "react-router-dom";
+import { getWorkList } from "../../api/workListApi";
 import ConditionTabs from "../../components/searchCondition/admin/ConditionTabs";
 import Searchbar from "../../components/searchCondition/admin/Searchbar";
 import SearchButton from "../../components/searchCondition/admin/SearchButton";
 import Card from "../../components/commons/Card";
 import NoticeIcon from "../../assets/images/notice.png";
 
-const NewWorksPage = ({ onSearchInputChange }) => {
+const WorkListPage = ({ onSearchInputChange }) => {
   // 관리자 id, 역할
   const { isLoggedIn, role } = useAuth();
   const navigate = useNavigate();
@@ -43,9 +43,9 @@ const NewWorksPage = ({ onSearchInputChange }) => {
   // API 호출 함수
   const fetchNewWorks = async () => {
     try {
-      const response = await getNewWorks({
+      const response = await getWorkList({
         ...searchParam,
-        tabCondition: condition === "researchTab" ? "조사 완료" : "청소 완료",
+        tabCondition: condition === "researchTab" ? "조사" : "청소",
       });
       setSearchedData(response.data); // API 응답 데이터 설정
     } catch (error) {
@@ -74,7 +74,7 @@ const NewWorksPage = ({ onSearchInputChange }) => {
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
-        <h1 className="text-xl font-bold mb-2 text-blue-700">New 작업</h1>
+        <h1 className="text-xl font-bold mb-2 text-blue-700">작업 조회</h1>
         {/* 조회 전체 div */}
         <div className="bg-white rounded-lg shadow px-14 py-4 mb-8 h-24">
           <div className="flex items-center justify-between w-full">
@@ -83,8 +83,8 @@ const NewWorksPage = ({ onSearchInputChange }) => {
               setActiveTab={setCondition}
               activeTab={condition}
               initSearchParam={setSearchParam}
-              tabNames={["조사 완료", "청소 완료"]} // 탭 이름 2개만 전달
-              tabKeys={["researchTab", "cleanTab"]} // 탭 키 2개만 전달
+              tabNames={["조사 완료", "청소 완료", "수거 완료"]} // 탭 이름 3개 전달
+              tabKeys={["researchTab", "cleanTab", "extraWorkTab"]} // 탭 키 3개 전달
               searchParams={searchParam} // 상태로 관리된 searchParam을 전달
             />
 
@@ -99,10 +99,7 @@ const NewWorksPage = ({ onSearchInputChange }) => {
 
         {/* 작업 보고서 리스트 */}
         {searchedData.length > 0 ? (
-          <Link
-            to={"/"}
-            className="flex flex-wrap justify-between gap-4 mb-8 h-full w-full"
-          >
+          <div className="flex flex-wrap justify-between gap-4 mb-8 h-full w-full">
             {/* 그리드 레이아웃으로 카드 배열 */}
             {searchedData.map((report) => (
               <Card
@@ -117,7 +114,7 @@ const NewWorksPage = ({ onSearchInputChange }) => {
                 status={report.status || "상태 없음"}
               />
             ))}
-          </Link>
+          </div>
         ) : (
           <div className="flex flex-col items-center mt-40">
             <img
@@ -135,4 +132,4 @@ const NewWorksPage = ({ onSearchInputChange }) => {
   );
 };
 
-export default NewWorksPage;
+export default WorkListPage;
