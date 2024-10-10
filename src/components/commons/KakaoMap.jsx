@@ -14,11 +14,12 @@ import { useEffect, useState } from "react";
 
 const KakaoMap = ({
   myCoords,
-  spots = null,
   setDetail = null,
   nowView = null,
   searchedData = null,
   predictedData = null,
+  neededSpots = null,
+  addedSpots = null,
 }) => {
   const trashToPin = {
     부표류: redBuyo,
@@ -79,7 +80,7 @@ const KakaoMap = ({
       }}
       level={3} // 지도의 확대 레벨
     >
-      {spots &&
+      {/* {spots &&
         spots.map((spot) => {
           const markerImage = {
             size: { width: 35, height: 35 },
@@ -97,6 +98,44 @@ const KakaoMap = ({
               title={spot.pickUpPlace}
               image={markerImage}
               onClick={() => {
+                setDetail(spot.id);
+              }}
+            />
+          );
+        })} */}
+      {neededSpots &&
+        neededSpots.map((spot) => {
+          const markerImage = {
+            size: { width: 35, height: 35 },
+            src: spot.id === nowView ? redSpot : blackSpot,
+          };
+          return (
+            <MapMarker
+              key={spot.id + "." + Math.random()}
+              position={{ lat: spot.latitude, lng: spot.longitude }}
+              title={spot.pickUpPlace}
+              image={markerImage}
+              onClick={() => {
+                setDetail(spot.id);
+              }}
+            />
+          );
+        })}
+      {addedSpots &&
+        addedSpots.map((spot) => {
+          const markerImage = {
+            size: { width: 35, height: 35 },
+            src: spot.id === nowView ? redSpot : greenSpot,
+          };
+          return (
+            <MapMarker
+              key={spot.id}
+              position={{ lat: spot.latitude, lng: spot.longitude }}
+              title={spot.pickUpPlace}
+              image={markerImage}
+              onClick={() => {
+                console.log("clicked!");
+
                 setDetail(spot.id);
               }}
             />
