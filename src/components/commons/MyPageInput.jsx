@@ -9,7 +9,7 @@ const MyPageInput = ({
   onChange,
   type,
   placeholder,
-  editMode = "text",
+  editMode,
   className,
 }) => {
   return (
@@ -18,10 +18,10 @@ const MyPageInput = ({
         {label}
       </label>
       <input
-        className={`block p-1 border-solid border border-black rounded-md w-full ${
+        className={`block p-1 border-solid border border-gray-400 rounded-md w-full ${
           editMode
             ? "bg-white text-black"
-            : "bg-gray-200 text-gray-500 focus:outline-none caret-transparent focus:border-solid border border-gray-400"
+            : " text-black focus:outline-none caret-transparent focus:border-solid border border-gray-400"
         }`}
         type={type}
         name={name}

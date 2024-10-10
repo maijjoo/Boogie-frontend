@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import logo from "../../assets/images/logo_tr.png";
 import wave from "../../assets/images/wave.jpg";
+import logout2 from "../../assets/icons/write/logout.png";
 import research from "../../assets/icons/workerMode/Analyze.svg";
 import clean from "../../assets/icons/workerMode/Housekeeping.svg";
 import collect from "../../assets/icons/workerMode/GarbageTruck.svg";
@@ -13,7 +14,7 @@ import { useAuth } from "../../hooks/useAuth";
 const WorkerMainPage = () => {
   const navigate = useNavigate();
   const [hasRegisteredCar, setHasRegisteredCar] = useState(false);
-  const { isLoggedIn, isDriver } = useAuth();
+  const { isLoggedIn, isDriver, logout } = useAuth();
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -65,6 +66,18 @@ const WorkerMainPage = () => {
           />
           <p className="font-bold ms-1">수거</p>
         </Button>
+
+        <div className="flex justify-center fixed bottom-8 gap-1">
+          <img src={logout2} alt="logout" className="w-7" />
+          <span
+            className="cursor-pointer font-extrabold text-lg text-white"
+            onClick={() => {
+              logout();
+            }}
+          >
+            로그아웃
+          </span>
+        </div>
       </div>
 
       <div className="flex items-end mt-auto w-full">

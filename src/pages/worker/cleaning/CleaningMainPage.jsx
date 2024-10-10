@@ -193,7 +193,7 @@ const CleaningMainPage = () => {
       <MobileHeader className="fixed top-0 z-50">청소 보고서</MobileHeader>
 
       {/* 메인 폼 */}
-      <div className="w-full px-5 p-3 mt-12 mb-24 bg-gray-50">
+      <div className="w-full px-5 p-3 mt-12 mb-24 ">
         <div className="w-full xl:w-1/3 border border-gray-400 rounded-md mb-2 p-4 bg-white">
           {isMainFormCollapsed ? (
             <div className="flex flex-col items-center justify-center">
