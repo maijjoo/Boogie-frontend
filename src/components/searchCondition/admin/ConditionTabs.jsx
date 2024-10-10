@@ -15,8 +15,8 @@ const ConditionTabs = ({
           key={index}
           className={`w-28 h-12 px-4 py-2 ${
             activeTab === tabKeys[index]
-              ? "bg-blue-700 text-white" // 활성화된 탭
-              : "bg-white text-blue-700 border-2 border-blue-700" // 비활성화된 탭
+              ? "bg-blue-700 text-white hover:bg-blue-800 transition" // 활성화된 탭
+              : "bg-white text-blue-700 border-2 border-blue-700 " // 비활성화된 탭
           } text-[12pt] rounded-lg text-bold transition-colors duration-200`}
           onClick={() => {
             setActiveTab(tabKeys[index]);
