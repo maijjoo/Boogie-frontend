@@ -6,6 +6,7 @@ import MyPageInput from "../../components/commons/MyPageInput"; // InputField �
 import { useAuth } from "../../hooks/useAuth.js";
 import classNames from "classnames";
 import { getUserInfo } from "../../api/workerInfoApi.js";
+import circle from "../../assets/icons/write/Circle.svg";
 
 const MyPageWorker = () => {
   const { memberInfo, isLoggedIn, logout, id } = useAuth();
@@ -170,16 +171,23 @@ const MyPageWorker = () => {
   );
 
   return (
-    <div className="w-full h-lvh flex flex-col items-center bg-gray-50">
+    <div className="w-full h-lvh flex flex-col items-center bg-white">
       <MobileHeader className="fixed top-0 z-50">마이페이지</MobileHeader>
-      <div className="w-full mt-16 mb-24 bg-gray-50">
+      <div className="w-full mt-16 mb-24 bg-white">
         <form onSubmit={handleSubmit}>
           {/* 사용자 이름 필드 */}
           {!passwordChange && (
-            <div className="px-3 gap-4 flex flex-col mb-24 ">
+            <div className="px-5 gap-4 flex flex-col mb-24">
               <div>
-                <div className="font-bold">이름</div>
-                <div className="border border-gray-400 rounded-md bg-gray-100 p-1">
+                <div className="font-bold">
+                  <img src={circle} alt="dot" className="w-1 me-2 inline" />
+                  이름
+                </div>
+                <div
+                  className={`border border-gray-400 rounded-md p-1 ${
+                    !editMode ? "bg-white" : "bg-gray-100"
+                  }`}
+                >
                   {userInfo.name}
                 </div>
               </div>
@@ -220,7 +228,11 @@ const MyPageWorker = () => {
               {/* 소속 필드 */}
               <div>
                 <div className="font-bold">소속</div>
-                <div className="border border-gray-400 rounded-md bg-gray-100 p-1">
+                <div
+                  className={`border border-gray-400 rounded-md p-1 ${
+                    !editMode ? "bg-white" : "bg-gray-100"
+                  }`}
+                >
                   {userInfo.workGroup} {userInfo.managerDepartment}과
                 </div>
               </div>
@@ -228,7 +240,11 @@ const MyPageWorker = () => {
               {/* 매니저 전화번호 필드 */}
               <div>
                 <div className="font-bold">관리자 연락처</div>
-                <div className="border border-gray-400 rounded-md bg-gray-100 p-1">
+                <div
+                  className={`border border-gray-400 rounded-md p-1 ${
+                    !editMode ? "bg-white" : "bg-gray-100"
+                  }`}
+                >
                   {userInfo.managerContact}
                 </div>
               </div>
@@ -243,22 +259,11 @@ const MyPageWorker = () => {
                 readOnly={!editMode} // 수정 모드가 아닐 때는 readOnly 상태 유지
                 editMode={editMode}
               />
-
-              <div className="flex justify-center">
-                <span
-                  className="cursor-pointer font-extrabold"
-                  onClick={() => {
-                    logout();
-                  }}
-                >
-                  로그아웃
-                </span>
-              </div>
             </div>
           )}
 
           <div className="w-full xl:w-1/3 mt-3 flex flex-col justify-center">
-            <div className="fixed bottom-0 z-50 bg-gray-50 w-full flex flex-col justify-center gap-2">
+            <div className="fixed bottom-0 z-50 bg-white w-full flex flex-col justify-center gap-2">
               <div className="flex px-2 gap-2">
                 {!editMode && (
                   <div

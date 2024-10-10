@@ -8,7 +8,7 @@
 
 const Button = ({ className, color, children, ...props }) => {
   const colorClasses = {
-    blue: "bg-blue-700 text-white border  hover:bg-blue-900",
+    blue: "bg-blue-700 text-white border  hover:bg-blue-800",
     emptyBlue:
       "bg-white text-blue-700 border border-blue-700 hover:bg-gray-200",
     red: "bg-red-500 text-white hover:bg-red-600",

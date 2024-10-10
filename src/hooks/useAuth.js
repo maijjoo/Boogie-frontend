@@ -13,8 +13,6 @@ export const useAuth = () => {
 
   const username = memberInfo?.username || "";
 
-  const id = memberInfo?.id || "";
-
   const workPlace = memberInfo?.workPlace || "";
 
   const department = memberInfo?.department || "";
