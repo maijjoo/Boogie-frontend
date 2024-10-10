@@ -70,7 +70,9 @@ const NewWorksPage = ({ onSearchInputChange }) => {
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
-        <h1 className="text-xl font-bold mb-2 text-blue-700">New 작업</h1>
+        <Link to={"/newWorks"}>
+          <h1 className="text-xl font-bold mb-2 text-blue-700">New 작업</h1>
+        </Link>
         <div className="bg-white rounded-lg shadow px-14 py-4 mb-8 h-24">
           <div className="flex items-center justify-between w-full">
             <ConditionTabs
