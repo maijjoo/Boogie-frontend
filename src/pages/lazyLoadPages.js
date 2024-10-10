@@ -5,6 +5,7 @@ export const Find = lazy(() => import("./FindPasswordPage.jsx"));
 export const AdminMain = lazy(() => import("./admin/AdminMainPage.jsx"));
 export const WorkerMain = lazy(() => import("./worker/WorkerMainPage.jsx"));
 export const MyPageWorker = lazy(() => import("./worker/MyPageWorker.jsx"));
+export const MyPageAdmin = lazy(() => import("./admin/MyPageAdmin.jsx"));
 export const ResearchMain = lazy(() =>
   import("./worker/research/ResearchMainPage.jsx")
 );
