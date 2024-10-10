@@ -2,21 +2,12 @@ import React, { useEffect, useState } from "react";
 import Circle from "../../../../assets/icons/write/Circle.svg";
 import Button from "../../../../components/commons/Button";
 
-const PickedSpot = ({
-  loadSpots,
-  spot,
-  index,
-  fetchAddress,
-  onDrop,
-  onClearSpot,
-  pickedSpots,
-}) => {
+const PickedSpot = ({ spot, index, fetchAddress, onUpdateSpot }) => {
   const [address, setAddress] = useState();
 
   useEffect(() => {
     fetchAddress(setAddress, spot.latitude, spot.longitude);
-    loadSpots();
-  }, [pickedSpots]);
+  });
 
   return (
     <div className="flex flex-col justify-center items-left p-5 mt-5 border border-gray-600 rounded-md">
@@ -27,8 +18,8 @@ const PickedSpot = ({
         </h1>
       </div>
       <div className="flex w-full items-center gap-2">
-        <label className="inline w-full border border-gray-500 rounded-md my-2 px-3 py-2 text-lg">
-          {address ? address : "주소를 불러오는 중..."}
+        <label className="inline w-full border border-gray-500 rounded-md my-2 px-3 py-2 text-base">
+          {address ? address : "정확한 주소를 불러올 수 없습니다"}
         </label>
       </div>
 
@@ -62,7 +53,13 @@ const PickedSpot = ({
           color="white"
           className="w-1/2 rounded-md px-3 py-2 text-lg"
           onClick={() => {
-            onDrop(spot.id);
+            if (
+              confirm(
+                spot.pickUpPlace + "을(를) 수거 경로에서 제외하시겠습니까?"
+              )
+            ) {
+              onUpdateSpot(spot.id, "toNeeded");
+            }
           }}
         >
           경로 삭제
@@ -72,7 +69,7 @@ const PickedSpot = ({
           className="w-1/2 rounded-lg px-4 py-3 text-lg"
           onClick={() => {
             if (confirm("'" + spot.pickUpPlace + "' 을 수거하셨습니까?")) {
-              onClearSpot(spot.id);
+              onUpdateSpot(spot.id, "toCompleted");
             }
           }}
         >

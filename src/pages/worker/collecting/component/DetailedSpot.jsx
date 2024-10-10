@@ -12,20 +12,39 @@ const DetailedSpot = ({
   onClose,
   onAddSpot,
   onClearSpot,
-  pickUpSpot,
   fetchAddress,
+  neededSpots,
+  addedSpots,
+  onUpdateSpot,
 }) => {
   const [spotInfo, setSpotInfo] = useState({});
-  const [address, setAddress] = useState();
+  const [address, setAddress] = useState("");
   const [spotImgs, setSpotImgs] = useState([]);
+  const [isAdded, setIsAdded] = useState(false);
 
   const getSpotInfoBySpotId = async () => {
-    const selectedSpot = pickUpSpot.find((spotInfo) => spotInfo.id === spot);
-    if (selectedSpot) {
-      console.log("=============selectedSpot============: ", selectedSpot);
+    const selectedSpot1 = neededSpots.find((spotInfo) => spotInfo.id === spot);
+    if (selectedSpot1) {
+      console.log("=============selectedSpot============: ", selectedSpot1);
 
-      setSpotInfo(selectedSpot);
-      fetchAddress(setAddress, selectedSpot.latitude, selectedSpot.longitude);
+      setSpotInfo(selectedSpot1);
+      await fetchAddress(
+        setAddress,
+        selectedSpot1.latitude,
+        selectedSpot1.longitude
+      );
+    }
+    const selectedSpot2 = addedSpots.find((spotInfo) => spotInfo.id === spot);
+    if (selectedSpot2) {
+      console.log("=============selectedSpot============: ", selectedSpot2);
+
+      setSpotInfo(selectedSpot2);
+      setIsAdded(true);
+      await fetchAddress(
+        setAddress,
+        selectedSpot2.latitude,
+        selectedSpot2.longitude
+      );
     }
     console.log("=============address============= : ", address);
   };
@@ -37,7 +56,7 @@ const DetailedSpot = ({
       fetchAddress(setAddress, spotInfo.latitude, spotInfo.longitude);
     }
     console.log("=============address============= : ", address);
-  }, [spot, pickUpSpot, fetchAddress]);
+  }, [spot]);
 
   useEffect(() => {
     if (spotInfo && spotInfo.images && spotInfo.images.length > 0) {
@@ -73,7 +92,7 @@ const DetailedSpot = ({
       </div>
       <div className="flex w-full items-center gap-2">
         <label className="inline w-full border border-gray-500 rounded-md my-1 px-2 py-1 text-md">
-          {address ? address : "주소를 불러오는 중..."}
+          {address ? address : "정확한 주소를 불러올 수 없습니다"}
         </label>
         <img
           className="inline cursor-pointer w-8"
@@ -128,19 +147,26 @@ const DetailedSpot = ({
       <div className="w-full flex gap-5 mt-3">
         <Button
           color="white"
-          className="w-1/2 rounded-md px-3 py-2 text-md"
+          className="w-1/2 rounded-md px-3 py-2 text-base"
           onClick={() => {
-            onAddSpot(spotInfo.id);
-            onClose(false);
+            if (
+              confirm(
+                spotInfo.pickUpPlace + "을(를) 수거 경로에 추가하시겠습니까?"
+              )
+            ) {
+              onUpdateSpot(spotInfo.id, "toAdded");
+              onClose(false);
+            }
           }}
+          disabled={isAdded}
         >
           경로 추가
         </Button>
         <Button
           color="blue"
-          className="w-1/2 rounded-lg px-3 py-2 text-md"
+          className="w-1/2 rounded-lg px-3 py-2 text-base"
           onClick={() => {
-            onClearSpot(spotInfo.title);
+            onUpdateSpot(spotInfo.id, "toCompleted");
             onClose(false);
           }}
         >
