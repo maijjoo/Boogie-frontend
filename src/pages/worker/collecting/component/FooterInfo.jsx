@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import up from "../../../../assets/icons/write/Sort Up.svg";
 import down from "../../../../assets/icons/write/Sort Down.svg";
 import tab from "../../../../assets/icons/write/opened.png";
@@ -7,59 +7,46 @@ import MobileFooter from "../../../../components/menus/MobileFooter";
 import PickedSpot from "./PickedSpot";
 
 const FooterInfo = ({
-  pickedSpot,
   onList,
   setOnList,
-  loadSpots,
   fetchAddress,
   onDrop,
   onClearSpot,
+  neededSpots,
+  addedSpots,
+  onUpdateSpot,
 }) => {
-  const [selectedTrashAmount, setSelectedTrashAmount] = useState();
-  useEffect(() => {
-    loadSpots();
+  const [selectedTrashAmount, setSelectedTrashAmount] = useState(0);
 
-    if (pickedSpot && pickedSpot.length > 0) {
-      const amount = pickedSpot.reduce(
+  // const memoizedLoadSpots = useCallback(() => {
+  //   loadSpots();
+  // }, []);
+
+  // useEffect(() => {
+  //   memoizedLoadSpots();
+  // }, [memoizedLoadSpots]);
+
+  // useEffect(() => {
+  //   if (pickedSpot && pickedSpot.length > 0) {
+  //     const amount = pickedSpot.reduce(
+  //       (total, spot) => total + spot.realTrashAmount,
+  //       0
+  //     );
+  //     setSelectedTrashAmount(amount);
+  //   } else {
+  //     setSelectedTrashAmount(0);
+  //   }
+  // }, [pickedSpot]);
+
+  useEffect(() => {
+    if (addedSpots && addedSpots.length > 0) {
+      const amount = addedSpots.reduce(
         (total, spot) => total + spot.realTrashAmount,
         0
       );
       setSelectedTrashAmount(amount);
-    }
-  }, [onList]);
-
-  // return (
-  //   <div className="w-full flex flex-col">
-  //     <div
-  //       className="w-full border-t-2 rounded-t-xl h-1 bg-white flex justify-center items-center py-3 border-gray-300 cursor-pointer"
-  //       onClick={() => (onList ? setOnList(false) : setOnList(true))}
-  //     >
-  //       <img className="h-12 w-12" src={tab} />
-  //     </div>
-  //     <div className="bg-blue-800 px-6 py-2">
-  //       <div className="flex justify-between">
-  //         <h1 className="text-white font-bold text-lg">총 예상 수거량</h1>
-  //       </div>
-  //       <div className="w-full flex items-center">
-  //         <label className="w-1/2 text-white">50L 마대</label>
-  //         <div className="w-1/2 flex gap-1">
-  //           <label
-  //             className="px-2 py-1 text-white border border-white rounded-md text-right"
-  //             style={{ minWidth: "80px" }}
-  //           >
-  //             {Math.ceil(selectedTrashAmount)}개
-  //           </label>
-  //           <label
-  //             className="px-2 py-1 text-white border border-white rounded-md text-right"
-  //             style={{ minWidth: "80px" }}
-  //           >
-  //             {Math.ceil(selectedTrashAmount) * 50}L
-  //           </label>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
+    } else setSelectedTrashAmount(0);
+  }, [addedSpots]);
 
   return (
     <>
@@ -98,17 +85,16 @@ const FooterInfo = ({
           {/* 리스트 영역 */}
           {onList && (
             <div className="bg-white h-[calc(100%-103px)] overflow-y-auto p-4">
-              {pickedSpot.map((spot, index) => (
+              {addedSpots.map((spot, index) => (
                 // 여기 PickedSpot 컴포넌트 쓰면됨
                 <div key={index}>
                   <PickedSpot
                     spot={spot}
                     index={index}
                     fetchAddress={fetchAddress}
-                    loadSpots={loadSpots}
                     onDrop={onDrop}
                     onClearSpot={onClearSpot}
-                    pickedSpots={pickedSpot}
+                    onUpdateSpot={onUpdateSpot}
                   />
                 </div>
               ))}

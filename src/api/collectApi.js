@@ -51,6 +51,40 @@ export const updateToNeeded = async (spotId) => {
   return res.data;
 };
 
+// 하나로 통합
+export const updateSpots = async (spotId, func) => {
+  console.log(
+    "-----------pickUp patch api called by: spotId( ",
+    spotId,
+    " ), function( ",
+    func,
+    " )"
+  );
+
+  let res;
+
+  try {
+    switch (func) {
+      case "toAdded":
+        res = await jwtAxios.patch(`${prefix}/added-route/${spotId}`);
+        break;
+      case "toCompleted":
+        res = await jwtAxios.patch(`${prefix}/completed/${spotId}`);
+        break;
+      case "toNeeded":
+        res = await jwtAxios.patch(`${prefix}/cancel/${spotId}`);
+        break;
+      default:
+        throw new Error("Invalid function type");
+    }
+  } catch (error) {
+    console.error("API 요청 에러 발생 : ", error);
+    throw error;
+  }
+  return res.data;
+};
+
+// 이미지 받아오기
 export const getImageByFileName = async (filename) => {
   console.log(
     "-----------pickUp get api called by: imageName( ",
