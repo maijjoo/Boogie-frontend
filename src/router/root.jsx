@@ -17,6 +17,7 @@ import {
   NewWorks,
   WorkList,
   AiAnalysis,
+  ResearchReport,
 } from "../pages/lazyLoadPages.js";
 
 const root = createBrowserRouter([
@@ -80,6 +81,10 @@ const root = createBrowserRouter([
   {
     path: "workList",
     element: <WorkList />,
+  },
+  {
+    path: "ResearchReport",
+    element: <ResearchReport />,
   },
   {
     path: "aiAnalysis",

@@ -32,5 +32,8 @@ export const PickupPredict = lazy(() =>
 export const NewWorks = lazy(() => import("./admin/NewWorksPage.jsx"));
 
 export const WorkList = lazy(() => import("./admin/WorkListPage.jsx"));
+export const ResearchReport = lazy(() =>
+  import("./admin/ResearchReportPage.jsx")
+);
 
-export const AiAnalysis = lazy(() => import("./admin/AiAnalysis.jsx"));
+export const AiAnalysis = lazy(() => import("./admin/AiAnalysisPage.jsx"));
