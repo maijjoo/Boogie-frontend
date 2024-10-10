@@ -44,7 +44,7 @@ const Sidebar = () => {
         </div>
         {/* 하단 마이페이지 및 로그아웃 */}
         <div className="flex justify-center items-center mb-4">
-          <Link to={"/"} className="text-white mr-4 text-[10pt]">
+          <Link to={"/myPageAdmin"} className="text-white mr-4 text-[10pt]">
             마이페이지
           </Link>
           <div className="text-sm mr-4 text-[10pt]">|</div>
