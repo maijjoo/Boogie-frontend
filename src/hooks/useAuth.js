@@ -13,6 +13,8 @@ export const useAuth = () => {
 
   const username = memberInfo?.username || "";
 
+  const id = memberInfo?.id || "";
+
   const workPlace = memberInfo?.workPlace || "";
 
   const department = memberInfo?.department || "";
@@ -36,5 +38,6 @@ export const useAuth = () => {
     department,
     name,
     managerId,
+    id,
   };
 };
