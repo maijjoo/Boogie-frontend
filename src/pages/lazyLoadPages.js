@@ -35,5 +35,6 @@ export const WorkList = lazy(() => import("./admin/WorkListPage.jsx"));
 export const ResearchReport = lazy(() =>
   import("./admin/ResearchReportPage.jsx")
 );
+export const CleanReport = lazy(() => import("./admin/CleanReportPage.jsx"));
 
 export const AiAnalysis = lazy(() => import("./admin/AiAnalysisPage.jsx"));
