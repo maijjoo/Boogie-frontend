@@ -6,7 +6,7 @@ import Search from "../../components/searchCondition/Search";
 import PeriodCondition from "../../components/searchCondition/PeriodCondition";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
-import { replace, useNavigate } from "react-router-dom";
+import { replace, Link, useNavigate } from "react-router-dom";
 import KakaoMap from "../../components/commons/KakaoMap";
 import { getSearched } from "../../api/mainTrashDistributionApi";
 
@@ -102,9 +102,11 @@ const MainTrashDistributionPage = () => {
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
-        <h1 className="text-xl font-bold mb-2 text-blue-700">
-          주요 쓰레기 분포
-        </h1>
+        <Link to={"/mainTrashDustribution"}>
+          <h1 className="text-xl font-bold mb-2 text-blue-700">
+            주요 쓰레기 분포
+          </h1>
+        </Link>
         {/* 조건 선택 탭 */}
         <div className="bg-white rounded-lg shadow px-14 py-4 mb-8 h-24">
           <div className="flex items-center justify-between w-full">
