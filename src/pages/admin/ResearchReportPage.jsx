@@ -5,7 +5,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import KakaoMap from "../../components/commons/KakaoMap";
-import SubmitModal from "../../components/modal/SubmitModal";
+import SubmitModal from "../../components/modal/SubmiuModal";
 
 const ResearchReportPage = () => {
   const { isLoggedIn, role } = useAuth();
@@ -20,7 +20,7 @@ const ResearchReportPage = () => {
       "https://www.ilovesea.or.kr/images/newsletter/201810/contents_special_06.jpg",
       "https://www.ilovesea.or.kr/images/newsletter/201810/contents_special_07.jpg",
     ],
-    beachName: "해운대",
+    beachName: "광안리 해수욕장",
     beachLength: 250,
     reportTime: "2024/09/20 14:30",
     researchers: "김철수, 이현서, 강지수, 조민형",
@@ -193,7 +193,15 @@ const ResearchReportPage = () => {
       </div>
 
       {/* 승인 모달 */}
-      {isApprovalModalOpen && <SubmitModal />}
+      {isApprovalModalOpen && (
+        <SubmitModal
+          message={`‘${reportData.reportTime} ${reportData.beachName}’에\n 청소자를 배정하시겠습니까?`}
+          confirmText="배정완료"
+          cancelText="취소"
+          onConfirm={handleApprove}
+          onCancel={closeApprovalModal}
+        />
+      )}
 
       {/* 이미지 모달 */}
       {isModalOpen && (
