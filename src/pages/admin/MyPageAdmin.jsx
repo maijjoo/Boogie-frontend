@@ -6,6 +6,7 @@ import classNames from "classnames";
 import { getAdminInfo } from "../../api/adminInfoApi.js";
 import circle from "../../assets/icons/write/Circle.svg";
 import SidebarLayout from "../../layouts/SidebarLayout";
+import useConfirm from "../../components/commons/UseConfirm.jsx";
 
 const MyPageAdmin = () => {
   const { memberInfo, isLoggedIn, id } = useAuth();
@@ -28,6 +29,19 @@ const MyPageAdmin = () => {
   const [newPasswordError, setNewPasswordError] = useState(""); // 새로운 비밀번호 에러 메시지 상태
   const [confirmPasswordError, setConfirmPasswordError] = useState(""); // 비밀번호 확인 에러 메시지 상태
   const [successMessage, setSuccessMessage] = useState("");
+  // 비밀번호 변경 컨펌
+  const savingPassword = () => console.log("저장중...");
+  const abort = () => console.log("취소됨.");
+  const confirmSave = useConfirm("저장하시겠습니까?", savingPassword, abort);
+
+  //개인정보 수정 컨펌
+  const updatePassword = () => console.log("수정중...");
+  const cancelUpdate = () => console.log("취소됨.");
+  const confirmUpdate = useConfirm(
+    "수정하시겠습니까?",
+    updatePassword,
+    cancelUpdate
+  );
 
   // useEffect를 사용하여 memberInfo가 업데이트될 때 userInfo 상태 업데이트
   useEffect(() => {
@@ -274,9 +288,7 @@ const MyPageAdmin = () => {
 
                   {/* 비밀번호 확인*/}
                   <MyPageInput
-                    className={`mb-[131.2px] ${
-                      confirmPasswordError ? "mb-[0px]" : "mb-[131.2px]"
-                    }`}
+                    className={!confirmPasswordError ? "mb-[131.2px]" : ""}
                     label="비밀번호 확인"
                     id="newPasswordConfirm"
                     name="newPasswordConfirm"
@@ -327,9 +339,7 @@ const MyPageAdmin = () => {
                         color="emptyBlue"
                         type={passwordChange ? "submit" : ""}
                         onClick={
-                          !passwordChange
-                            ? passwordToggleEditMode
-                            : handleRefresh
+                          !passwordChange ? passwordToggleEditMode : confirmSave
                         }
                       >
                         {pbuttonText} {/* 버튼 텍스트 변경 */}
@@ -348,7 +358,7 @@ const MyPageAdmin = () => {
                         className="w-full py-3 rounded-lg"
                         color="blue"
                         type={editMode ? "submit" : ""}
-                        onClick={toggleEditMode} // 정보 수정 모드 토글
+                        onClick={!editMode ? toggleEditMode : confirmUpdate} // 정보 수정 모드 토글
                       >
                         {buttonText} {/* 버튼 텍스트 변경 */}
                       </Button>
