@@ -15,3 +15,24 @@ export const postAdd = async (researchObj) => {
 
   return res.data;
 };
+
+// 이미지 받아오기
+export const getImageByFileName = async (filename) => {
+  console.log(
+    "-----------research get api called by: imageName( ",
+    filename,
+    " )"
+  );
+
+  const res = await jwtAxios.get(`${prefix}/view/${filename}`, {
+    responseType: "blob",
+  });
+
+  console.log("-----------research get api response: ", res);
+
+  const url = URL.createObjectURL(res.data);
+
+  console.log("-----------file to blob: ", url);
+
+  return url;
+};

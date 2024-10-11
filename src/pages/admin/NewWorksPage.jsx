@@ -41,6 +41,8 @@ const NewWorksPage = ({ onSearchInputChange }) => {
         size: itemsPerPage,
         sort: sortOrder,
       });
+      console.log("------------newTasks get response: ", response);
+
       setSearchedData(response.data.dtoList);
       setTotalPages(Math.ceil(response.data.totalCount / itemsPerPage));
     } catch (error) {
@@ -85,7 +87,10 @@ const NewWorksPage = ({ onSearchInputChange }) => {
             />
 
             <div className="flex items-center space-x-4 rounded-full p-2 w-full justify-end h-12">
-              <Searchbar onInputChange={handleSearchInputChange} />
+              <Searchbar
+                onInputChange={handleSearchInputChange}
+                placeholder="해안명을 입력하세요"
+              />
               <SearchButton
                 onSearch={fetchNewWorks}
                 beachSearch={searchParam.beachSearch}
@@ -99,34 +104,11 @@ const NewWorksPage = ({ onSearchInputChange }) => {
         />
 
         {searchedData.length > 0 ? (
-          <Link
-            to={"/ResearchReport"}
-            className="flex flex-wrap justify-between gap-4 mb-8 h-full w-full"
-          >
-            {searchedData.map((report) => (
-              <Card
-                key={report.id}
-                image={
-                  report.thumbnail ||
-                  "https://www.jejunews.com/news/photo/202110/2186126_208084_2056.jpg"
-                }
-                beachName={report.beachName || "해안가명"}
-                worker={
-                  report.researcherName || report.cleanerName || "작업 종류"
-                }
-                date={
-                  report.reportTime || report.cleanDateTime || "날짜 정보 없음"
-                }
-                status={
-                  report.status === "ASSIGNMENT_NEEDED"
-                    ? "배정 필요"
-                    : report.status === "ASSIGNMENT_COMPLETED"
-                    ? "작업 완료"
-                    : "상태 없음"
-                }
-              />
-            ))}
-          </Link>
+          <div className="flex flex-wrap justify-start gap-4 mb-8 h-full w-full">
+            {searchedData.map((report) => {
+              return <Card key={report.id} report={report} />;
+            })}
+          </div>
         ) : (
           <div className="flex flex-col items-center mt-40">
             <img
