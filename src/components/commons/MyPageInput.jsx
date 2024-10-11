@@ -1,4 +1,5 @@
 import React from "react";
+import circle from "../../assets/icons/write/Circle.svg";
 
 // 공통 입력 필드 컴포넌트
 const MyPageInput = ({
@@ -15,6 +16,7 @@ const MyPageInput = ({
   return (
     <div className={`form-group ${className}`}>
       <label className="font-bold" htmlFor={id}>
+        <img src={circle} alt="dot" className="w-1 me-2 inline" />
         {label}
       </label>
       <input
