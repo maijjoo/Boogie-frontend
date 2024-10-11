@@ -72,7 +72,10 @@ const WorkerMainPage = () => {
           <p className="font-bold ms-1">수거</p>
         </Button>
 
-        <div className="flex justify-center fixed bottom-8 gap-1">
+        <div
+          className="flex justify-center fixed bottom-8 gap-1"
+          onClick={() => logout()}
+        >
           <img src={logout2} alt="logout" className="w-7" />
           <span
             className="cursor-pointer font-extrabold text-lg text-white"

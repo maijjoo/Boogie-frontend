@@ -68,7 +68,6 @@ const root = createBrowserRouter([
     path: "collectingMain",
     element: <CollectingMain />,
   },
-
   {
     path: "basicStatistics",
     element: <BasicStatistics />,
@@ -90,11 +89,11 @@ const root = createBrowserRouter([
     element: <WorkList />,
   },
   {
-    path: "ResearchReport",
+    path: "researchReport",
     element: <ResearchReport />,
   },
   {
-    path: "CleanReport",
+    path: "cleanReport",
     element: <CleanReport />,
   },
   {
