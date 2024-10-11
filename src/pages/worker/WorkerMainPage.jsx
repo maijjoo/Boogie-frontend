@@ -24,6 +24,11 @@ const WorkerMainPage = () => {
     }
   }, []);
 
+  const handleLogout = () => {
+    logout();
+    navigate("/", { replace: true });
+  };
+
   return (
     <div className="w-full h-dvh flex flex-col items-center">
       <div className="flex items-center mt-3">
@@ -72,7 +77,10 @@ const WorkerMainPage = () => {
           onClick={() => logout()}
         >
           <img src={logout2} alt="logout" className="w-7" />
-          <span className="cursor-pointer font-extrabold text-lg text-white">
+          <span
+            className="cursor-pointer font-extrabold text-lg text-white"
+            onClick={handleLogout}
+          >
             로그아웃
           </span>
         </div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Searchbar = ({ onSearchInputChange, onSearch }) => {
+const Searchbar = ({ onSearchInputChange, onSearch, placeholder }) => {
   const [searchValue, setSearchValue] = useState("");
 
   const handleInputChange = (e) => {
@@ -19,7 +19,7 @@ const Searchbar = ({ onSearchInputChange, onSearch }) => {
     <div className="flex items-center border border-gray-300 rounded-full p-2 w-96 h-12 focus-within:border-2 focus-within:border-gray-700 hover:border-gray-700">
       <input
         type="text"
-        placeholder="해안명을 입력하세요"
+        placeholder={placeholder} // props로 전달된 placeholder 사용
         className="outline-none flex-grow text-gray-700 px-4 mr-4"
         value={searchValue}
         onChange={handleInputChange}

@@ -20,6 +20,7 @@ import {
   AiAnalysis,
   ResearchReport,
   CleanReport,
+  MemberList,
 } from "../pages/lazyLoadPages.js";
 
 const root = createBrowserRouter([
@@ -94,6 +95,10 @@ const root = createBrowserRouter([
   {
     path: "cleanReport",
     element: <CleanReport />,
+  },
+  {
+    path: "MemberList",
+    element: <MemberList />,
   },
   {
     path: "aiAnalysis",

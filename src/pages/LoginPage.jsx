@@ -70,7 +70,7 @@ const Login = () => {
         <div className="w-full flex flex-col mt-4 items-center">
           <div className="w-full flex flex-col items-start mb-4">
             <InputWithLabel
-              className="w-full mt-2 px-2 py-2 md:text-base rounded-md"
+              className="w-full mt-1 px-2 py-2 md:text-base rounded-md"
               type="text"
               ref={id}
               placeholder="아이디를 입력해 주세요."
@@ -80,7 +80,7 @@ const Login = () => {
           </div>
           <div className="w-full flex flex-col items-start mb-1">
             <InputWithLabel
-              className="w-full mt-2 px-2 py-2 md:text-base rounded-md"
+              className="w-full mt-1 px-2 py-2 md:text-base rounded-md"
               type="password"
               ref={password}
               placeholder="비밀번호를 입력해 주세요."
@@ -113,7 +113,7 @@ const Login = () => {
 
         <div
           onClick={() => navigate("/findPassword")}
-          className="cursor-pointer text-blue-500 mt-4"
+          className="cursor-pointer text-blue-500 mb-4"
         >
           <p>비밀번호 찾기</p>
         </div>

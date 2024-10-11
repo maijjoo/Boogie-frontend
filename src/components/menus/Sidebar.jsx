@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import logo from "../../assets/images/logoOnly.png";
 import dataMenu from "../../assets/icons/sidebar/Combo Chart.svg";
@@ -12,11 +12,25 @@ import { useAuth } from "../../hooks/useAuth";
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // 현재 경로 가져오기
   const { logout, department, workPlace, name } = useAuth();
 
   const [activeMenu, setActiveMenu] = useState(""); // 클릭된 메뉴 상태 관리
   const [hoverMenu, setHoverMenu] = useState(""); // hover 상태 관리
   const [activeSubMenu, setActiveSubMenu] = useState(""); // 하위 메뉴 클릭 상태 관리
+
+  const handleLogout = () => {
+    logout();
+    navigate("/", { replace: true });
+  };
+
+  const handleNavigation = (path) => {
+    if (location.pathname === path) {
+      window.location.reload(); // 같은 페이지 클릭 시 새로고침
+    } else {
+      navigate(path);
+    }
+  };
 
   return (
     <div
@@ -44,12 +58,15 @@ const Sidebar = () => {
         </div>
         {/* 하단 마이페이지 및 로그아웃 */}
         <div className="flex justify-center items-center mb-4">
-          <Link to={"/myPageAdmin"} className="text-white mr-4 text-[10pt]">
+          <div
+            className="text-white mr-4 text-[10pt] cursor-pointer"
+            onClick={() => handleNavigation("/myPageAdmin")} // handleNavigation 함수 사용
+          >
             마이페이지
-          </Link>
+          </div>
           <div className="text-sm mr-4 text-[10pt]">|</div>
           <div
-            onClick={() => logout()}
+            onClick={handleLogout}
             className="text-white text-[10pt] cursor-pointer"
           >
             로그아웃
@@ -197,7 +214,7 @@ const Sidebar = () => {
 
         {/* 회원 관리 메뉴 */}
         <Link
-          to={"/CleanReport"}
+          to={"/MemberList"}
           className={`flex items-center w-52 mb-4 p-5 cursor-pointer ${
             activeMenu === "member" || hoverMenu === "member"
               ? "bg-white rounded-md text-[#014EB6]"

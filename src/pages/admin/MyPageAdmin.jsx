@@ -221,7 +221,10 @@ const MyPageAdmin = () => {
 
                 {/* 부서 필드 */}
                 <div>
-                  <div className="font-bold">부서</div>
+                  <div className="font-bold">
+                    <img src={circle} alt="dot" className="w-1 me-2 inline" />
+                    부서
+                  </div>
                   <div
                     className={`border border-gray-400 rounded-md p-1 ${
                       !editMode ? "bg-white" : "bg-gray-100"
@@ -252,6 +255,7 @@ const MyPageAdmin = () => {
 
                   {/* 새로운 비밀번호*/}
                   <MyPageInput
+                    className={`mb-4${newPasswordError ? "mb-4" : ""}`}
                     label="새로운 비밀번호"
                     id="newPassword"
                     name="newPassword"
@@ -270,7 +274,9 @@ const MyPageAdmin = () => {
 
                   {/* 비밀번호 확인*/}
                   <MyPageInput
-                    className={!newPasswordError ? "mt-4 mb-3" : ""}
+                    className={`mb-[131.2px] ${
+                      confirmPasswordError ? "mb-[0px]" : "mb-[131.2px]"
+                    }`}
                     label="비밀번호 확인"
                     id="newPasswordConfirm"
                     name="newPasswordConfirm"
@@ -282,7 +288,7 @@ const MyPageAdmin = () => {
                   />
                   {/* 비밀번호 확인 에러 메시지 출력 */}
                   {confirmPasswordError && (
-                    <p className="text-red-500 text-sm font-medium">
+                    <p className="text-red-500 text-sm font-medium mb-[131.2px]">
                       {confirmPasswordError}
                     </p>
                   )}
@@ -296,7 +302,7 @@ const MyPageAdmin = () => {
               </div>
             )}
 
-            <div className="w-full mt-3 flex flex-col justify-center">
+            <div className="w-full mt-12 flex flex-col justify-center">
               <div className="w-full bg-white flex flex-col justify-center gap-2">
                 <div className="w-full flex mb-20 px-44 gap-2">
                   {!editMode && (
@@ -339,8 +345,7 @@ const MyPageAdmin = () => {
                     >
                       {/* 내 정보 수정 버튼 */}
                       <Button
-                        className="
-                    w-full py-3 rounded-lg"
+                        className="w-full py-3 rounded-lg"
                         color="blue"
                         type={editMode ? "submit" : ""}
                         onClick={toggleEditMode} // 정보 수정 모드 토글
