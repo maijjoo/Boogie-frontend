@@ -420,7 +420,7 @@ const ResearchMainPage = () => {
             )}
           </div>
         )}
-        <div className="w-full flex items-center p-3">
+        <div className="w-full flex items-center pt-3">
           {!isResearching && isMainFormComplete && (
             <Button
               className="w-full py-3 rounded-lg"
