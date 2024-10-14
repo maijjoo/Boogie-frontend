@@ -1,4 +1,4 @@
-import { Map, MapMarker } from "react-kakao-maps-sdk";
+import { Map, MapMarker, Polyline } from "react-kakao-maps-sdk";
 import RedPin from "../../assets/icons/write/ic-location-red.svg";
 import BlackPin from "../../assets/icons/write/ic-location-black.svg";
 import blackSpot from "../../assets/icons/workerMode/pickupPin_needed.png";
@@ -20,6 +20,7 @@ const KakaoMap = ({
   predictedData = null,
   neededSpots = null,
   addedSpots = null,
+  lines = null,
 }) => {
   const trashToPin = {
     부표류: redBuyo,
@@ -80,29 +81,6 @@ const KakaoMap = ({
       }}
       level={3} // 지도의 확대 레벨
     >
-      {/* {spots &&
-        spots.map((spot) => {
-          const markerImage = {
-            size: { width: 35, height: 35 },
-            src:
-              spot.id === nowView
-                ? redSpot
-                : spot.status === "ASSIGNMENT_ADDED_TO_ROUTE"
-                ? greenSpot
-                : blackSpot,
-          };
-          return (
-            <MapMarker
-              key={spot.id + "." + Math.random()}
-              position={{ lat: spot.latitude, lng: spot.longitude }}
-              title={spot.pickUpPlace}
-              image={markerImage}
-              onClick={() => {
-                setDetail(spot.id);
-              }}
-            />
-          );
-        })} */}
       {neededSpots &&
         neededSpots.map((spot) => {
           const markerImage = {
@@ -170,6 +148,21 @@ const KakaoMap = ({
               position={{ lat: item.fixedLatitude, lng: item.fixedLongitude }}
               title={`${item.beachName} - ${item.expectedTrashAmount}톤(t)`}
               image={markerImage}
+            />
+          );
+        })}
+      {lines &&
+        lines.map((line, index) => {
+          const start = line.start;
+          const end = line.end;
+          return (
+            <Polyline
+              key={index}
+              path={[[start, end]]}
+              strokeWeight={50}
+              strokeColor={"red"}
+              strokeOpacity={0.7}
+              strokeStyle={"dash"}
             />
           );
         })}

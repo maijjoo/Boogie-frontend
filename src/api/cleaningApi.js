@@ -15,6 +15,12 @@ export const postAdd = async (cleaningObj) => {
   return res.data;
 };
 
+export const getNameList = async (cleanerId) => {
+  const res = await jwtAxios.get(`${prefix}/${cleanerId}`);
+  console.log("==========getNameList response : ", res);
+  return res.data;
+};
+
 // 이미지 받아오기
 export const getImageByFileName = async (filename) => {
   console.log(

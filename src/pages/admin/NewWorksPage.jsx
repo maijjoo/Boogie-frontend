@@ -16,15 +16,20 @@ const NewWorksPage = ({ onSearchInputChange }) => {
   const navigate = useNavigate();
 
   const [condition, setCondition] = useState("researchTab");
-  const [searchParam, setSearchParam] = useState({
-    tabCondition: condition,
-    beachSearch: null,
-  });
   const [searchedData, setSearchedData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [sortOrder, setSortOrder] = useState("desc");
   const [totalPages, setTotalPages] = useState(1);
+  const [totalLength, setTotalLength] = useState(0);
+  const [searchInput, setSearchInput] = useState(null);
+  const [searchParam, setSearchParam] = useState({
+    tabCondition: condition,
+    beachSearch: searchInput,
+    page: currentPage,
+    size: itemsPerPage,
+    sort: sortOrder,
+  });
 
   useEffect(() => {
     if (!isLoggedIn || role !== "ADMIN") {
@@ -43,6 +48,7 @@ const NewWorksPage = ({ onSearchInputChange }) => {
       });
       console.log("------------newTasks get response: ", response);
 
+      setTotalLength(response.data.totalCount);
       setSearchedData(response.data.dtoList);
       setTotalPages(Math.ceil(response.data.totalCount / itemsPerPage));
     } catch (error) {
@@ -51,18 +57,27 @@ const NewWorksPage = ({ onSearchInputChange }) => {
   };
 
   useEffect(() => {
+    console.log(searchedData);
+
     fetchNewWorks();
   }, [condition, searchParam, currentPage, sortOrder]);
 
   const handleSearchInputChange = (inputValue) => {
+    setSearchInput(inputValue);
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1);
     setSearchParam((prev) => ({
       ...prev,
-      beachSearch: inputValue,
+      page: currentPage,
+      beachSearch: searchInput,
     }));
   };
 
   const handleSortChange = (sortOrder) => {
     setSortOrder(sortOrder);
+    setSearchParam((prev) => ({ ...prev, sort: sortOrder }));
   };
 
   const handlePageChange = (page) => {
@@ -89,24 +104,22 @@ const NewWorksPage = ({ onSearchInputChange }) => {
             <div className="flex items-center space-x-4 rounded-full p-2 w-full justify-end h-12">
               <Searchbar
                 onInputChange={handleSearchInputChange}
+                onSearchInputChange={handleSearchInputChange}
                 placeholder="해안명을 입력하세요"
               />
-              <SearchButton
-                onSearch={fetchNewWorks}
-                beachSearch={searchParam.beachSearch}
-              />
+              <SearchButton onSearch={handleSearch} />
             </div>
           </div>
         </div>
         <ListCountAndSort
-          totalCount={searchedData.length}
+          totalCount={totalLength}
           onSortChange={handleSortChange}
         />
 
         {searchedData.length > 0 ? (
           <div className="flex flex-wrap justify-start gap-4 mb-8 h-full w-full">
             {searchedData.map((report) => {
-              return <Card key={report.id} report={report} />;
+              return <Card key={report.id} report={report} tab={condition} />;
             })}
           </div>
         ) : (
