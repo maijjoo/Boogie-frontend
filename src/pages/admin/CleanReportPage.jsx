@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import dot from "../../assets/icons/write/Circle.svg";
 import { useAuth } from "../../hooks/useAuth";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import KakaoMap from "../../components/commons/KakaoMap";
-import SubmitModal from "../../components/modal/SubmiuModal";
+import SubmitModal from "../../components/modal/SubmitModal";
+import { getNewWorksClean } from "../../api/newWorksApi";
+import { getImageByFileName } from "../../api/cleaningApi";
 
 const CleanReportPage = () => {
   const { isLoggedIn, role } = useAuth();
@@ -13,25 +15,96 @@ const CleanReportPage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false); // 이미지 모달 상태
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false); // 승인 모달 상태
-  const [myCoords, setMyCoords] = useState({ lat: 34.577961, lng: 127.736672 });
-  const reportData = {
-    images: [
-      "https://www.ilovesea.or.kr/images/newsletter/201810/contents_special_05.jpg",
-      "https://www.ilovesea.or.kr/images/newsletter/201810/contents_special_06.jpg",
-      "https://www.ilovesea.or.kr/images/newsletter/201810/contents_special_07.jpg",
-    ],
-    beachName: "광안리 해수욕장",
-    beachLength: 250,
-    reportTime: "2024/09/20 14:30",
-    researchers: "김철수, 이현서, 강지수, 조민형",
+  const [myCoords, setMyCoords] = useState({ lat: "", lng: "" });
+  const [coordLine, setCoordLine] = useState({});
+  const [formattedDate, setFormattedDate] = useState("날짜 정보 없음");
+  const location = useLocation();
+  const cleanId = location.state;
 
-    trashBags: 3,
-    totalVolume: "150L",
-    recentDisaster: "집중호우",
-    weather: "28°C",
-    latitude: "34.577961",
-    longitude: "127.736672",
-    mapImage: "https://example.com/sample-map.jpg",
+  const initData = {
+    beachName: "",
+    beachLength: 0,
+    reportTime: "",
+    researchers: "",
+    trashBags: 0,
+    totalVolume: 0,
+    recentDisaster: "",
+    weather: "",
+    latitude: "",
+    longitude: "",
+    mapImage: "",
+  };
+
+  const [detailData, setDetailData] = useState(initData);
+  const [beforeImgs, setBeforeImgs] = useState([]);
+  const [afterImgs, setAfterImgs] = useState([]);
+
+  const fetchNewWorksDetail = async () => {
+    try {
+      const response = await getNewWorksClean(cleanId);
+      console.log("------------newTasksClean get response: ", response);
+      if (response.data.reportTime) {
+        const date = new Date(response.data.cleanDateTime);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+
+        setFormattedDate(`${year}/${month}/${day} ${hours}:${minutes}`);
+      }
+
+      const start = {
+        lat: response.data.startLatitude,
+        lng: response.data.startLongitude,
+      };
+      const end = {
+        lat: response.data.endLatitude,
+        lng: response.data.endLongitude,
+      };
+      const data = { start: start, end: end };
+      setCoordLine(data);
+
+      setMyCoords({
+        lat: coordLine?.start?.lat,
+        lng: coordLine?.start?.lng,
+      });
+
+      setDetailData((prevData) => ({
+        ...prevData,
+        beachName: response.data.beachName,
+        totalBags: response.data.realTrashAmount,
+        reportTime: formattedDate,
+        researchers: response.data.cleanerName,
+        recentDisaster: response.data?.specialNote || "없음",
+        beachLength: response.data.totalBeachLength,
+        weather: response.data.weather,
+      }));
+
+      if (
+        response.data &&
+        response.data.images &&
+        response.data.images.length > 0
+      ) {
+        const fetchImages = async () => {
+          try {
+            // 이미지 배열을 비동기로 처리하고 모든 작업이 끝나길 기다림
+            const imgUrls = await Promise.all(
+              response.data.images.map(async (img) => {
+                return await getImageByFileName(img);
+              })
+            );
+            // 이미지를 상태로 저장
+            setImgs([...imgUrls]);
+          } catch (error) {
+            console.error("Error fetching images:", error);
+          }
+        };
+        fetchImages();
+      }
+    } catch (error) {
+      console.error("데이터 검색 중 오류 발생:", error);
+    }
   };
 
   useEffect(() => {
@@ -171,13 +244,13 @@ const CleanReportPage = () => {
 
             {/* 오른쪽 열: 해안 정보 */}
             <div className="flex flex-col  h-full space-y-10">
-              <DataDisplay label="해안명" value={reportData.beachName} />
+              <DataDisplay label="해안명" value={detailData.beachName} />
               <DataDisplay
                 label="해안 길이(m)"
-                value={`${reportData.beachLength}`}
+                value={`${detailData.beachLength}`}
               />
-              <DataDisplay label="조사 일자" value={reportData.reportTime} />
-              <DataDisplay label="조사 인원" value={reportData.researchers} />
+              <DataDisplay label="조사 일자" value={detailData.reportTime} />
+              <DataDisplay label="조사 인원" value={detailData.researchers} />
               <div className="flex flex-col space-y-2">
                 <label className="block text-gray-700 text-lg mb-1 font-semibold  ">
                   <img src={dot} alt="dot" className="w-1 me-2 inline " /> 실제
@@ -185,28 +258,28 @@ const CleanReportPage = () => {
                 </label>
                 <div className="flex space-x-2">
                   <p className="border border-gray-300 rounded-md px-3 py-2 bg-gray-50 w-1/2">
-                    {reportData.trashBags}개
+                    {detailData.trashBags}개
                   </p>
                   <p className="border border-gray-300 rounded-md px-3 py-2 bg-gray-50 w-1/2">
-                    {reportData.totalVolume}
+                    {detailData.trashBags * 50}
                   </p>
                 </div>
               </div>
               <DataDisplay
                 label="자연재해 유무(최근 5일 이내)"
-                value={reportData.recentDisaster}
+                value={detailData.recentDisaster}
               />
-              <DataDisplay label="날씨" value={reportData.weather} />
+              <DataDisplay label="날씨" value={detailData.weather} />
               <div className="flex w-full space-x-2">
                 <DataDisplay
                   className="w-1/2"
                   label="위도"
-                  value={reportData.latitude}
+                  value={detailData.latitude}
                 />
                 <DataDisplay
                   className="w-1/2"
                   label="경도"
-                  value={reportData.longitude}
+                  value={detailData.longitude}
                 />
               </div>
             </div>
@@ -233,7 +306,7 @@ const CleanReportPage = () => {
       {/* 승인 모달 */}
       {isApprovalModalOpen && (
         <SubmitModal
-          message={`‘${reportData.reportTime} ${reportData.beachName}’에\n 수거자를 배정하시겠습니까?`}
+          message={`‘${detailData.reportTime} ${detailData.beachName}’에\n 수거자를 배정하시겠습니까?`}
           confirmText="배정완료"
           cancelText="취소"
           onConfirm={handleApprove}
@@ -247,7 +320,7 @@ const CleanReportPage = () => {
           <div className="relative bg-white rounded-sm p-1">
             <div className="relative">
               <img
-                src={reportData.images[currentImageIndex]}
+                src={detailData.images[currentImageIndex]}
                 alt="큰 해안가 사진"
                 className="max-w-full max-h-screen object-contain"
               />
