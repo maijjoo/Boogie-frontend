@@ -23,7 +23,7 @@ const Searchbar = ({ onSearchInputChange, onSearch, placeholder }) => {
         className="outline-none flex-grow text-gray-700 px-4 mr-4"
         value={searchValue}
         onChange={handleInputChange}
-        onKeyPress={handleKeyPress} // 엔터키 감지
+        onKeyDown={handleKeyPress} // 엔터키 감지
       />
     </div>
   );

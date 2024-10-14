@@ -6,18 +6,19 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import KakaoMap from "../../components/commons/KakaoMap";
 import SubmitModal from "../../components/modal/SubmitModal";
-import { getNewWorksDetail } from "../../api/newWorksApi";
-import { getImageByFileName } from "../../api/researchApi";
+import { getNewWorksDetail, getImageByFileName } from "../../api/newWorksApi";
+// import { getImageByFileName } from "../../api/researchApi";
+import { useNewWorks } from "../../hooks/useNewWorks";
 
 const ResearchReportPage = () => {
-  const { isLoggedIn, role } = useAuth();
+  const { isLoggedIn, role, id } = useAuth();
+  const { handleComplete } = useNewWorks(id);
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false); // 이미지 모달 상태
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false); // 승인 모달 상태
   const [myCoords, setMyCoords] = useState({ lat: "", lng: "" });
   const [coordLines, setCoordLines] = useState([]);
-  const [formattedDate, setFormattedDate] = useState("날짜 정보 없음");
   const location = useLocation();
   const reportId = location.state;
 
@@ -29,7 +30,7 @@ const ResearchReportPage = () => {
     estimatedTrash: "50L 마대",
     trashBags: 0,
     totalVolume: 0,
-    recentDisaster: "집",
+    recentDisaster: "",
     weather: "",
     latitude: "",
     longitude: "",
@@ -38,11 +39,16 @@ const ResearchReportPage = () => {
 
   const [detailData, setDetailData] = useState(initData);
   const [imgs, setImgs] = useState([]);
+  const [hdImgs, setHdImgs] = useState([]);
+  const [images, setImages] = useState([]);
 
   const fetchNewWorksDetail = async () => {
     try {
-      const response = await getNewWorksDetail(reportId);
+      const response = await getNewWorksDetail(reportId, "조사 완료");
       console.log("------------newTasksDetail get response: ", response);
+
+      let formattedDate = "날짜 정보 없음";
+
       if (response.data.reportTime) {
         const date = new Date(response.data.reportTime);
         const year = date.getFullYear();
@@ -51,23 +57,29 @@ const ResearchReportPage = () => {
         const hours = String(date.getHours()).padStart(2, "0");
         const minutes = String(date.getMinutes()).padStart(2, "0");
 
-        setFormattedDate(`${year}/${month}/${day} ${hours}:${minutes}`);
+        formattedDate = `${year}/${month}/${day} ${hours}:${minutes}`;
       }
+
+      let newCoordLines = [];
+
       if (
         response.data.researchSubList &&
         response.data.researchSubList.length > 0
       ) {
-        response.data.researchSubList.map((sub) => {
-          const start = { lat: sub.startLatitude, lng: sub.startLongitude };
-          const end = { lat: sub.endLatitude, lng: sub.endLongitude };
-          const data = { start: start, end: end };
-          setCoordLines((prev) => [...prev, data]);
+        newCoordLines = response.data.researchSubList.map((sub) => ({
+          start: { lat: sub.startLatitude, lng: sub.startLongitude },
+          end: { lat: sub.endLatitude, lng: sub.endLongitude },
+        }));
+      }
+
+      setCoordLines(newCoordLines);
+      if (newCoordLines.length > 0) {
+        setMyCoords({
+          lat: newCoordLines[0].start.lat,
+          lng: newCoordLines[0].start.lng,
         });
       }
-      setMyCoords({
-        lat: coordLines[0]?.start?.lat,
-        lng: coordLines[0]?.start?.lng,
-      });
+
       setDetailData((prevData) => ({
         ...prevData,
         beachName: response.data.beachName,
@@ -75,7 +87,7 @@ const ResearchReportPage = () => {
         reportTime: formattedDate,
         researchers: response.data.researcherName,
         recentDisaster: response.data.specialNote,
-        beachLength: response.data.totalBeachLength,
+        beachLength: response.data.totalBeachLength.toFixed(1),
         weather: response.data.weather,
       }));
 
@@ -89,11 +101,18 @@ const ResearchReportPage = () => {
             // 이미지 배열을 비동기로 처리하고 모든 작업이 끝나길 기다림
             const imgUrls = await Promise.all(
               response.data.images.map(async (img) => {
-                return await getImageByFileName(img);
+                if (!images.includes(img)) {
+                  setImages((prev) => [...prev, img]);
+                  const image = await getImageByFileName(img);
+                  const hdImage = await getImageByFileName(
+                    img.replace(/^S_/, "")
+                  );
+
+                  setImgs((prev) => [...prev, image]);
+                  setHdImgs((prev) => [...prev, hdImage]);
+                }
               })
             );
-            // 이미지를 상태로 저장
-            setImgs([...imgUrls]);
           } catch (error) {
             console.error("Error fetching images:", error);
           }
@@ -107,13 +126,15 @@ const ResearchReportPage = () => {
 
   useEffect(() => {
     if (!isLoggedIn || role !== "ADMIN") {
-      navigate("/", { replace: true });
+      navigate(-1);
     }
   }, [isLoggedIn, role, navigate]);
 
   useEffect(() => {
-    fetchNewWorksDetail();
-  });
+    if (reportId) {
+      fetchNewWorksDetail();
+    }
+  }, [reportId]);
 
   // 이미지 이동 함수
   const goToPreviousImage = () => {
@@ -134,8 +155,11 @@ const ResearchReportPage = () => {
   const openApprovalModal = () => setIsApprovalModalOpen(true);
   const closeApprovalModal = () => setIsApprovalModalOpen(false);
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
     setIsApprovalModalOpen(false);
+
+    await handleComplete(reportId);
+
     navigate(-1); // 승인 시 목록으로 이동
   };
 
@@ -159,7 +183,7 @@ const ResearchReportPage = () => {
                 </h2>
                 <div className="relative">
                   <img
-                    src={imgs[currentImageIndex]}
+                    src={hdImgs[currentImageIndex]}
                     alt="해안가 오염도 사진"
                     className="w-full h-64 rounded-md object-cover cursor-pointer"
                     onClick={openModal} // 이미지 클릭 시 모달 열기
@@ -177,7 +201,7 @@ const ResearchReportPage = () => {
                     <FiChevronRight size={24} />
                   </button>
                 </div>
-                <div className="flex justify-between w-full mt-3 gap-2">
+                <div className="flex justify-between w-full mt-3 gap-2 overflow-auto">
                   {imgs.map((image, index) => (
                     <img
                       key={index}
@@ -207,7 +231,7 @@ const ResearchReportPage = () => {
             </div>
 
             {/* 오른쪽 열: 해안 정보 */}
-            <div className="flex flex-col  h-full space-y-10">
+            <div className="flex flex-col h-full space-y-10">
               <DataDisplay label="해안명" value={detailData.beachName} />
               <DataDisplay
                 label="해안 길이(m)"
@@ -238,12 +262,16 @@ const ResearchReportPage = () => {
                 <DataDisplay
                   className="w-1/2"
                   label="위도"
-                  value={coordLines[0]?.start?.lat.toFixed(6) || "0"}
+                  value={
+                    coordLines[0]?.start?.lat.toFixed(6) || "위치 정보 없음"
+                  }
                 />
                 <DataDisplay
                   className="w-1/2"
                   label="경도"
-                  value={coordLines[0]?.start?.lng.toFixed(6) || "0"}
+                  value={
+                    coordLines[0]?.start?.lng.toFixed(6) || "위치 정보 없음"
+                  }
                 />
               </div>
             </div>
@@ -284,14 +312,14 @@ const ResearchReportPage = () => {
           <div className="relative bg-white rounded-sm p-1">
             <div className="relative">
               <img
-                src={imgs[currentImageIndex]}
+                src={hdImgs[currentImageIndex]}
                 alt="큰 해안가 사진"
                 className="max-w-full max-h-screen object-contain"
               />
               {/* X 버튼을 이미지 위에 배치 */}
               <button
                 onClick={closeModal}
-                className="absolute top-2 right-2 w-7 h-7 bg-gray-800 bg-opacity-60 text-white  rounded-full hover:bg-opacity-80"
+                className="absolute top-2 right-2 w-7 h-7 bg-gray-800 bg-opacity-60 text-white rounded-full hover:bg-opacity-80"
               >
                 X
               </button>

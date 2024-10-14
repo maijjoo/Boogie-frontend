@@ -21,6 +21,7 @@ const KakaoMap = ({
   neededSpots = null,
   addedSpots = null,
   lines = null,
+  line = null,
 }) => {
   const trashToPin = {
     부표류: redBuyo,
@@ -29,8 +30,11 @@ const KakaoMap = ({
     초목류: purpleTree,
     폐어구류: blueFishing,
   };
-
   const [trashAmount, setTrashAmount] = useState([]);
+
+  useEffect(() => {
+    console.log("--------------line: ", line);
+  }, [line]);
 
   useEffect(() => {
     if (predictedData && predictedData.length > 0) {
@@ -112,8 +116,6 @@ const KakaoMap = ({
               title={spot.pickUpPlace}
               image={markerImage}
               onClick={() => {
-                console.log("clicked!");
-
                 setDetail(spot.id);
               }}
             />
@@ -166,6 +168,15 @@ const KakaoMap = ({
             />
           );
         })}
+      {line && (
+        <Polyline
+          path={[[line.start, line.end]]}
+          strokeWeight={50}
+          strokeColor={"red"}
+          strokeOpacity={0.7}
+          strokeStyle={"dash"}
+        />
+      )}
     </Map>
   );
 };

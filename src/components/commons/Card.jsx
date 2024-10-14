@@ -40,7 +40,7 @@ const Card = ({ report, tab }) => {
     <div
       className="border rounded-lg shadow-sm overflow-hidden w-60 h-90 relative cursor-pointer"
       onClick={() =>
-        tab === "researchTab"
+        tab === "조사 완료"
           ? navigate("/researchReport", { state: report.id })
           : navigate("/cleanReport", { state: report.id })
       }
