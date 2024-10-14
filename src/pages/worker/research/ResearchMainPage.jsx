@@ -6,13 +6,13 @@ import { useNavigate } from "react-router-dom";
 import MobileHeader from "../../../components/menus/MobileHeader.jsx";
 import MobileFooter from "../../../components/menus/MobileFooter.jsx";
 import { NaturalDisasterList } from "../../../datas/NaturalDisasterList.js";
-import { BeachNameList } from "../../../datas/BeachNameList.js";
+// import { BeachNameList } from "../../../datas/BeachNameList.js";
 import CheckBoxWithLabel from "../../../components/commons/CheckboxWithLabel.jsx";
 import CameraController from "../../../components/commons/CameraController.jsx";
 import Button from "../../../components/commons/Button.jsx";
 import FormSub from "../../../components/commons/FormSub.jsx";
-import { MatchUsername } from "../../../datas/MatchUsername.js";
-import { postAdd } from "../../../api/researchApi.js";
+// import { MatchUsername } from "../../../datas/MatchUsername.js";
+import { postAdd, getNameList } from "../../../api/researchApi.js";
 import { useAuth } from "../../../hooks/useAuth.js";
 
 // dto 구조 참고용
@@ -38,7 +38,7 @@ const initState = {
 
 const ResearchMainPage = () => {
   const navigate = useNavigate();
-  const { username, isLoggedIn, memberInfo } = useAuth();
+  const { username, isLoggedIn, memberInfo, id } = useAuth();
   console.log(memberInfo);
 
   // 등록요청 성공시 리렌더링하기 위함
@@ -72,6 +72,9 @@ const ResearchMainPage = () => {
   const [teamList, setTeamList] = useState([]);
   // 체크박스 관리 state
   const [selected, setSelected] = useState(null);
+  // 해안명
+  const [BeachNameList, setBeachNameList] = useState([]);
+  const [MatchUsername, setMatchUsername] = useState([]);
 
   // 로그인 판별, 등록 성공시 수행
   useEffect(() => {
@@ -82,6 +85,23 @@ const ResearchMainPage = () => {
       initializeAllStates();
     }
   }, [result, isLoggedIn, navigate]);
+
+  const getNames = async () => {
+    try {
+      const data = await getNameList(id);
+      console.log("------------getNameList res : ", data.beachNameList);
+      setBeachNameList(data?.beachNameList);
+      console.log("------------getNameList res : ", data.nameWithNumberList);
+      setMatchUsername(data?.nameWithNumberList);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getNames();
+    console.log();
+  }, []);
 
   // 등록요청 성공시 초기화
   const initializeAllStates = () => {

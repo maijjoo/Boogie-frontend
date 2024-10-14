@@ -8,19 +8,17 @@ import MobileFooter from "../../../components/menus/MobileFooter.jsx";
 import { NaturalDisasterList } from "../../../datas/NaturalDisasterList.js";
 import { BeachNameList } from "../../../datas/BeachNameList.js";
 import CheckBoxWithLabel from "../../../components/commons/CheckboxWithLabel.jsx";
-import CleaningCameraController from "../../../components/commons/CleaningCameraController.jsx";
-import CleaningAfterCameraController from "../../../components/commons/CleaningAfterCameraController.jsx";
 
 import Button from "../../../components/commons/Button.jsx";
 import CleaningFormSub from "../../../components/commons/CleaningFormSub.jsx";
 import { MatchUsername } from "../../../datas/MatchUsername.js";
-import { postAdd } from "../../../api/cleaningApi.js";
+import { getNameList, postAdd } from "../../../api/cleaningApi.js";
 import { useAuth } from "../../../hooks/useAuth.js";
 import CameraController from "../../../components/commons/CameraController.jsx";
 
 const CleaningMainPage = () => {
   const navigate = useNavigate();
-  const { username, isLoggedIn } = useAuth();
+  const { username, isLoggedIn, id } = useAuth();
 
   const [result, setResult] = useState(false);
   const [isMainFormComplete, setIsMainFormComplete] = useState(false);
@@ -70,9 +68,28 @@ const CleaningMainPage = () => {
   // 체크박스 관리 state
   const [selected, setSelected] = useState(null);
 
+  const [BeachNameList, setBeachNameList] = useState([]);
+  const [MatchUsername, setMatchUsername] = useState([]);
+
   const handleCheckboxChange = (index) => {
     setSelected(selected === index ? null : index);
   };
+
+  const getNames = async () => {
+    try {
+      const data = await getNameList(id);
+      console.log("------------getNameList res : ", data.beachNameList);
+      setBeachNameList(data?.beachNameList);
+      console.log("------------getNameList res : ", data.nameWithNumberList);
+      setMatchUsername(data?.nameWithNumberList);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getNames();
+  }, [id]);
 
   useEffect(() => {
     if (result === "success") {
