@@ -6,9 +6,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import KakaoMap from "../../components/commons/KakaoMap";
 import SubmitModal from "../../components/modal/SubmitModal";
+
 import { getNewWorksDetail, getImageByFileName } from "../../api/newWorksApi";
 // import { getImageByFileName } from "../../api/cleaningApi";
 import { useNewWorks } from "../../hooks/useNewWorks";
+
 
 const CleanReportPage = () => {
   const { isLoggedIn, role, id } = useAuth();

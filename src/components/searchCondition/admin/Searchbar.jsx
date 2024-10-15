@@ -9,7 +9,7 @@ const Searchbar = ({ onSearchInputChange, onSearch, placeholder }) => {
     onSearchInputChange(value); // 부모 컴포넌트로 검색어 전달
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       onSearch(searchValue); // 엔터키를 누르면 검색 실행
     }
@@ -23,7 +23,9 @@ const Searchbar = ({ onSearchInputChange, onSearch, placeholder }) => {
         className="outline-none flex-grow text-gray-700 px-4 mr-4"
         value={searchValue}
         onChange={handleInputChange}
+
         onKeyDown={handleKeyPress} // 엔터키 감지
+
       />
     </div>
   );
