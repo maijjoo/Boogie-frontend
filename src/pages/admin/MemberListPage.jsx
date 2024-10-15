@@ -88,7 +88,7 @@ const MemberListPage = () => {
     fetchMemberList();
   };
 
-  // 각 버튼의 hover 상태 관리
+  // 각 버튼의 hover 상태관리
   const [isHovered, setIsHovered] = useState({
     add: false,
     excel: false,
