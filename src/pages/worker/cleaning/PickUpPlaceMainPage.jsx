@@ -73,7 +73,7 @@ const PickUpPlaceMainPage = () => {
     if (
       !pickUpPlace ||
       !mainTrashType ||
-      calculateTotalWasteVolume() === 0 ||
+      actualCollectedVolume === 0 ||
       (photos.length < 1 && photos.length > 4)
     ) {
       alert("모든 필드를 올바르게 입력해 주세요.");
@@ -90,7 +90,7 @@ const PickUpPlaceMainPage = () => {
 
       const pickUpRequestDto = {
         pickUpPlace: pickUpPlace,
-        actualCollectedVolume: calculateTotalWasteVolume(),
+        realTrashAmount: actualCollectedVolume,
         mainTrashType: mainTrashType,
         latitude: startCoords[0],
         longitude: startCoords[1],
@@ -106,10 +106,7 @@ const PickUpPlaceMainPage = () => {
       }
       formData.append("submitterUsername", pickUpRequestDto.submitterUsername);
       formData.append("pickUpPlace", pickUpRequestDto.pickUpPlace);
-      formData.append(
-        "actualCollectedVolume",
-        pickUpRequestDto.actualCollectedVolume
-      );
+      formData.append("realTrashAmount", pickUpRequestDto.realTrashAmount);
       formData.append("mainTrashType", pickUpRequestDto.mainTrashType);
       formData.append("latitude", pickUpRequestDto.latitude);
       formData.append("longitude", pickUpRequestDto.longitude);

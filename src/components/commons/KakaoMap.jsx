@@ -1,4 +1,4 @@
-import { Map, MapMarker } from "react-kakao-maps-sdk";
+import { Map, MapMarker, Polyline } from "react-kakao-maps-sdk";
 import RedPin from "../../assets/icons/write/ic-location-red.svg";
 import BlackPin from "../../assets/icons/write/ic-location-black.svg";
 import blackSpot from "../../assets/icons/workerMode/pickupPin_needed.png";
@@ -20,6 +20,8 @@ const KakaoMap = ({
   predictedData = null,
   neededSpots = null,
   addedSpots = null,
+  lines = null,
+  line = null,
 }) => {
   const trashToPin = {
     부표류: redBuyo,
@@ -28,8 +30,11 @@ const KakaoMap = ({
     초목류: purpleTree,
     폐어구류: blueFishing,
   };
-
   const [trashAmount, setTrashAmount] = useState([]);
+
+  useEffect(() => {
+    console.log("--------------line: ", line);
+  }, [line]);
 
   useEffect(() => {
     if (predictedData && predictedData.length > 0) {
@@ -80,29 +85,6 @@ const KakaoMap = ({
       }}
       level={3} // 지도의 확대 레벨
     >
-      {/* {spots &&
-        spots.map((spot) => {
-          const markerImage = {
-            size: { width: 35, height: 35 },
-            src:
-              spot.id === nowView
-                ? redSpot
-                : spot.status === "ASSIGNMENT_ADDED_TO_ROUTE"
-                ? greenSpot
-                : blackSpot,
-          };
-          return (
-            <MapMarker
-              key={spot.id + "." + Math.random()}
-              position={{ lat: spot.latitude, lng: spot.longitude }}
-              title={spot.pickUpPlace}
-              image={markerImage}
-              onClick={() => {
-                setDetail(spot.id);
-              }}
-            />
-          );
-        })} */}
       {neededSpots &&
         neededSpots.map((spot) => {
           const markerImage = {
@@ -134,8 +116,6 @@ const KakaoMap = ({
               title={spot.pickUpPlace}
               image={markerImage}
               onClick={() => {
-                console.log("clicked!");
-
                 setDetail(spot.id);
               }}
             />
@@ -173,6 +153,30 @@ const KakaoMap = ({
             />
           );
         })}
+      {lines &&
+        lines.map((line, index) => {
+          const start = line.start;
+          const end = line.end;
+          return (
+            <Polyline
+              key={index}
+              path={[[start, end]]}
+              strokeWeight={50}
+              strokeColor={"red"}
+              strokeOpacity={0.7}
+              strokeStyle={"dash"}
+            />
+          );
+        })}
+      {line && (
+        <Polyline
+          path={[[line.start, line.end]]}
+          strokeWeight={50}
+          strokeColor={"red"}
+          strokeOpacity={0.7}
+          strokeStyle={"dash"}
+        />
+      )}
     </Map>
   );
 };

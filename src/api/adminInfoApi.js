@@ -10,3 +10,16 @@ export const getAdminInfo = async (adminId) => {
 
   return res.data;
 };
+
+export const updateAdminInfo = async (adminId, info) => {
+  try {
+    const res = await jwtAxios.put(`${prefix}/${adminId}`, info); // body 필드 제거
+    return res.data;
+  } catch (error) {
+    console.error(
+      "사용자 정보 업데이트 실패:",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+};

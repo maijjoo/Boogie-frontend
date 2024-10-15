@@ -1,12 +1,12 @@
 import searchIcon from "../../../assets/icons/write/Search.png";
 
 // Search 컴포넌트에서 beachName을 props로 받아서 검색 조건을 확인합니다.
-const SearchButton = ({ onSearch, beachName }) => {
+const SearchButton = ({ onSearch }) => {
   return (
     <button
       className="px-4 py-2 w-24 h-12 rounded-md flex items-center justify-center ml-5 text-white bg-blue-700 cursor-pointer whitespace-nowrap hover:bg-blue-800 transition"
       onClick={() => {
-        onSearch(beachName);
+        onSearch();
       }}
     >
       {/* 줄바꿈 방지 */}

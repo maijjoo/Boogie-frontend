@@ -5,18 +5,17 @@ import Button from "../../components/commons/Button.jsx";
 import MyPageInput from "../../components/commons/MyPageInput"; // InputField 컴포넌트 임포트
 import { useAuth } from "../../hooks/useAuth.js";
 import classNames from "classnames";
-import { getUserInfo } from "../../api/workerInfoApi.js";
+import { getUserInfo, updateUserInfo } from "../../api/workerInfoApi.js";
 import circle from "../../assets/icons/write/Circle.svg";
+import useConfirm from "../../components/commons/UseConfirm.jsx";
 
 const MyPageWorker = () => {
-  const { memberInfo, isLoggedIn, logout, id } = useAuth();
+  const { isLoggedIn, id } = useAuth();
 
   const [userInfo, setUserInfo] = useState({
-    name: "",
     email: "",
-    contact: "",
-    workGroup: "",
-    isDriver: "",
+    phone: "",
+    vehicleCapacity: "",
   });
 
   const [editMode, setEditMode] = useState(false); // 수정 가능 여부 상태 관리
@@ -30,24 +29,34 @@ const MyPageWorker = () => {
   const [confirmPasswordError, setConfirmPasswordError] = useState(""); // 비밀번호 확인 에러 메시지 상태
   const [successMessage, setSuccessMessage] = useState("");
 
+  // 비밀번호 변경 컨펌
+  const savingPassword = () => console.log("저장중...");
+  const abort = () => console.log("취소됨.");
+  const confirmSave = useConfirm("저장하시겠습니까?", savingPassword, abort);
+
+  //개인정보 수정 컨펌
+  const updateInfo = () => {
+    console.log("수정중...");
+    handleSubmit();
+  };
+  const cancelUpdate = () => console.log("취소됨.");
+  const confirmUpdate = useConfirm(
+    "수정하시겠습니까?",
+    updateInfo,
+    cancelUpdate
+  );
+
   // useEffect를 사용하여 memberInfo가 업데이트될 때 userInfo 상태 업데이트
   useEffect(() => {
     if (isLoggedIn) {
-      console.log(id);
-      const userInfo = getUserInfo(id);
-      console.log("userInfo.data : ", userInfo);
-
       getUserInfo(id).then((data) => {
-        console.log("---------result----------: ", data);
-
         setUserInfo({
           name: data.name || "",
           email: data.email || "",
           workGroup: data.address || "",
           addressDetail: data.addressDetail || "",
-          isDriver:
-            data.vehicleCapacity > 0 ? data.vehicleCapacity : "해당 없음",
-          contact: data.phone || "",
+          vehicleCapacity: data.vehicleCapacity > 0 ? data.vehicleCapacity : "",
+          phone: data.phone || "",
           managerContact: data.managerContact || "",
           managerName: data.managerName || "",
           assignmentAreaList: data.assignmentAreaList || "",
@@ -55,20 +64,17 @@ const MyPageWorker = () => {
         });
       });
     }
-  }, [memberInfo, isLoggedIn]);
-
-  console.log(memberInfo);
+  }, [id, isLoggedIn]);
 
   // 입력 필드 변경 핸들러
   const handleInputChange = (e) => {
     if (!editMode) return;
     const { name, value } = e.target;
-    setUserInfo({ ...userInfo, [name]: value });
-  };
 
-  // 새로고침 버튼 클릭 핸들러
-  const handleRefresh = () => {
-    window.location.reload(); // 페이지 새로고침
+    setUserInfo((prev) => ({
+      ...prev,
+      [name]: value, // 빈 문자열도 그대로 유지하도록 설정
+    }));
   };
 
   // 정보 수정 모드 토글
@@ -84,9 +90,32 @@ const MyPageWorker = () => {
 
   // 폼 제출 핸들러
   const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Updated User Info: ", userInfo);
-    // 여기서 업데이트 API 호출 등의 작업을 수행 가능
+    e && e.preventDefault();
+
+    const updatedData = {
+      email: userInfo.email,
+      phone: userInfo.phone,
+      vehicleCapacity:
+        userInfo.vehicleCapacity === ""
+          ? null
+          : parseFloat(userInfo.vehicleCapacity),
+    };
+
+    console.log("업데이트할 데이터:", updatedData); // 데이터가 올바른지 확인
+
+    // 사용자 정보 업데이트 API 호출
+    updateUserInfo(id, userInfo)
+      .then((response) => {
+        console.log("사용자 정보 업데이트 성공:", response);
+        setSuccessMessage("사용자 정보가 성공적으로 업데이트되었습니다.");
+      })
+      .catch((error) => {
+        console.error("사용자 정보 업데이트 실패:", error);
+        setSuccessMessage("사용자 정보 업데이트에 실패했습니다.");
+      });
+
+    setEditMode(false);
+    setButtonText("내 정보 수정");
   };
 
   // 비밀번호 유효성 검사 함수
@@ -206,24 +235,25 @@ const MyPageWorker = () => {
               {/* 연락처 필드*/}
               <MyPageInput
                 label="연락처"
-                name="tel"
+                name="phone"
                 type="tel"
-                value={userInfo.contact}
+                value={userInfo.phone}
                 onChange={handleInputChange}
                 readOnly={!editMode} // 수정 모드가 아닐 때는 readOnly 상태 유지
                 editMode={editMode}
               />
 
-              {/* 내 주소 필드*/}
-              <MyPageInput
-                label="주소"
-                name="address"
-                type="text"
-                value={userInfo.workGroup + " " + userInfo.addressDetail}
-                onChange={handleInputChange}
-                readOnly={!editMode} // 수정 모드가 아닐 때는 readOnly 상태 유지
-                editMode={editMode}
-              />
+              {/* 주소 필드 */}
+              <div>
+                <div className="font-bold">주소</div>
+                <div
+                  className={`border border-gray-400 rounded-md p-1 ${
+                    !editMode ? "bg-white" : "bg-gray-100"
+                  }`}
+                >
+                  {userInfo.workGroup + " " + userInfo.addressDetail}
+                </div>
+              </div>
 
               {/* 소속 필드 */}
               <div>
@@ -252,9 +282,9 @@ const MyPageWorker = () => {
               {/* 수거차량 적재량 필드 */}
               <MyPageInput
                 label="수거차량 적재량 (t)"
-                name="isDriver"
+                name="vehicleCapacity"
                 type=""
-                value={userInfo.isDriver}
+                value={userInfo.vehicleCapacity}
                 onChange={handleInputChange}
                 readOnly={!editMode} // 수정 모드가 아닐 때는 readOnly 상태 유지
                 editMode={editMode}
@@ -285,9 +315,9 @@ const MyPageWorker = () => {
                           confirmPasswordError)
                       }
                       color="emptyBlue"
-                      type={passwordChange ? "submit" : ""}
+                      type="button"
                       onClick={
-                        !passwordChange ? passwordToggleEditMode : handleRefresh
+                        !passwordChange ? passwordToggleEditMode : confirmSave
                       }
                     >
                       {pbuttonText} {/* 버튼 텍스트 변경 */}
@@ -306,8 +336,8 @@ const MyPageWorker = () => {
                       className="
                     w-full py-3 rounded-lg"
                       color="blue"
-                      type={editMode ? "submit" : ""}
-                      onClick={toggleEditMode} // 정보 수정 모드 토글
+                      type="button"
+                      onClick={!editMode ? toggleEditMode : confirmUpdate} // 정보 수정 모드 토글
                     >
                       {buttonText} {/* 버튼 텍스트 변경 */}
                     </Button>
@@ -339,6 +369,7 @@ const MyPageWorker = () => {
 
               {/* 새로운 비밀번호*/}
               <MyPageInput
+                className={`mb-4${newPasswordError ? "mb-4" : ""}`}
                 label="새로운 비밀번호"
                 id="newPassword"
                 name="newPassword"
@@ -357,7 +388,6 @@ const MyPageWorker = () => {
 
               {/* 비밀번호 확인*/}
               <MyPageInput
-                className={!newPasswordError ? "mt-4" : ""}
                 label="비밀번호 확인"
                 id="newPasswordConfirm"
                 name="newPasswordConfirm"
@@ -369,7 +399,7 @@ const MyPageWorker = () => {
               />
               {/* 비밀번호 확인 에러 메시지 출력 */}
               {confirmPasswordError && (
-                <p className="text-red-500 text-sm font-medium">
+                <p className="text-red-500 text-sm font-medium mb-[131.2px]">
                   {confirmPasswordError}
                 </p>
               )}

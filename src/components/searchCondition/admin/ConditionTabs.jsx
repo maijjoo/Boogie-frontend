@@ -7,6 +7,7 @@ const ConditionTabs = ({
   searchParams = {
     beachName: "",
   }, // 기본값 설정
+  handleOnSearch,
 }) => {
   return (
     <div className="flex items-center justify-center space-x-4 h-16 me-10">
@@ -20,6 +21,7 @@ const ConditionTabs = ({
           } text-[12pt] rounded-lg text-bold transition-colors duration-200`}
           onClick={() => {
             setActiveTab(tabKeys[index]);
+            handleOnSearch();
             initSearchParam(searchParams); // 전달된 searchParams 사용
           }}
         >

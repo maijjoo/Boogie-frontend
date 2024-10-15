@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getImageByFileName } from "../../api/researchApi";
 import { useNavigate } from "react-router-dom";
 
-const Card = ({ report }) => {
+const Card = ({ report, tab }) => {
   const [thumbnail, setThumbnail] = useState(null);
   const [formattedDate, setFormattedDate] = useState("날짜 정보 없음");
   const navigate = useNavigate();
@@ -17,7 +17,6 @@ const Card = ({ report }) => {
     const fetchThumbnail = async () => {
       try {
         const thumbnailData = await handleThumbnails(report.data);
-        console.log("썸네일 데이터: ", thumbnailData);
         setThumbnail(thumbnailData); // thumbnail.data가 이미지 경로라고 가정
       } catch (error) {
         console.error("Error fetching thumbnail:", error);
@@ -30,7 +29,6 @@ const Card = ({ report }) => {
   const handleThumbnails = async (img) => {
     try {
       const res = await getImageByFileName(img);
-      console.log("=================아무거나", res);
 
       return res;
     } catch (error) {
@@ -41,7 +39,11 @@ const Card = ({ report }) => {
   return (
     <div
       className="border rounded-lg shadow-sm overflow-hidden w-60 h-90 relative cursor-pointer"
-      onClick={() => navigate("/researchReport", { state: report })}
+      onClick={() =>
+        tab === "조사 완료"
+          ? navigate("/researchReport", { state: report.id })
+          : navigate("/cleanReport", { state: report.id })
+      }
     >
       <img
         src={thumbnail}
