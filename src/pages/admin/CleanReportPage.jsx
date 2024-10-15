@@ -5,7 +5,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import KakaoMap from "../../components/commons/KakaoMap";
-import SubmitModal from "../../components/modal/SubmiuModal";
+import SubmitModal from "../../components/modal/SubmitModal";
 
 const CleanReportPage = () => {
   const { isLoggedIn, role } = useAuth();
