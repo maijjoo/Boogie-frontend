@@ -10,7 +10,7 @@ import circle from "../../assets/icons/write/Circle.svg";
 import useConfirm from "../../components/commons/UseConfirm.jsx";
 
 const MyPageWorker = () => {
-  const { memberInfo, isLoggedIn, id } = useAuth();
+  const { isLoggedIn, id } = useAuth();
 
   const [userInfo, setUserInfo] = useState({
     email: "",
