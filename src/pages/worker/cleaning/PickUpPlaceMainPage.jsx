@@ -68,34 +68,45 @@ const PickUpPlaceMainPage = () => {
     setMainTrashType(type);
   };
 
+  const getGeoLocation = () => {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) =>
+          resolve([position.coords.latitude, position.coords.longitude]),
+        (error) => reject(error)
+      );
+    });
+  };
+
   // Form Submission Handler
-  const handleFormSubmit = () => {
+  // Form Submission Handler
+  const handleFormSubmit = async () => {
+    // 필수 필드가 모두 입력되었는지 확인
     if (
-      !pickUpPlace ||
-      !mainTrashType ||
+      !pickUpPlace.trim() ||
+      !mainTrashType.trim() ||
       calculateTotalWasteVolume() === 0 ||
-      (photos.length < 1 && photos.length > 4)
+      photos.length < 1 ||
+      photos.length > 3
     ) {
       alert("모든 필드를 올바르게 입력해 주세요.");
       return;
-    } else {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setStartCoords([pos.coords.latitude, pos.coords.longitude]);
-        },
-        (error) => {
-          alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
-        }
-      );
+    }
+
+    try {
+      // 위치 정보 가져오기
+      const coords = await getGeoLocation();
+      setStartCoords(coords);
 
       const pickUpRequestDto = {
         pickUpPlace: pickUpPlace,
         actualCollectedVolume: calculateTotalWasteVolume(),
         mainTrashType: mainTrashType,
-        latitude: startCoords[0],
-        longitude: startCoords[1],
+        latitude: coords[0],
+        longitude: coords[1],
         submitterUsername: username,
       };
+
       const files = photos;
       const formData = new FormData();
 
@@ -114,11 +125,12 @@ const PickUpPlaceMainPage = () => {
       formData.append("latitude", pickUpRequestDto.latitude);
       formData.append("longitude", pickUpRequestDto.longitude);
 
-      postAdd(formData).then((data) => {
-        setResult(data.result);
-        console.log("-----------data.result");
-        console.log(data.result);
-      });
+      // 서버로 데이터 전송
+      const data = await postAdd(formData);
+      setResult(data.result);
+      console.log("등록 결과:", data.result);
+    } catch (error) {
+      alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
     }
   };
 
