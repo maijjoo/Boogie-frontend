@@ -3,16 +3,16 @@ import jwtAxios from "../util/jwtUtil";
 
 const prefix = `${API_SERVER_HOST}/api/admin`;
 
-export const getMemberList = async (searchParam) => {
+export const getMemberList = async (searchParam, adminId) => {
   console.log(
     "---member-inquiry get api called with: {tabCondition: ",
     searchParam.tabCondition,
     ", name: ",
-    searchParam.name,
+    searchParam.nameSearch,
     "}---"
   );
 
-  const res = await jwtAxios.get(`${prefix}/ member-inquiry/{adminId}`, {
+  const res = await jwtAxios.get(`${prefix}/member-inquiry/${adminId}`, {
     params: searchParam, // 쿼리 파라미터로 전달
   });
 

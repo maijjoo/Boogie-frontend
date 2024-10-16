@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   FiChevronsLeft,
   FiChevronLeft,
@@ -14,6 +14,10 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
     }
     return pages;
   };
+
+  useEffect(() => {
+    console.log("=======", totalPages);
+  });
 
   return (
     <div className="flex items-center space-x-2">
