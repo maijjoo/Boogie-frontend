@@ -3,7 +3,7 @@ import Button from "../../components/commons/Button.jsx";
 import MyPageInput from "../../components/commons/MyPageInput"; // InputField 컴포넌트 임포트
 import { useAuth } from "../../hooks/useAuth.js";
 import classNames from "classnames";
-import { getAdminInfo } from "../../api/adminInfoApi.js";
+import { getAdminInfo, updateAdminInfo } from "../../api/adminInfoApi.js";
 import circle from "../../assets/icons/write/Circle.svg";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import useConfirm from "../../components/commons/UseConfirm.jsx";

@@ -11,7 +11,7 @@ const Searchbar = forwardRef(function SearchBar(
     setSearchValue(value);
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       onSearch(searchValue); // 엔터키를 누르면 검색 실행
     }
@@ -26,7 +26,7 @@ const Searchbar = forwardRef(function SearchBar(
         className="outline-none flex-grow text-gray-700 px-4 mr-4"
         value={searchValue}
         onChange={handleInputChange}
-        onKeyDown={handleKeyPress} // 엔터키 감지
+        onKeyDown={handleKeyDown} // 엔터키 감지
       />
     </div>
   );

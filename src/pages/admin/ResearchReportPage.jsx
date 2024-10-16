@@ -6,10 +6,12 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import KakaoMap from "../../components/commons/KakaoMap";
 import SubmitModal from "../../components/modal/SubmitModal";
+
 import { getNewWorksDetail, getImageByFileName } from "../../api/newWorksApi";
 // import { getImageByFileName } from "../../api/researchApi";
 import { useNewWorks } from "../../hooks/useNewWorks";
 import { getCompletedWorksDetail } from "../../api/workListApi";
+
 
 const ResearchReportPage = () => {
   const { isLoggedIn, role, id } = useAuth();

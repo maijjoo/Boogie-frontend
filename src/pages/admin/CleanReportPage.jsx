@@ -14,6 +14,7 @@ import {
 // import { getImageByFileName } from "../../api/cleaningApi";
 import { useNewWorks } from "../../hooks/useNewWorks";
 
+
 const CleanReportPage = () => {
   const { isLoggedIn, role, id } = useAuth();
   const { handleComplete } = useNewWorks(id);
