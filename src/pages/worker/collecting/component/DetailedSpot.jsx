@@ -6,6 +6,7 @@ import { getImageByFileName } from "../../../../api/collectApi";
 import DefaultImgs from "../../../../assets/icons/write/Add Image.svg";
 import Button from "../../../../components/commons/Button.jsx";
 import AuthImage from "./AuthImage.jsx";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const DetailedSpot = ({
   spot,
@@ -20,7 +21,11 @@ const DetailedSpot = ({
   const [spotInfo, setSpotInfo] = useState({});
   const [address, setAddress] = useState("");
   const [spotImgs, setSpotImgs] = useState([]);
+  const [spotHDImgs, setSpotHDImgs] = useState([]);
+  const [imgs, setImgs] = useState([]);
   const [isAdded, setIsAdded] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const getSpotInfoBySpotId = async () => {
     const selectedSpot1 = neededSpots.find((spotInfo) => spotInfo.id === spot);
@@ -49,6 +54,25 @@ const DetailedSpot = ({
     console.log("=============address============= : ", address);
   };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const goToPreviousImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? imgs.length - 1 : prevIndex - 1
+    );
+  };
+
+  const goToNextImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === imgs.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
   useEffect(() => {
     console.log("=============DetailedSpot========== : ", spotInfo);
     getSpotInfoBySpotId();
@@ -63,13 +87,19 @@ const DetailedSpot = ({
       const fetchSpotImages = async () => {
         try {
           // 이미지 배열을 비동기로 처리하고 모든 작업이 끝나길 기다림
-          const imgUrls = await Promise.all(
+          await Promise.all(
             spotInfo.images.map(async (img) => {
-              return await getImageByFileName(img);
+              if (!imgs.includes(img)) {
+                setImgs((prev) => [...prev, img]);
+                const image = await getImageByFileName(img);
+                const hdImage = await getImageByFileName(
+                  img.replace(/^S_/, "")
+                );
+                setSpotImgs((prev) => [...prev, image]);
+                setSpotHDImgs((prev) => [...prev, hdImage]);
+              }
             })
           );
-          // 이미지를 상태로 저장
-          setSpotImgs([...imgUrls]);
         } catch (error) {
           console.error("Error fetching images:", error);
         }
@@ -80,6 +110,38 @@ const DetailedSpot = ({
 
   return (
     <div className="w-full flex flex-col justify-center items-left p-3 border border-gray-500 bg-white rounded-t-xl pb-10">
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 rounded-t-xl">
+          <div className="relative bg-white rounded-sm p-1">
+            <div className="relative">
+              <img
+                src={spotHDImgs[currentImageIndex]}
+                alt="큰 해안가 사진"
+                className="max-w-full max-h-screen object-contain"
+              />
+              {/* X 버튼을 이미지 위에 배치 */}
+              <button
+                onClick={closeModal}
+                className="absolute top-2 right-2 w-7 h-7 bg-gray-800 bg-opacity-60 text-white rounded-full hover:bg-opacity-80"
+              >
+                X
+              </button>
+              <button
+                onClick={goToPreviousImage}
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-2 rounded-full"
+              >
+                <FiChevronLeft size={24} />
+              </button>
+              <button
+                onClick={goToNextImage}
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-2 rounded-full"
+              >
+                <FiChevronRight size={24} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex justify-between mb-3">
         <h1 className="inline font-bold text-red-500 text-xl">
           {spotInfo.pickUpPlace}
@@ -109,6 +171,10 @@ const DetailedSpot = ({
               <div
                 key={index}
                 className="flex-shrink-0 w-28 h-28 flex items-center justify-center border border-dashed border-gray-300 rounded-md"
+                onClick={() => {
+                  openModal();
+                  setCurrentImageIndex(index);
+                }}
               >
                 <img src={img} alt="spotImages" className="w-full h-full" />
               </div>

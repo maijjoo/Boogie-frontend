@@ -1,38 +1,26 @@
 import { useCallback, useEffect, useState } from "react";
-import { getNewWorks, completeNewWorks } from "../api/newWorksApi";
+import { useDispatch, useSelector } from "react-redux";
+import { getCompletedWorks } from "../api/workListApi";
 import {
   setTabCondition,
   setBeachSearch,
   setPage,
   setSize,
   setSort,
-} from "../slices/conditionSlice";
-import { useDispatch, useSelector } from "react-redux";
+} from "../slices/completedSlice";
 
-export const useNewWorks = (id) => {
+export const useCompletedWorks = (id) => {
   const [searchedData, setSearchedData] = useState([]);
   const [totalLength, setTotalLength] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const [condition, setCondition] = useState("조사 완료");
-  // const [sortOrder, setSortOrder] = useState("desc");
-  // const [searchInput, setSearchInput] = useState("");
-  // const itemsPerPage = 10;
-  // const [searchParam, setSearchParam] = useState({
-  //   tabCondition: condition,
-  //   beachSearch: searchInput,
-  //   page: currentPage,
-  //   size: itemsPerPage,
-  //   sort: sortOrder,
-  // });
 
   const dispatch = useDispatch();
   const { tabCondition, beachSearch, page, size, sort } = useSelector(
-    (state) => state.condition
+    (state) => state.completed
   );
   const itemsPerPage = size;
 
-  const fetchNewWorks = useCallback(async () => {
+  const fetchCompletedWorks = useCallback(async () => {
     const searchParam = {
       tabCondition,
       beachSearch,
@@ -42,7 +30,7 @@ export const useNewWorks = (id) => {
     };
 
     try {
-      const response = await getNewWorks(id, searchParam);
+      const response = await getCompletedWorks(id, searchParam);
       setTotalLength(response.data.totalCount);
       setSearchedData(response.data.dtoList);
       setTotalPages(Math.ceil(response.data.totalCount / itemsPerPage));
@@ -52,19 +40,8 @@ export const useNewWorks = (id) => {
   }, [id, tabCondition, beachSearch, page, itemsPerPage, sort]);
 
   useEffect(() => {
-    fetchNewWorks();
-  }, [fetchNewWorks]);
-
-  const handleComplete = async (reportId) => {
-    try {
-      await completeNewWorks(reportId, tabCondition);
-
-      if (searchedData.length === 1 && page > 1) dispatch(setPage(page - 1));
-      else fetchNewWorks();
-    } catch (error) {
-      console.error("작업 완료 중 오류 발생 : ", error);
-    }
-  };
+    fetchCompletedWorks();
+  }, [fetchCompletedWorks]);
 
   return {
     searchedData,
@@ -77,7 +54,6 @@ export const useNewWorks = (id) => {
     setPage: (newPage) => dispatch(setPage(newPage)),
     setSize: (newSize) => dispatch(setSize(newSize)),
     setSort: (sortOrder) => dispatch(setSort(sortOrder)),
-    handleComplete,
-    fetchNewWorks,
+    fetchCompletedWorks,
   };
 };

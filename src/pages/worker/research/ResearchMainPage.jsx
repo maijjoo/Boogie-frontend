@@ -6,14 +6,13 @@ import { useNavigate } from "react-router-dom";
 import MobileHeader from "../../../components/menus/MobileHeader.jsx";
 import MobileFooter from "../../../components/menus/MobileFooter.jsx";
 import { NaturalDisasterList } from "../../../datas/NaturalDisasterList.js";
-// import { BeachNameList } from "../../../datas/BeachNameList.js";
 import CheckBoxWithLabel from "../../../components/commons/CheckboxWithLabel.jsx";
 import CameraController from "../../../components/commons/CameraController.jsx";
 import Button from "../../../components/commons/Button.jsx";
 import FormSub from "../../../components/commons/FormSub.jsx";
-// import { MatchUsername } from "../../../datas/MatchUsername.js";
 import { postAdd, getNameList } from "../../../api/researchApi.js";
 import { useAuth } from "../../../hooks/useAuth.js";
+import Toast from "../../../components/commons/Toast.jsx";
 
 // dto 구조 참고용
 // 개발 완료되면 지우기
@@ -24,6 +23,7 @@ const initState = {
   expectedTrashAmount: "",
   weather: "",
   specialNote: "",
+  members: [""],
   researchSubList: [
     {
       beachNameWithIndex: "",
@@ -38,32 +38,36 @@ const initState = {
 
 const ResearchMainPage = () => {
   const navigate = useNavigate();
-  const { username, isLoggedIn, memberInfo, id } = useAuth();
-  console.log(memberInfo);
+  const { username, isLoggedIn, id, role } = useAuth();
 
   // 등록요청 성공시 리렌더링하기 위함
   const [result, setResult] = useState(false);
 
   // 임시저장 모달을 띄우기 위한 state
-  const [isTempExists, setIsTempExists] = useState(false);
+  // const [isTempExists, setIsTempExists] = useState(false);
 
   // 서브조사리스트
   const [subs, setSubs] = useState([]);
   // 이미지 등록을 위한 파일 배열
   const [formImgs, setFormImgs] = useState([]);
+  // 입력된 쓰레기 예측량(L)
   const [trashAmount, setTrashAmount] = useState(0);
   // 서브폼이 작성중일때 등록버튼 못누르게
   const [isSubOnWrite, setIsSubOnWrite] = useState(false);
   // 서브폼 시작좌표
   const [startCoords, setStartCoords] = useState();
-  //메인폼 접기, undefined는 메인폼 작성중일때
+  // 메인폼 접기, undefined는 메인폼 작성중일때
   const [isMainFormCollapsed, setIsMainFormCollapsed] = useState(undefined);
   // 해안명 입력값
   const [beachName, setBeachName] = useState("");
+  // 백엔드에서 받아온 담당 해안명
+  const [BeachNameList, setBeachNameList] = useState([]);
   // 해안명 자동완성 드랍다운
   const [beachNameOptions, setBeachNameOptions] = useState([]);
   // 팀원이름 입력값
   const [inputName, setInputName] = useState("");
+  // 백엔드에서 받아온 담당 팀원명
+  const [MatchUsername, setMatchUsername] = useState([]);
   // 팀원이름 자동완성 드랍다운
   const [inputNameOptions, setInputNameOptions] = useState([]);
   // 조사시작 여부 파악하는 state
@@ -72,26 +76,25 @@ const ResearchMainPage = () => {
   const [teamList, setTeamList] = useState([]);
   // 체크박스 관리 state
   const [selected, setSelected] = useState(null);
-  // 해안명
-  const [BeachNameList, setBeachNameList] = useState([]);
-  const [MatchUsername, setMatchUsername] = useState([]);
+  // 토스트 메세지 출력 여부
+  const [toast, setToast] = useState(false);
+  // 토스트 메세지 텍스트
+  const [toastText, setToastText] = useState("");
 
   // 로그인 판별, 등록 성공시 수행
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn || role === "ADMIN") {
       navigate("/", { replace: true });
     }
     if (result === "success") {
       initializeAllStates();
     }
-  }, [result, isLoggedIn, navigate]);
+  }, [result, isLoggedIn, navigate, role]);
 
   const getNames = async () => {
     try {
       const data = await getNameList(id);
-      console.log("------------getNameList res : ", data.beachNameList);
       setBeachNameList(data?.beachNameList);
-      console.log("------------getNameList res : ", data.nameWithNumberList);
       setMatchUsername(data?.nameWithNumberList);
     } catch (error) {
       console.error(error);
@@ -100,7 +103,6 @@ const ResearchMainPage = () => {
 
   useEffect(() => {
     getNames();
-    console.log();
   }, []);
 
   // 등록요청 성공시 초기화
@@ -145,9 +147,18 @@ const ResearchMainPage = () => {
   };
 
   const handleValidTeam = (username) => {
-    if (username.trim() !== "") {
+    if (
+      username.trim() !== "" &&
+      MatchUsername.includes(username.trim()) &&
+      !teamList.includes(username.trim())
+    ) {
+      setToast(false);
+      setToastText("");
       setTeamList((prevTeam) => [...prevTeam, username]);
       setInputName("");
+    } else if (teamList.includes(username.trim())) {
+      setToastText("이미 등록된 작업자입니다");
+      setToast(true);
     }
   };
 
@@ -203,6 +214,7 @@ const ResearchMainPage = () => {
         weather: "", // api 로 따와서 넘김
         specialNote: NaturalDisasterList[selected], // 재연재해 값
         researchSubList: subs.data, //서브조사 리스트
+        members: teamList,
       };
 
       console.log("----요청 전송--------------");
@@ -317,7 +329,7 @@ const ResearchMainPage = () => {
                     value={inputName}
                     onChange={handleInputNameChange}
                     placeholder="조사자를 입력해 주세요"
-                    className="p-1 mb-2 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-2"
+                    className="p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-2"
                     list="nameoptions"
                   />
                   <datalist id="nameoptions">
@@ -338,7 +350,14 @@ const ResearchMainPage = () => {
                 </div>
 
                 {teamList.length > 0 && (
-                  <ul className="flex flex-wrap gap-2">
+                  <ul className="flex flex-wrap gap-2 mt-2">
+                    {toast && (
+                      <div>
+                        <p className="text-red-500 font-medium text-sm">
+                          {toastText}
+                        </p>
+                      </div>
+                    )}
                     {teamList.map((team, index) => (
                       <li key={index} className="me-1 flex items-center">
                         <div className="flex items-center justify-between p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600">
@@ -463,8 +482,14 @@ const ResearchMainPage = () => {
         </div>
       </div>
 
+      {/* {toast && (
+        <div className="fixed bottom-32 z-50">
+          <Toast setToast={setToast} text={toastText} />
+        </div>
+      )} */}
+
       <div className="w-full xl:w-1/3 mt-3 flex flex-col justify-center">
-        <div className="border-t-2 fixed bottom-0 z-50 bg-white w-full flex flex-col justify-center gap-2">
+        <div className="border-t-2 fixed bottom-0 z-40 bg-white w-full flex flex-col justify-center gap-2">
           <div className="flex mt-2 px-2 gap-2">
             <div className="w-1/2 inline-block">
               <Button className="w-full py-3 rounded-lg" color="blue">

@@ -9,6 +9,8 @@ import { useAuth } from "../../hooks/useAuth";
 import { replace, Link, useNavigate } from "react-router-dom";
 import KakaoMap from "../../components/commons/KakaoMap";
 import { getSearched } from "../../api/mainTrashDistributionApi";
+import { useDispatch } from "react-redux";
+import { resetCondition } from "../../slices/conditionSlice";
 
 const MainTrashDistributionPage = () => {
   const { isLoggedIn, role } = useAuth();
@@ -22,6 +24,13 @@ const MainTrashDistributionPage = () => {
     end: null,
   });
   const [searchedData, setSearchedData] = useState([]);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetCondition()); // 페이지를 벗어날 때 상태 초기화
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     if (!isLoggedIn || role !== "ADMIN") {

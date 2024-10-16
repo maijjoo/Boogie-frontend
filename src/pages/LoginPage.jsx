@@ -24,8 +24,6 @@ const Login = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      console.log(role);
-
       role === "ADMIN"
         ? navigate("/adminMain", { replace: true })
         : navigate("/workerMain", { replace: true });

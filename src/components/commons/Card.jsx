@@ -7,8 +7,10 @@ const Card = ({ report, tab }) => {
   const [formattedDate, setFormattedDate] = useState("날짜 정보 없음");
   const navigate = useNavigate();
   useEffect(() => {
-    if (report.reportTime) {
-      const date = new Date(report.reportTime);
+    if (report.reportTime || report.cleanDateTime || report.submitDateTime) {
+      const date = new Date(
+        report?.reportTime || report?.cleanDateTime || report.submitDateTime
+      );
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const day = String(date.getDate()).padStart(2, "0");
@@ -39,18 +41,36 @@ const Card = ({ report, tab }) => {
   return (
     <div
       className="border rounded-lg shadow-sm overflow-hidden w-60 h-90 relative cursor-pointer"
-      onClick={() =>
-        tab === "조사 완료"
-          ? navigate("/researchReport", { state: report.id })
-          : navigate("/cleanReport", { state: report.id })
-      }
+      onClick={() => {
+        if (tab === "조사 완료") {
+          navigate("/researchReport", {
+            state: { reportId: report.id, isNeeded: true },
+          });
+        } else if (tab === "조사") {
+          navigate("/researchReport", {
+            state: { reportId: report.id, isNeeded: false },
+          });
+        } else if (tab === "청소 완료") {
+          navigate("/cleanReport", {
+            state: { reportId: report.id, isNeeded: true },
+          });
+        } else if (tab === "청소") {
+          navigate("/cleanReport", {
+            state: { reportId: report.id, isNeeded: false },
+          });
+        } else {
+          navigate("/collectReport", {
+            state: { reportId: report.id },
+          });
+        }
+      }}
     >
       <img
         src={thumbnail}
-        alt={report.beachName || "해안가명"}
+        alt={report?.beachName || report?.pickUpPlace || "장소 정보 없음"}
         className="w-60 h-60 object-cover"
       />
-      <p className="absolute top-3 right-3 p-1 font-bold bg-red-500 text-m text-white rounded">
+      <p className="absolute top-3 right-3 p-1 font-bold bg-red-500 text-base text-white rounded">
         {report.status === "ASSIGNMENT_NEEDED"
           ? "배정 필요"
           : report.status === "ASSIGNMENT_COMPLETED"
@@ -59,11 +79,13 @@ const Card = ({ report, tab }) => {
       </p>
       <div className="p-4 bg-white h-30">
         <h2 className="font-semibold text-l mb-2">
-          {report.beachName || "해안가명"}
+          {report?.beachName || report?.pickUpPlace || "장소 정보 없음"}
         </h2>
         <div className="flex justify-between">
           <p className="text-sm text-gray-600">
-            {report.researcherName || report.cleanerName || "작업 종류"}
+            {report?.researcherName ||
+              report?.cleanerName ||
+              report?.submitterName}
           </p>
           <p className="text-sm text-gray-600">
             {formattedDate || "날짜 정보 없음"}

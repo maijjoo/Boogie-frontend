@@ -9,6 +9,9 @@ import { useAuth } from "../../hooks/useAuth";
 import { replace, useNavigate } from "react-router-dom";
 import KakaoMap from "../../components/commons/KakaoMap";
 import { getPredicted } from "../../api/pickupPredictApi";
+import { useDispatch } from "react-redux";
+import { resetCondition } from "../../slices/conditionSlice";
+import { resetCompleted } from "../../slices/completedSlice";
 
 const PickupPredictPage = () => {
   const { isLoggedIn, role } = useAuth();
@@ -23,6 +26,14 @@ const PickupPredictPage = () => {
   });
   const [predictedData, setPredictedData] = useState([]);
   const [trashs, setTrashs] = useState([]);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetCondition()); // 페이지를 벗어날 때 상태 초기화
+      dispatch(resetCompleted());
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     if (!isLoggedIn || role !== "ADMIN") {

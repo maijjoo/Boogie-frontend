@@ -22,6 +22,7 @@ const KakaoMap = ({
   addedSpots = null,
   lines = null,
   line = null,
+  pickUpPlace = null,
 }) => {
   const trashToPin = {
     부표류: redBuyo,
@@ -175,6 +176,16 @@ const KakaoMap = ({
           strokeColor={"red"}
           strokeOpacity={0.7}
           strokeStyle={"dash"}
+        />
+      )}
+      {pickUpPlace && (
+        <MapMarker
+          position={{ lat: pickUpPlace.lat, lng: pickUpPlace.lng }}
+          title="집하지"
+          image={{
+            size: { width: 35, height: 35 },
+            src: RedPin,
+          }}
         />
       )}
     </Map>

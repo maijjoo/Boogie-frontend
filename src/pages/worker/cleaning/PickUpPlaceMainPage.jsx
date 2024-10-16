@@ -14,7 +14,7 @@ import CameraController from "../../../components/commons/CameraController.jsx";
 
 const PickUpPlaceMainPage = () => {
   const navigate = useNavigate();
-  const { username, isLoggedIn } = useAuth();
+  const { username, isLoggedIn, role } = useAuth();
 
   // State 관리
   const [pickUpPlace, setPickUpPlace] = useState(""); // 집하지 위치
@@ -26,14 +26,14 @@ const PickUpPlaceMainPage = () => {
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true); // 등록하기 버튼 상태 관리
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn || role === "ADMIN") {
       navigate("/", { replace: true });
     }
     if (result === "success") {
       alert("등록 완료");
       navigate("/cleaningSelect", { replace: true });
     }
-  }, [isLoggedIn, result, navigate]);
+  }, [isLoggedIn, result, navigate, role]);
 
   // Handle Photo Upload
   const handlePhotoUpload = (newPhotos) => {
