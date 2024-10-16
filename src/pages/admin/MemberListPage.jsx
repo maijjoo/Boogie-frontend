@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+
 import ConditionTabs from "../../components/searchCondition/admin/ConditionTabs";
 import Searchbar from "../../components/searchCondition/admin/Searchbar";
 import SearchButton from "../../components/searchCondition/admin/SearchButton";
 import Button from "../../components/searchCondition/admin/WebButton";
+
 import NoticeIcon from "../../assets/images/notice.png";
 import { getMemberList } from "../../api/memberListApi";
 import excelHoeverIcon from "../../assets/icons/write/ExcelIcon.png";
@@ -14,21 +16,30 @@ import addHoverIcon from "../../assets/icons/adminMode/add.png";
 import addIcon from "../../assets/icons/adminMode/addBlue.png";
 import deleteHoverIcon from "../../assets/icons/adminMode/delete.png";
 import deleteIcon from "../../assets/icons/adminMode/deleteBlue.png";
+
 import ListCountAndSort from "../../components/commons/ListCountAndSort";
 import TableComponent from "../../components/table/TableComponent";
 import Pagination from "../../components/commons/Pagination";
 
 const MemberListPage = () => {
   // 관리자 id, 역할
-  const { isLoggedIn, role } = useAuth();
+  const { isLoggedIn, role, id } = useAuth();
   const navigate = useNavigate();
 
-  // 조회 조건 탭(조사 완료/청소 완료)
+  // 검색 조건 탭 [전체], [조사/청소자], [수거자]
   const [condition, setCondition] = useState("allWorkersTab");
+  const [rows, setRows] = useState([]);
 
-  // 조회 파라미터(해안명)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const itemsPerPage = 20; // 페이지 당 항목 수
+
+  // 조회 파라미터(회원명), 기본 탭 [전체]
   const [searchParam, setSearchParam] = useState({
-    name: "", // 초기 값은 빈 문자열
+    tabCondition: "전체",
+    searchName: "", // 초기 값은 빈 문자열
+    page: currentPage,
   });
 
   // 조회 결과 데이터
@@ -60,11 +71,19 @@ const MemberListPage = () => {
       } else if (condition === "collectorTab") {
         tabCondition = "수거자";
       }
-      const response = await getMemberList({
-        ...searchParam,
-        tabCondition,
-      });
+      const response = await getMemberList(
+        {
+          ...searchParam,
+          tabCondition,
+        },
+        id
+      );
+      console.log("-----------response----", response.data.dtoList);
+      console.log("-----------response----", response.data.totalPage);
+      setRows(response.data.dtoList);
       setSearchedData(response.data);
+      setTotalPages(response.data.totalPage);
+      setTotalCount(response.data.totalCount);
     } catch (error) {
       console.error("데이터 검색 중 오류 발생:", error);
     }
@@ -88,53 +107,73 @@ const MemberListPage = () => {
     fetchMemberList();
   };
 
+  useEffect(() => {
+    console.log("--------------------" + searchedData);
+  }, [searchedData]);
+
   // 각 버튼의 hover 상태관리
   const [isHovered, setIsHovered] = useState({
     add: false,
     excel: false,
     delete: false,
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    setSearchParam((prev) => ({
+      ...prev,
+      page: page, // 검색어를 name으로 설정
+    }));
   };
+
+  const [sortOrder, setSortOrder] = useState("desc"); // 기본 정렬은 내림차순
+
   const handleSortChange = (sortOrder) => {
     setSortOrder(sortOrder);
+    setSearchParam((prev) => ({ ...prev, sort: sortOrder }));
+    const sortedRows = [...rows].sort((a, b) => {
+      const dateA = new Date(a.createdDate);
+      const dateB = new Date(b.createdDate);
+
+      // 오름차순 : 내림차순
+      sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+    });
+
+    setRows(sortedRows); // 정렬된 데이터를 상태로 업데이트
   };
+
+  // 회원 목록 테이블 컴포넌트 td값 지정
   const headers = [
-    { label: "", width: "40px", isCheckbox: true }, // 체크박스 열을 40px로 설정
-    { label: "번호", width: "50px", isCheckbox: false }, // 번호 열을 50px로 설정
-    { label: "이름", width: "120px", isCheckbox: false },
-    { label: "연락처", width: "200px", isCheckbox: false },
-    { label: "차량 적재량(t)", width: "150px", isCheckbox: false },
-    { label: "시작일", width: "150px", isCheckbox: false },
-    { label: "종료일", width: "150px", isCheckbox: false },
-    { label: "가입일", width: "150px", isCheckbox: false },
+    { label: "", width: "40px", isCheckbox: true, field: "" },
+    {
+      label: "번호",
+      width: "60px",
+      isCheckbox: false,
+      field: "index",
+      formatter: (row, index) => index, // 전체 인덱스를 계산해서 표시
+    },
+    { label: "이름", width: "100px", isCheckbox: false, field: "name" },
+    { label: "연락처", width: "200px", isCheckbox: false, field: "phone" },
+    {
+      label: "차량 적재량(t)",
+      width: "150px",
+      isCheckbox: false,
+      field: "vehicleCapacity",
+      formatter: (row) => row.vehicleCapacity || "-",
+    },
+    { label: "시작일", width: "150px", isCheckbox: false, field: "startDate" },
+    { label: "종료일", width: "150px", isCheckbox: false, field: "endDate" },
+    {
+      label: "가입일",
+      width: "150px",
+      isCheckbox: false,
+      field: "createdDate",
+      formatter: (row) => row.createdDate.split("T")[0],
+    },
   ];
 
-  const rows = [
-    [
-      "",
-      "1",
-      "홍길동",
-      "010-1234-5678",
-      "5t",
-      "2023-01-01",
-      "2023-12-31",
-      "2023-01-01",
-    ],
-    [
-      "",
-      "2",
-      "이순신",
-      "010-9876-5432",
-      "3t",
-      "2023-02-01",
-      "2023-12-31",
-      "2023-02-01",
-    ],
-  ];
+  // const rows = [...searchedData.dtoList];
+
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
@@ -227,19 +266,39 @@ const MemberListPage = () => {
           </Button>
         </div>
         <ListCountAndSort
-          totalCount={searchedData.length}
+          totalCount={totalCount}
           onSortChange={handleSortChange}
         />
-        <div className="">
-          <TableComponent headers={headers} rows={rows} />
-        </div>
-        <div className="flex justify-center mt-4">
-          <Pagination
-            totalPages={totalPages}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-          />
-        </div>
+        {rows && rows.length > 0 ? (
+          <div className="">
+            <TableComponent
+              headers={headers}
+              rows={rows}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+            />
+            <div className="flex justify-center mt-4">
+              <Pagination
+                totalPages={totalPages}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center mt-40">
+            <img
+              src={NoticeIcon}
+              alt="Notice"
+              className="w-8 h-8 object-cover mb-2"
+            />
+            <p className="text-[#014EB6] font-semibold text-lg">
+              {searchParam.searchName
+                ? "검색 결과가 없습니다"
+                : "해당 데이터가 없습니다"}
+            </p>
+          </div>
+        )}
       </div>
     </SidebarLayout>
   );
