@@ -12,6 +12,8 @@ import YearAndMonthCondition from "../../components/searchCondition/basic/YearAn
 import YearCondition from "../../components/searchCondition/basic/YearCondition";
 import ExcelIcon from "../../assets/icons/write/ExcelIcon.png";
 import * as XLSX from "xlsx"; // 엑셀 라이브러리 추가
+import { useDispatch } from "react-redux";
+import { resetCondition } from "../../slices/conditionSlice.js";
 
 const BasicStatisticsPage = () => {
   const [activeTab, setActiveTab] = useState("year");
@@ -22,7 +24,12 @@ const BasicStatisticsPage = () => {
   const [selectedYear, setSelectedYear] = useState(""); // YearCondition에서 선택한 연도 상태
   const [selectedYears, setSelectedYears] = useState(""); // YearAndMonthCondition 에서 선택한 연도 상태
   const [selectedMonth, setSelectedMonth] = useState(""); // YearAndMonthCondition 에서 선택한 월 상태
-
+  const dispatch = useDispatch();
+  useEffect(() => {
+    return () => {
+      dispatch(resetCondition()); // 페이지를 벗어날 때 상태 초기화
+    };
+  }, [dispatch]);
   const downloadExcel = () => {
     let dataToExport = [];
 

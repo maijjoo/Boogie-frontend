@@ -6,19 +6,16 @@ import { useNavigate } from "react-router-dom";
 import MobileHeader from "../../../components/menus/MobileHeader.jsx";
 import MobileFooter from "../../../components/menus/MobileFooter.jsx";
 import { NaturalDisasterList } from "../../../datas/NaturalDisasterList.js";
-import { BeachNameList } from "../../../datas/BeachNameList.js";
 import CheckBoxWithLabel from "../../../components/commons/CheckboxWithLabel.jsx";
-
 import Button from "../../../components/commons/Button.jsx";
 import CleaningFormSub from "../../../components/commons/CleaningFormSub.jsx";
-import { MatchUsername } from "../../../datas/MatchUsername.js";
 import { getNameList, postAdd } from "../../../api/cleaningApi.js";
 import { useAuth } from "../../../hooks/useAuth.js";
 import CameraController from "../../../components/commons/CameraController.jsx";
 
 const CleaningMainPage = () => {
   const navigate = useNavigate();
-  const { username, isLoggedIn, id } = useAuth();
+  const { username, isLoggedIn, id, role } = useAuth();
 
   const [result, setResult] = useState(false);
   const [isMainFormComplete, setIsMainFormComplete] = useState(false);
@@ -98,14 +95,14 @@ const CleaningMainPage = () => {
   }, [result, navigate]);
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn || role === "ADMIN") {
       navigate("/", { replace: true });
     }
     if (result === "success") {
       alert("등록완료");
       navigate("/cleaningSelect", { replace: true });
     }
-  }, [result, isLoggedIn, navigate]);
+  }, [result, isLoggedIn, navigate, role]);
 
   useEffect(() => {
     setIsMainFormComplete(

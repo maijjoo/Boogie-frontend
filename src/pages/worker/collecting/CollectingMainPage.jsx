@@ -8,7 +8,7 @@ import { getSpots, updateSpots } from "../../../api/collectApi.js";
 import FooterInfo from "./component/FooterInfo.jsx";
 
 const CollectingMainPage = () => {
-  const { isLoggedIn, isDriver, memberInfo, username } = useAuth();
+  const { isLoggedIn, isDriver, memberInfo, username, role } = useAuth();
   const navigate = useNavigate();
   // 지도 중심좌표로 보낼 현재 위치 좌표
   const [myCoords, setMyCoords] = useState({ lat: 0, lng: 0 });
@@ -79,14 +79,14 @@ const CollectingMainPage = () => {
   };
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn || role === "ADMIN") {
       navigate("/", { replace: true });
     }
     if (!isDriver) {
       alert("수거작업은 차량을 등록해야 진행할 수 있습니다.");
       navigate("/workerMain", { replace: true });
     }
-  }, [isLoggedIn, isDriver, navigate]);
+  }, [isLoggedIn, isDriver, navigate, role]);
 
   useEffect(() => {
     const getLocation = async () => {

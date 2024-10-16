@@ -8,9 +8,11 @@ import classNames from "classnames";
 import { getUserInfo, updateUserInfo } from "../../api/workerInfoApi.js";
 import circle from "../../assets/icons/write/Circle.svg";
 import useConfirm from "../../components/commons/UseConfirm.jsx";
+import { useNavigate } from "react-router-dom";
 
 const MyPageWorker = () => {
-  const { memberInfo, isLoggedIn, id } = useAuth();
+  const { memberInfo, isLoggedIn, id, role } = useAuth();
+  const navigate = useNavigate();
 
   const [userInfo, setUserInfo] = useState({
     email: "",
@@ -63,8 +65,10 @@ const MyPageWorker = () => {
           managerDepartment: data.managerDepartment || "",
         });
       });
+    } else if (!isLoggedIn || role === "ADMIN") {
+      navigate("/", { replace: true });
     }
-  }, [id, isLoggedIn]);
+  }, [id, isLoggedIn, role, navigate]);
 
   // 입력 필드 변경 핸들러
   const handleInputChange = (e) => {

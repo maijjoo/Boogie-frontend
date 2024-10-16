@@ -1,61 +1,44 @@
-import { useEffect, useState } from "react";
-import SidebarLayout from "../../layouts/SidebarLayout";
-import dot from "../../assets/icons/write/Circle.svg";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import KakaoMap from "../../components/commons/KakaoMap";
-import SubmitModal from "../../components/modal/SubmitModal";
-import { getNewWorksDetail, getImageByFileName } from "../../api/newWorksApi";
-// import { getImageByFileName } from "../../api/researchApi";
-import { useNewWorks } from "../../hooks/useNewWorks";
+import dot from "../../assets/icons/write/Circle.svg";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getCompletedWorksDetail } from "../../api/workListApi";
+import SidebarLayout from "../../layouts/SidebarLayout";
+import KakaoMap from "../../components/commons/KakaoMap";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { getImageByFileName } from "../../api/newWorksApi";
 
-const ResearchReportPage = () => {
+const CollectReportPage = () => {
   const { isLoggedIn, role, id } = useAuth();
-  const { handleComplete } = useNewWorks(id);
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false); // 이미지 모달 상태
-  const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false); // 승인 모달 상태
-  const [myCoords, setMyCoords] = useState({ lat: "", lng: "" });
-  const [coordLines, setCoordLines] = useState([]);
+  const [coord, setCoord] = useState({ lat: 0.0, lng: 0.0 });
   const location = useLocation();
-  const { reportId, isNeeded } = location.state || {};
+  const { reportId } = location.state || {};
 
   const initData = {
-    beachName: "",
-    beachLength: 0,
-    reportTime: "",
-    researchers: "",
-    estimatedTrash: "50L 마대",
-    trashBags: 0,
-    totalVolume: 0,
-    recentDisaster: "",
-    weather: "",
-    latitude: "",
-    longitude: "",
-    mapImage: "",
+    pickUpPlace: "",
+    submitDateTime: "",
+    submitterName: "",
+    realTrashAmount: 0,
+    mainTrashType: "",
   };
 
   const [detailData, setDetailData] = useState(initData);
   const [imgs, setImgs] = useState([]);
   const [hdImgs, setHdImgs] = useState([]);
-  const [images, setImages] = useState([]);
-  const [teamList, setTeamList] = useState([]);
-  const [teamListString, setTeamListString] = useState("");
+  const [imageName, setImageName] = useState([]);
 
-  const fetchNewWorksDetail = async () => {
+  const fetchCollectDetail = async () => {
     try {
-      let response;
-      if (isNeeded) response = await getNewWorksDetail(reportId, "조사 완료");
-      else response = await getCompletedWorksDetail(reportId, "조사");
-      console.log("------------completedTasksDetail get response: ", response);
+      const response = await getCompletedWorksDetail(reportId, "수거");
+      console.log("===========response: ", response);
 
       let formattedDate = "날짜 정보 없음";
 
-      if (response.data.reportTime) {
-        const date = new Date(response.data.reportTime);
+      if (response.data.submitDateTime) {
+        const date = new Date(response.data.submitDateTime);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
@@ -65,41 +48,22 @@ const ResearchReportPage = () => {
         formattedDate = `${year}/${month}/${day} ${hours}:${minutes}`;
       }
 
-      let newCoordLines = [];
-
-      if (
-        response.data.researchSubList &&
-        response.data.researchSubList.length > 0
-      ) {
-        newCoordLines = response.data.researchSubList.map((sub) => ({
-          start: { lat: sub.startLatitude, lng: sub.startLongitude },
-          end: { lat: sub.endLatitude, lng: sub.endLongitude },
-        }));
-      }
-
-      setCoordLines(newCoordLines);
-      if (newCoordLines.length > 0) {
-        setMyCoords({
-          lat: newCoordLines[0].start.lat,
-          lng: newCoordLines[0].start.lng,
-        });
+      if (response.data) {
+        const newCoord = {
+          lat: response.data.latitude,
+          lng: response.data.longitude,
+        };
+        setCoord(newCoord);
       }
 
       setDetailData((prevData) => ({
         ...prevData,
-        beachName: response.data.beachName,
-        totalVolume: response.data.expectedTrashAmount,
+        pickUpPlace: response.data.pickUpPlace,
         reportTime: formattedDate,
-        researchers: response.data.researcherName,
-        recentDisaster: response.data.specialNote,
-        beachLength: response.data.totalBeachLength.toFixed(1),
-        weather: response.data.weather,
+        submitterName: response.data.submitterName,
+        realTrashAmount: response.data.realTrashAmount,
+        mainTrashType: response.data.mainTrashType,
       }));
-
-      setTeamList([
-        response?.data?.researcherName || "팀장 정보 없음",
-        ...(response?.data?.members || "팀원 정보 없음"),
-      ]);
 
       if (
         response.data &&
@@ -108,102 +72,89 @@ const ResearchReportPage = () => {
       ) {
         const fetchImages = async () => {
           try {
-            // 이미지 배열을 비동기로 처리하고 모든 작업이 끝나길 기다림
             await Promise.all(
               response.data.images.map(async (img) => {
-                if (!images.includes(img)) {
-                  setImages((prev) => [...prev, img]);
-                  const image = await getImageByFileName(img);
-                  const hdImage = await getImageByFileName(
+                if (!imageName.includes(img)) {
+                  setImageName((prev) => [...prev, img]);
+                  const imageUrl = await getImageByFileName(img);
+                  const hdImageUrl = await getImageByFileName(
                     img.replace(/^S_/, "")
                   );
-
-                  setImgs((prev) => [...prev, image]);
-                  setHdImgs((prev) => [...prev, hdImage]);
+                  setImgs((prev) => [...prev, imageUrl]);
+                  setHdImgs((prev) => [...prev, hdImageUrl]);
                 }
               })
             );
           } catch (error) {
-            console.error("Error fetching images:", error);
+            console.error("Error fetching images: ", error);
           }
         };
         fetchImages();
       }
     } catch (error) {
-      console.error("데이터 검색 중 오류 발생:", error);
+      console.error("데이터 검색 중 오류 방생: ", error);
     }
   };
 
   useEffect(() => {
     if (!isLoggedIn || role !== "ADMIN") {
-      navigate(-1);
+      navigate("/", { replace: true });
     }
   }, [isLoggedIn, role, navigate]);
 
   useEffect(() => {
     if (reportId) {
-      fetchNewWorksDetail();
+      fetchCollectDetail();
     }
   }, [reportId]);
 
-  useEffect(() => {
-    setTeamListString(
-      teamList
-        .map((team) => team.split(" ")[0])
-        .join(" ")
-        .trim()
-    );
-  }, [teamList]);
-
-  // 이미지 이동 함수
-  const goToPreviousImage = () => {
-    setCurrentImageIndex((prevIndex) =>
-      prevIndex === 0 ? imgs.length - 1 : prevIndex - 1
-    );
+  const goToPreviousImage = (where) => {
+    if (where === "before") {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === 0 ? imgs.length - 1 : prevIndex - 1
+      );
+    } else if (where === "after") {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === 0 ? imgs.length - 1 : prevIndex - 1
+      );
+    }
   };
 
-  const goToNextImage = () => {
-    setCurrentImageIndex((prevIndex) =>
-      prevIndex === imgs.length - 1 ? 0 : prevIndex + 1
-    );
+  const goToNextImage = (where) => {
+    if (where === "before") {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === imgs.length - 1 ? 0 : prevIndex + 1
+      );
+    } else if (where === "after") {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === imgs.length - 1 ? 0 : prevIndex + 1
+      );
+    }
   };
 
-  // 모달 열기/닫기 함수
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-  const openApprovalModal = () => setIsApprovalModalOpen(true);
-  const closeApprovalModal = () => setIsApprovalModalOpen(false);
-
-  const handleApprove = async () => {
-    setIsApprovalModalOpen(false);
-
-    await handleComplete(reportId);
-
-    navigate(-1); // 승인 시 목록으로 이동
-  };
 
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
-        <Link to={"/newWorks"}>
-          <h1 className="text-xl font-bold mb-2 text-blue-700">New 작업</h1>
-        </Link>
+        <h1 className="text-xl font-bold mb-2 text-blue-700">작업 조회</h1>
         {/* 보고서 폼 */}
         <div className="bg-white rounded-lg shadow px-32 py-14">
           <h1 className="text-xl font-bold mb-6 text-black text-center">
-            조사 보고서
+            수거 보고서
           </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-24">
             {/* 왼쪽 열: 해안가 사진과 지도 */}
             <div className="space-y-6 relative">
               <div>
                 <h2 className="mb-2 text-center font-semibold bg-gray-100 border py-1 border-gray-300 rounded-sm">
-                  해안가 오염도 사진
+                  집하지 사진
                 </h2>
                 <div className="relative">
                   <img
                     src={hdImgs[currentImageIndex]}
-                    alt="해안가 오염도 사진"
+                    alt="집하지 사진"
                     className="w-full h-64 rounded-md object-cover cursor-pointer"
                     onClick={openModal} // 이미지 클릭 시 모달 열기
                   />
@@ -238,65 +189,52 @@ const ResearchReportPage = () => {
               </div>
               <div>
                 <h2 className="mb-2 text-center font-semibold bg-gray-100 border py-1 border-gray-300 rounded-sm">
-                  조사 위치
+                  집하지 위치
                 </h2>
                 <div className="flex flex-col items-center bg-white rounded-lg shadow mb-8 w-full h-64">
-                  <KakaoMap myCoords={myCoords} lines={coordLines} />
-                  <p className="text-center text-sm text-gray-500 mt-2">
-                    구역 클릭 시 상세정보를 볼 수 있습니다
-                  </p>
+                  <KakaoMap myCoords={coord} pickUpPlace={coord} />
                 </div>
               </div>
             </div>
 
             {/* 오른쪽 열: 해안 정보 */}
             <div className="flex flex-col h-full space-y-10">
-              <DataDisplay label="해안명" value={detailData.beachName} />
-              <DataDisplay
-                label="해안 길이(m)"
-                value={`${detailData.beachLength}`}
-              />
+              <DataDisplay label="집하지명" value={detailData.pickUpPlace} />
               <DataDisplay label="조사 일자" value={detailData.reportTime} />
-              <DataDisplay label="조사 인원" value={teamListString} />
+              <DataDisplay label="집하자" value={detailData.submitterName} />
               <div className="flex flex-col space-y-2">
                 <label className="block text-gray-700 text-sm mb-1 font-semibold">
                   <img src={dot} alt="dot" className="w-1 me-2 inline" /> 쓰레기
-                  예측량(50L 마대)
+                  집하량(50L 마대)
                 </label>
                 <div className="flex space-x-2">
                   <p className="border border-gray-300 rounded-md px-3 py-2 bg-gray-50 w-1/2">
-                    {Math.ceil(detailData.totalVolume / 50)}개
+                    {detailData.realTrashAmount}개
                   </p>
                   <p className="border border-gray-300 rounded-md px-3 py-2 bg-gray-50 w-1/2">
-                    {detailData.totalVolume}
+                    {detailData.realTrashAmount * 50}L
                   </p>
                 </div>
               </div>
               <DataDisplay
-                label="자연재해 유무(최근 5일 이내)"
-                value={detailData.recentDisaster}
+                label="주요 쓰레기 종류"
+                value={detailData.mainTrashType}
               />
-              <DataDisplay label="날씨" value={detailData.weather} />
               <div className="flex w-full space-x-2">
                 <DataDisplay
                   className="w-1/2"
                   label="위도"
-                  value={
-                    coordLines[0]?.start?.lat.toFixed(6) || "위치 정보 없음"
-                  }
+                  value={coord?.lat?.toFixed(6) || "위치 정보 없음"}
                 />
                 <DataDisplay
                   className="w-1/2"
                   label="경도"
-                  value={
-                    coordLines[0]?.start?.lng.toFixed(6) || "위치 정보 없음"
-                  }
+                  value={coord?.lng.toFixed(6) || "위치 정보 없음"}
                 />
               </div>
             </div>
           </div>
         </div>
-
         {/* 버튼 */}
         <div className="flex justify-end mt-6">
           <button
@@ -305,29 +243,8 @@ const ResearchReportPage = () => {
           >
             목록
           </button>
-
-          {isNeeded && (
-            <button
-              onClick={openApprovalModal} // 승인 클릭 시 승인 모달 열기
-              className="w-24 h-12 bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition"
-            >
-              배정
-            </button>
-          )}
         </div>
       </div>
-
-      {/* 승인 모달 */}
-      {isApprovalModalOpen && (
-        <SubmitModal
-          message={`‘${detailData.reportTime} ${detailData.beachName}’에\n 청소자를 배정하시겠습니까?`}
-          confirmText="배정완료"
-          cancelText="취소"
-          onConfirm={handleApprove}
-          onCancel={closeApprovalModal}
-        />
-      )}
-
       {/* 이미지 모달 */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
@@ -335,7 +252,7 @@ const ResearchReportPage = () => {
             <div className="relative">
               <img
                 src={hdImgs[currentImageIndex]}
-                alt="큰 해안가 사진"
+                alt="큰 집하지 사진"
                 className="max-w-full max-h-screen object-contain"
               />
               {/* X 버튼을 이미지 위에 배치 */}
@@ -380,4 +297,4 @@ const DataDisplay = ({ label, value, className }) => {
   );
 };
 
-export default ResearchReportPage;
+export default CollectReportPage;

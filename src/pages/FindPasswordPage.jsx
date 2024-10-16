@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import back from "../assets/icons/nav/Back.svg";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import InputWithLabel from "../components/commons/InputWithLabel";
 import Button from "../components/commons/Button";
 import MobileHeader from "../components/menus/MobileHeader";
+import { useAuth } from "../hooks/useAuth";
 
 const FindPasswordPage = () => {
   const navigate = useNavigate();
+  const { isLoggedIn, role } = useAuth();
   const inputId = useRef();
   const inputName = useRef();
 
@@ -26,6 +28,12 @@ const FindPasswordPage = () => {
   // 비밀번호, 비밀번호 확인 state
   const [newPassword, setNewPassword] = useState();
   const [newPasswordCheck, setNewPasswordCheck] = useState();
+
+  useEffect(() => {
+    if (!isLoggedIn || role === "ADMIN") {
+      navigate("/", { replace: true });
+    }
+  }, [role, isLoggedIn, navigate]);
 
   // 일치하는 이메일, 이름 있는지 user search
   // 있으면 이메일 보내기
