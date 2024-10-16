@@ -6,8 +6,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import KakaoMap from "../../components/commons/KakaoMap";
 import SubmitModal from "../../components/modal/SubmitModal";
-
-import { getNewWorksDetail, getImageByFileName } from "../../api/newWorksApi";
+import { getImageByFileName } from "../../api/newWorksApi";
+import {
+  getCompletedWorks,
+  getCompletedWorksDetail,
+} from "../../api/workListApi";
 // import { getImageByFileName } from "../../api/cleaningApi";
 import { useNewWorks } from "../../hooks/useNewWorks";
 
@@ -26,7 +29,7 @@ const CleanReportPage = () => {
     end: { lat: 0.0, lng: 0.0 },
   });
   const location = useLocation();
-  const cleanId = location.state;
+  const { reportId, isNeeded } = location.state;
 
   const initData = {
     beachName: "",
@@ -49,6 +52,8 @@ const CleanReportPage = () => {
   const [afterHDImgs, setAfterHDImgs] = useState([]);
   const [modalCalledFrom, setModalCalledFrom] = useState("before");
   const [imgs, setImgs] = useState([]);
+  const [teamList, setTeamList] = useState([]);
+  const [teamListString, setTeamListString] = useState("");
 
   useEffect(() => {
     if (coordLine && coordLine.start) {
@@ -61,7 +66,9 @@ const CleanReportPage = () => {
 
   const fetchNewWorksDetail = async () => {
     try {
-      const response = await getNewWorksDetail(cleanId, "청소 완료");
+      let response;
+      if (isNeeded) response = await getCompletedWorks(reportId, "청소 완료");
+      else response = await getCompletedWorksDetail(reportId, "청소");
       console.log("------------newTasksClean get response: ", response);
 
       let formattedDate = "날짜 정보 없음";
@@ -88,8 +95,6 @@ const CleanReportPage = () => {
             lng: response.data?.endLongitude || "0",
           },
         };
-        console.log("=========newCoordLine : ", newCoordLine);
-
         setCoordLine(newCoordLine);
       }
 
@@ -100,10 +105,15 @@ const CleanReportPage = () => {
         reportTime: formattedDate,
         researchers: response.data.cleanerName,
         recentDisaster: response.data?.specialNote || "없음",
-        beachLength: response.data?.totalBeachLength || "0",
+        beachLength: response.data?.beachLength || "0",
         weather: response.data?.weather || "없음",
         images: response.data.images,
       }));
+
+      setTeamList([
+        response?.data?.cleanerName || "팀장 정보 없음",
+        ...(response?.data?.members || "팀원 정보 없음"),
+      ]);
 
       if (
         response.data &&
@@ -149,10 +159,19 @@ const CleanReportPage = () => {
   }, [isLoggedIn, role, navigate]);
 
   useEffect(() => {
-    if (cleanId) {
+    if (reportId) {
       fetchNewWorksDetail();
     }
-  }, [cleanId]);
+  }, [reportId]);
+
+  useEffect(() => {
+    setTeamListString(
+      teamList
+        .map((team) => team.split(" ")[0])
+        .join(" ")
+        .trim()
+    );
+  }, [teamList]);
 
   const goToPreviousImage = (where) => {
     if (where === "before") {
@@ -186,7 +205,7 @@ const CleanReportPage = () => {
   const handleApprove = async () => {
     setIsApprovalModalOpen(false);
 
-    await handleComplete(cleanId);
+    await handleComplete(reportId);
 
     navigate(-1);
   };
@@ -307,10 +326,10 @@ const CleanReportPage = () => {
               <DataDisplay label="해안명" value={detailData.beachName} />
               <DataDisplay
                 label="해안 길이(m)"
-                value={`${detailData.beachLength}`}
+                value={detailData.beachLength}
               />
               <DataDisplay label="조사 일자" value={detailData.reportTime} />
-              <DataDisplay label="조사 인원" value={detailData.researchers} />
+              <DataDisplay label="조사 인원" value={teamListString} />
               <div className="flex flex-col space-y-2">
                 <label className="block text-gray-700 text-sm mb-1 font-semibold  ">
                   <img src={dot} alt="dot" className="w-1 me-2 inline " /> 실제
@@ -362,12 +381,14 @@ const CleanReportPage = () => {
           >
             목록
           </button>
-          <button
-            onClick={openApprovalModal} // 승인 클릭 시 승인 모달 열기
-            className="w-24 h-12 bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition"
-          >
-            배정
-          </button>
+          {isNeeded && (
+            <button
+              onClick={openApprovalModal} // 승인 클릭 시 승인 모달 열기
+              className="w-24 h-12 bg-blue-700 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition"
+            >
+              배정
+            </button>
+          )}
         </div>
       </div>
 

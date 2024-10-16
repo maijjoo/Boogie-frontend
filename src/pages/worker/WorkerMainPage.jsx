@@ -14,15 +14,15 @@ import { useAuth } from "../../hooks/useAuth";
 const WorkerMainPage = () => {
   const navigate = useNavigate();
   const [hasRegisteredCar, setHasRegisteredCar] = useState(false);
-  const { isLoggedIn, isDriver, logout } = useAuth();
+  const { isLoggedIn, isDriver, logout, role } = useAuth();
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn || role === "ADMIN") {
       navigate("/", { replace: true });
     } else {
       setHasRegisteredCar(isDriver);
     }
-  }, []);
+  }, [role, isDriver, navigate, isLoggedIn]);
 
   const handleLogout = () => {
     logout();

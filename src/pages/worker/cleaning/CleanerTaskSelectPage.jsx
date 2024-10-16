@@ -8,14 +8,14 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
 
 const CleanerTaskSelectPage = () => {
-  const { username, isLoggedIn } = useAuth();
+  const { username, isLoggedIn, role } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn || role === "ADMIN") {
       navigate("/", { replace: true });
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, navigate, role]);
 
   return (
     <div className="w-full h-dvh flex flex-col items-center">

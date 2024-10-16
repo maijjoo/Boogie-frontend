@@ -31,12 +31,15 @@ export const PickupPredict = lazy(() =>
   import("./admin/PickupPredictPage.jsx")
 );
 export const NewWorks = lazy(() => import("./admin/NewWorksPage.jsx"));
-
 export const WorkList = lazy(() => import("./admin/WorkListPage.jsx"));
+
 export const ResearchReport = lazy(() =>
   import("./admin/ResearchReportPage.jsx")
 );
 export const CleanReport = lazy(() => import("./admin/CleanReportPage.jsx"));
+export const CollectReport = lazy(() =>
+  import("./admin/CollectReportPage.jsx")
+);
 export const MemberList = lazy(() => import("./admin/MemberListPage.jsx"));
 
 export const AiAnalysis = lazy(() => import("./admin/AiAnalysisPage.jsx"));
