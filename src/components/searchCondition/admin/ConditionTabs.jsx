@@ -7,7 +7,7 @@ const ConditionTabs = ({
   searchParams = {
     beachName: "",
   }, // 기본값 설정
-  handleOnSearch,
+  handleOnSearch = null,
 }) => {
   return (
     <div className="flex items-center justify-center space-x-4 h-16 me-10">

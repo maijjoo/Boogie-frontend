@@ -1,24 +1,21 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useNewWorks } from "../../hooks/useNewWorks";
+import { useAuth } from "../../hooks/useAuth";
+import { getNewWorksDetail, getImageByFileName } from "../../api/newWorksApi";
+import { getCompletedWorksDetail } from "../../api/workListApi";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import dot from "../../assets/icons/write/Circle.svg";
-import { useAuth } from "../../hooks/useAuth";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import KakaoMap from "../../components/commons/KakaoMap";
 import SubmitModal from "../../components/modal/SubmitModal";
-import { getImageByFileName } from "../../api/newWorksApi";
-import {
-  getCompletedWorks,
-  getCompletedWorksDetail,
-} from "../../api/workListApi";
-// import { getImageByFileName } from "../../api/cleaningApi";
-import { useNewWorks } from "../../hooks/useNewWorks";
-
 
 const CleanReportPage = () => {
   const { isLoggedIn, role, id } = useAuth();
   const { handleComplete } = useNewWorks(id);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { reportId, isNeeded } = location.state || {};
   const [currentBeforeImageIndex, setCurrentBeforeImageIndex] = useState(0);
   const [currentAfterImageIndex, setCurrentAfterImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false); // 이미지 모달 상태
@@ -28,32 +25,25 @@ const CleanReportPage = () => {
     start: { lat: 0.0, lng: 0.0 },
     end: { lat: 0.0, lng: 0.0 },
   });
-  const location = useLocation();
-  const { reportId, isNeeded } = location.state;
+  const [beforeImgs, setBeforeImgs] = useState([]);
+  const [beforeHDImgs, setBeforeHDImgs] = useState([]);
+  const [afterImgs, setAfterImgs] = useState([]);
+  const [afterHDImgs, setAfterHDImgs] = useState([]);
+  const [imgs, setImgs] = useState([]);
+  const [modalCalledFrom, setModalCalledFrom] = useState("before");
+  const [teamList, setTeamList] = useState([]);
+  const [teamListString, setTeamListString] = useState("");
 
   const initData = {
     beachName: "",
     beachLength: 0,
     reportTime: "",
-    researchers: "",
+    reporter: "",
     trashBags: 0,
-    totalVolume: 0,
     recentDisaster: "",
     weather: "",
-    latitude: "",
-    longitude: "",
-    mapImage: "",
   };
-
   const [detailData, setDetailData] = useState(initData);
-  const [beforeImgs, setBeforeImgs] = useState([]);
-  const [beforeHDImgs, setBeforeHDImgs] = useState([]);
-  const [afterImgs, setAfterImgs] = useState([]);
-  const [afterHDImgs, setAfterHDImgs] = useState([]);
-  const [modalCalledFrom, setModalCalledFrom] = useState("before");
-  const [imgs, setImgs] = useState([]);
-  const [teamList, setTeamList] = useState([]);
-  const [teamListString, setTeamListString] = useState("");
 
   useEffect(() => {
     if (coordLine && coordLine.start) {
@@ -64,12 +54,12 @@ const CleanReportPage = () => {
     }
   }, [coordLine]);
 
-  const fetchNewWorksDetail = async () => {
+  const fetchWorksDetail = async () => {
     try {
       let response;
-      if (isNeeded) response = await getCompletedWorks(reportId, "청소 완료");
+      if (isNeeded) response = await getNewWorksDetail(reportId, "청소 완료");
       else response = await getCompletedWorksDetail(reportId, "청소");
-      console.log("------------newTasksClean get response: ", response);
+      // console.log("------------newTasksClean get response: ", response);
 
       let formattedDate = "날짜 정보 없음";
 
@@ -103,11 +93,10 @@ const CleanReportPage = () => {
         beachName: response.data.beachName,
         trashBags: response.data.realTrashAmount,
         reportTime: formattedDate,
-        researchers: response.data.cleanerName,
+        reporter: response.data.cleanerName,
         recentDisaster: response.data?.specialNote || "없음",
         beachLength: response.data?.beachLength || "0",
         weather: response.data?.weather || "없음",
-        images: response.data.images,
       }));
 
       setTeamList([
@@ -160,7 +149,7 @@ const CleanReportPage = () => {
 
   useEffect(() => {
     if (reportId) {
-      fetchNewWorksDetail();
+      fetchWorksDetail();
     }
   }, [reportId]);
 
@@ -168,7 +157,7 @@ const CleanReportPage = () => {
     setTeamListString(
       teamList
         .map((team) => team.split(" ")[0])
-        .join(" ")
+        .join(", ")
         .trim()
     );
   }, [teamList]);
@@ -207,15 +196,17 @@ const CleanReportPage = () => {
 
     await handleComplete(reportId);
 
-    navigate(-1);
+    if (isNeeded) {
+      navigate("/newWorks", { state: { resetNew: false } });
+    }
   };
 
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
-        <Link to={"/newWorks"}>
-          <h1 className="text-xl font-bold mb-2 text-blue-700">New 작업</h1>
-        </Link>
+        <h1 className="text-xl font-bold mb-2 text-blue-700">
+          {isNeeded ? "New 작업" : "작업 조회"}
+        </h1>
 
         {/* 보고서 폼 */}
         <div className="bg-white rounded-lg shadow px-32 py-14">
@@ -232,7 +223,7 @@ const CleanReportPage = () => {
                 <div className="relative">
                   <img
                     src={beforeHDImgs[currentBeforeImageIndex]}
-                    alt="해안가 오염도 사진"
+                    alt="청소 전 해안가 사진"
                     className="w-full h-64 rounded-md object-cover cursor-pointer"
                     onClick={() => {
                       openModal();
@@ -275,7 +266,7 @@ const CleanReportPage = () => {
                 <div className="relative">
                   <img
                     src={afterHDImgs[currentAfterImageIndex]}
-                    alt="해안가 오염도 사진"
+                    alt="청소 후 해안가 사진"
                     className="w-full h-64 rounded-md object-cover cursor-pointer"
                     onClick={() => {
                       openModal();
@@ -328,8 +319,8 @@ const CleanReportPage = () => {
                 label="해안 길이(m)"
                 value={detailData.beachLength}
               />
-              <DataDisplay label="조사 일자" value={detailData.reportTime} />
-              <DataDisplay label="조사 인원" value={teamListString} />
+              <DataDisplay label="청소 일자" value={detailData.reportTime} />
+              <DataDisplay label="청소 인원" value={teamListString} />
               <div className="flex flex-col space-y-2">
                 <label className="block text-gray-700 text-sm mb-1 font-semibold  ">
                   <img src={dot} alt="dot" className="w-1 me-2 inline " /> 실제
@@ -340,7 +331,7 @@ const CleanReportPage = () => {
                     {detailData.trashBags}개
                   </p>
                   <p className="border border-gray-300 rounded-md px-3 py-2 bg-gray-50 w-1/2">
-                    {detailData.trashBags * 50}
+                    {detailData.trashBags * 50}L
                   </p>
                 </div>
               </div>
@@ -376,11 +367,18 @@ const CleanReportPage = () => {
         {/* 버튼 */}
         <div className="flex justify-end mt-6">
           <button
-            onClick={() => navigate(-1)} // 이전 페이지로 이동
+            onClick={() => {
+              if (isNeeded) {
+                navigate("/newWorks", { state: { resetNew: false } });
+              } else {
+                navigate("/workList", { state: { resetOld: false } });
+              }
+            }} // 이전 페이지로 이동
             className="w-24 h-12 bg-gray-300 text-gray-700 px-4 py-2 mr-4 rounded-md hover:bg-gray-400 transition"
           >
             목록
           </button>
+
           {isNeeded && (
             <button
               onClick={openApprovalModal} // 승인 클릭 시 승인 모달 열기

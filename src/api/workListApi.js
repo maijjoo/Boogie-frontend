@@ -5,19 +5,19 @@ const prefix = `${API_SERVER_HOST}/api/admin`;
 
 // 작업조회 리스트
 export const getCompletedWorks = async (id, searchParam) => {
-  console.log(
-    "---completed-tasks get api called with: {tabCondition: ",
-    searchParam.tabCondition,
-    ", beachName: ",
-    searchParam.beachName,
-    "}---"
-  );
+  // console.log(
+  //   "---completed-tasks get api called with: {tabCondition: ",
+  //   searchParam.tabCondition,
+  //   ", beachName: ",
+  //   searchParam.beachName,
+  //   "}---"
+  // );
 
   const res = await jwtAxios.get(`${prefix}/completed-tasks/${id}`, {
     params: searchParam, // 쿼리 파라미터로 전달
   });
 
-  console.log("-----------completed-tasks get api response: ", res);
+  // console.log("-----------completed-tasks get api response: ", res);
 
   return res;
 };

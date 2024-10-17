@@ -34,10 +34,6 @@ const KakaoMap = ({
   const [trashAmount, setTrashAmount] = useState([]);
 
   useEffect(() => {
-    console.log("--------------line: ", line);
-  }, [line]);
-
-  useEffect(() => {
     if (predictedData && predictedData.length > 0) {
       const trashAmounts = predictedData.map(
         (item) => item.expectedTrashAmount

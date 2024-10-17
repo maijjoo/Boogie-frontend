@@ -21,7 +21,7 @@ const initState = {
 export const loadMemberCookie = () => {
   const memberInfo = getCookie("member");
 
-  console.log(memberInfo);
+  // console.log(memberInfo);
 
   if (memberInfo && memberInfo.username) {
     memberInfo.username = decodeURIComponent(memberInfo.username);
@@ -34,7 +34,7 @@ export const loginPostAsync = createAsyncThunk(
   async (param, { rejectWithValue }) => {
     try {
       const response = await loginPost(param);
-      console.log(response);
+      // console.log(response);
 
       return response;
     } catch (err) {
