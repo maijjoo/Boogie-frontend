@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 
 const Searchbar = forwardRef(function SearchBar(
   { onSearch, placeholder, activeSearch },
@@ -10,6 +10,10 @@ const Searchbar = forwardRef(function SearchBar(
     const value = e.target.value;
     setSearchValue(value);
   };
+
+  useEffect(() => {
+    setSearchValue(activeSearch);
+  }, [activeSearch]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {

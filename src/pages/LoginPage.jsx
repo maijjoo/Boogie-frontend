@@ -79,7 +79,7 @@ const Login = () => {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      handleLogin(); // 엔터키를 누르면 검색 실행
+      handleLogin();
     }
   };
 

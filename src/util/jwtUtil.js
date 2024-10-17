@@ -11,16 +11,16 @@ const refreshJWT = async (accessToken, refreshToken) => {
     `${host}/api/member/refresh?refreshToken=${refreshToken}`,
     header
   );
-  console.log("---------------------");
-  console.log(res.data);
+  // console.log("---------------------");
+  // console.log(res.data);
 
   return res.data;
 };
 
 //before request
 const beforeReq = (config) => {
-  console.log("before request.............");
-  console.log(config);
+  // console.log("before request.............");
+  // console.log(config);
 
   const memberInfo = getCookie("member");
 
@@ -33,8 +33,8 @@ const beforeReq = (config) => {
   // Authorization 헤더 처리
   config.headers.Authorization = `Bearer ${accessToken}`;
 
-  console.log("after inject header.............");
-  console.log(config);
+  // console.log("after inject header.............");
+  // console.log(config);
 
   return config;
 };
@@ -49,7 +49,7 @@ const requestFail = (err) => {
 
 //before return response
 const beforeRes = async (res) => {
-  console.log("before return response...........");
+  // console.log("before return response...........");
 
   //console.log(res)
 

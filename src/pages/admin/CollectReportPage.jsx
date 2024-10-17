@@ -1,21 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import dot from "../../assets/icons/write/Circle.svg";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { getImageByFileName } from "../../api/newWorksApi";
 import { getCompletedWorksDetail } from "../../api/workListApi";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import dot from "../../assets/icons/write/Circle.svg";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import KakaoMap from "../../components/commons/KakaoMap";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { getImageByFileName } from "../../api/newWorksApi";
 
 const CollectReportPage = () => {
-  const { isLoggedIn, role, id } = useAuth();
+  const { isLoggedIn, role } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { reportId } = location.state || {};
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false); // 이미지 모달 상태
   const [coord, setCoord] = useState({ lat: 0.0, lng: 0.0 });
-  const location = useLocation();
-  const { reportId } = location.state || {};
+  const [imgs, setImgs] = useState([]);
+  const [hdImgs, setHdImgs] = useState([]);
+  const [imageName, setImageName] = useState([]);
 
   const initData = {
     pickUpPlace: "",
@@ -24,16 +27,12 @@ const CollectReportPage = () => {
     realTrashAmount: 0,
     mainTrashType: "",
   };
-
   const [detailData, setDetailData] = useState(initData);
-  const [imgs, setImgs] = useState([]);
-  const [hdImgs, setHdImgs] = useState([]);
-  const [imageName, setImageName] = useState([]);
 
   const fetchCollectDetail = async () => {
     try {
       const response = await getCompletedWorksDetail(reportId, "수거");
-      console.log("===========response: ", response);
+      // console.log("===========response: ", response);
 
       let formattedDate = "날짜 정보 없음";
 
@@ -108,28 +107,16 @@ const CollectReportPage = () => {
     }
   }, [reportId]);
 
-  const goToPreviousImage = (where) => {
-    if (where === "before") {
-      setCurrentImageIndex((prevIndex) =>
-        prevIndex === 0 ? imgs.length - 1 : prevIndex - 1
-      );
-    } else if (where === "after") {
-      setCurrentImageIndex((prevIndex) =>
-        prevIndex === 0 ? imgs.length - 1 : prevIndex - 1
-      );
-    }
+  const goToPreviousImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? imgs.length - 1 : prevIndex - 1
+    );
   };
 
-  const goToNextImage = (where) => {
-    if (where === "before") {
-      setCurrentImageIndex((prevIndex) =>
-        prevIndex === imgs.length - 1 ? 0 : prevIndex + 1
-      );
-    } else if (where === "after") {
-      setCurrentImageIndex((prevIndex) =>
-        prevIndex === imgs.length - 1 ? 0 : prevIndex + 1
-      );
-    }
+  const goToNextImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === imgs.length - 1 ? 0 : prevIndex + 1
+    );
   };
 
   const openModal = () => setIsModalOpen(true);
@@ -138,7 +125,12 @@ const CollectReportPage = () => {
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
-        <h1 className="text-xl font-bold mb-2 text-blue-700">작업 조회</h1>
+        <h1
+          className="text-xl font-bold mb-2 text-blue-700 inline-block cursor-pointer"
+          onClick={() => navigate("/workList")}
+        >
+          작업 조회
+        </h1>
         {/* 보고서 폼 */}
         <div className="bg-white rounded-lg shadow px-32 py-14">
           <h1 className="text-xl font-bold mb-6 text-black text-center">
@@ -200,12 +192,12 @@ const CollectReportPage = () => {
             {/* 오른쪽 열: 해안 정보 */}
             <div className="flex flex-col h-full space-y-10">
               <DataDisplay label="집하지명" value={detailData.pickUpPlace} />
-              <DataDisplay label="조사 일자" value={detailData.reportTime} />
-              <DataDisplay label="집하자" value={detailData.submitterName} />
+              <DataDisplay label="수거 일자" value={detailData.reportTime} />
+              <DataDisplay label="수거자" value={detailData.submitterName} />
               <div className="flex flex-col space-y-2">
                 <label className="block text-gray-700 text-sm mb-1 font-semibold">
                   <img src={dot} alt="dot" className="w-1 me-2 inline" /> 쓰레기
-                  집하량(50L 마대)
+                  수거량(50L 마대)
                 </label>
                 <div className="flex space-x-2">
                   <p className="border border-gray-300 rounded-md px-3 py-2 bg-gray-50 w-1/2">
@@ -238,13 +230,16 @@ const CollectReportPage = () => {
         {/* 버튼 */}
         <div className="flex justify-end mt-6">
           <button
-            onClick={() => navigate(-1)} // 이전 페이지로 이동
+            onClick={() =>
+              navigate("/workList", { state: { resetOld: false } })
+            } // 이전 페이지로 이동
             className="w-24 h-12 bg-gray-300 text-gray-700 px-4 py-2 mr-4 rounded-md hover:bg-gray-400 transition"
           >
             목록
           </button>
         </div>
       </div>
+
       {/* 이미지 모달 */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
