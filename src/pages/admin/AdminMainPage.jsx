@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import SidebarLayout from "../../layouts/SidebarLayout";
-import { useEffect } from "react";
 
 const AdminMainPage = () => {
-  const { logout, isLoggedIn, memberInfo, role } = useAuth();
+  const { isLoggedIn, memberInfo, role } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {

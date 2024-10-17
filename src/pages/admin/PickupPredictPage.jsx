@@ -1,17 +1,14 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { getPredicted } from "../../api/pickupPredictApi";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import ConditionTabs from "../../components/searchCondition/ConditionTabs";
 import YearAndMonthCondition from "../../components/searchCondition/YearAndMonthCondition";
 import YearCondition from "../../components/searchCondition/YearCondition";
 import Search from "../../components/searchCondition/Search";
 import PeriodCondition from "../../components/searchCondition/PeriodCondition";
-import { useEffect, useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { replace, useNavigate } from "react-router-dom";
 import KakaoMap from "../../components/commons/KakaoMap";
-import { getPredicted } from "../../api/pickupPredictApi";
-import { useDispatch } from "react-redux";
-import { resetCondition } from "../../slices/conditionSlice";
-import { resetCompleted } from "../../slices/completedSlice";
 
 const PickupPredictPage = () => {
   const { isLoggedIn, role } = useAuth();
@@ -26,14 +23,6 @@ const PickupPredictPage = () => {
   });
   const [predictedData, setPredictedData] = useState([]);
   const [trashs, setTrashs] = useState([]);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    return () => {
-      dispatch(resetCondition()); // 페이지를 벗어날 때 상태 초기화
-      dispatch(resetCompleted());
-    };
-  }, [dispatch]);
 
   useEffect(() => {
     if (!isLoggedIn || role !== "ADMIN") {
@@ -147,7 +136,10 @@ const PickupPredictPage = () => {
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
-        <h1 className="text-xl font-bold mb-2 text-blue-700">
+        <h1
+          className="text-xl font-bold mb-2 text-blue-700 inline-block cursor-pointer"
+          onClick={() => navigate("/pickupPredict")}
+        >
           수거 예측량 분포
         </h1>
         {/* 조건 선택 탭 */}

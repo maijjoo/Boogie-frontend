@@ -1,16 +1,14 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { getSearched } from "../../api/mainTrashDistributionApi";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import ConditionTabs from "../../components/searchCondition/ConditionTabs";
 import YearAndMonthCondition from "../../components/searchCondition/YearAndMonthCondition";
 import YearCondition from "../../components/searchCondition/YearCondition";
 import Search from "../../components/searchCondition/Search";
 import PeriodCondition from "../../components/searchCondition/PeriodCondition";
-import { useEffect, useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { replace, Link, useNavigate } from "react-router-dom";
 import KakaoMap from "../../components/commons/KakaoMap";
-import { getSearched } from "../../api/mainTrashDistributionApi";
-import { useDispatch } from "react-redux";
-import { resetCondition } from "../../slices/conditionSlice";
 
 const MainTrashDistributionPage = () => {
   const { isLoggedIn, role } = useAuth();
@@ -24,13 +22,6 @@ const MainTrashDistributionPage = () => {
     end: null,
   });
   const [searchedData, setSearchedData] = useState([]);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    return () => {
-      dispatch(resetCondition()); // 페이지를 벗어날 때 상태 초기화
-    };
-  }, [dispatch]);
 
   useEffect(() => {
     if (!isLoggedIn || role !== "ADMIN") {
@@ -111,11 +102,12 @@ const MainTrashDistributionPage = () => {
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
-        <Link to={"/mainTrashDustribution"}>
-          <h1 className="text-xl font-bold mb-2 text-blue-700">
-            주요 쓰레기 분포
-          </h1>
-        </Link>
+        <h1
+          className="text-xl font-bold mb-2 text-blue-700 inline-block cursor-pointer"
+          onClick={() => navigate("/mainTrashDistribution")}
+        >
+          주요 쓰레기 분포
+        </h1>
         {/* 조건 선택 탭 */}
         <div className="bg-white rounded-lg shadow px-14 py-4 mb-8 h-24">
           <div className="flex items-center justify-between w-full">

@@ -1,7 +1,9 @@
-import React, { useEffect, useRef } from "react";
-import SidebarLayout from "../../layouts/SidebarLayout";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useNewWorks } from "../../hooks/useNewWorks";
 import { useAuth } from "../../hooks/useAuth";
+import SidebarLayout from "../../layouts/SidebarLayout";
 import ConditionTabs from "../../components/searchCondition/admin/ConditionTabs";
 import Searchbar from "../../components/searchCondition/admin/Searchbar";
 import SearchButton from "../../components/searchCondition/admin/SearchButton";
@@ -9,32 +11,33 @@ import Card from "../../components/commons/Card";
 import NoticeIcon from "../../assets/images/notice.png";
 import ListCountAndSort from "../../components/commons/ListCountAndSort";
 import Pagination from "../../components/commons/Pagination";
-import { useNewWorks } from "../../hooks/useNewWorks";
-import { useDispatch, useSelector } from "react-redux";
 import {
   setBeachSearch,
   setSort,
   setPage,
   setTabCondition,
+  resetCondition,
 } from "../../slices/conditionSlice";
-import { resetCompleted } from "../../slices/completedSlice";
 
 const NewWorksPage = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch(); // 리덕스 실행하는 함수
   const { isLoggedIn, role, id } = useAuth();
   const navigate = useNavigate();
+  const [isReset, setIsReset] = useState(true);
+  const { resetNew } = useLocation().state || { resetNew: true };
 
   const { page, tabCondition, beachSearch, sort } = useSelector(
     (state) => state.condition
-  );
+  ); // 리덕스에서 사용할 값 가져오기
   const { searchedData, totalLength, totalPages, fetchNewWorks } =
-    useNewWorks(id);
-  const beachRef = useRef();
+    useNewWorks(id); // 훅에서 사용할 값 가져오기
+  const beachRef = useRef(); // 검색창 컴포넌트에서 검색어 가져오기
 
+  // 다른 페이지로 이동 시 리덕스를 초기화
   useEffect(() => {
-    return () => {
-      dispatch(resetCompleted());
-    };
+    if (isReset && resetNew) {
+      dispatch(resetCondition());
+    }
   }, [dispatch]);
 
   useEffect(() => {
@@ -47,84 +50,56 @@ const NewWorksPage = () => {
     fetchNewWorks();
   }, [page, beachSearch, sort, tabCondition, fetchNewWorks]);
 
-  // const fetchNewWorks = async () => {
-  //   try {
-  //     const response = await getNewWorks(id, {
-  //       tabCondition: condition === "researchTab" ? "조사 완료" : "청소 완료",
-  //       beachSearch: searchParam.beachSearch,
-  //       page: currentPage,
-  //       size: itemsPerPage,
-  //       sort: sortOrder,
-  //     });
-  //     console.log("------------newTasks get response: ", response);
-
-  //     setTotalLength(response.data.totalCount);
-  //     setSearchedData(response.data.dtoList);
-  //     setTotalPages(Math.ceil(response.data.totalCount / itemsPerPage));
-  //   } catch (error) {
-  //     console.error("데이터 검색 중 오류 발생:", error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchNewWorks();
-  // }, [searchParam]);
-
-  // const handleSearchInputChange = (inputValue) => {
-  //   setSearchInput(inputValue);
-  // };
-
   const handleSearch = () => {
-    // setCurrentPage(1);
-    // setSearchInput(input);
-    // setSearchParam((prev) => ({
-    //   ...prev,
-    //   page: currentPage,
-    //   beachSearch: searchInput,
-    // }));
     dispatch(setPage(1));
     dispatch(setBeachSearch(beachRef.current.value));
     fetchNewWorks();
   };
 
   const handleSortChange = (newSortOrder) => {
-    // setSortOrder(sortOrder);
-    // setSearchParam((prev) => ({ ...prev, sort: sortOrder }));
     dispatch(setSort(newSortOrder));
     dispatch(setPage(1));
   };
 
   const handlePageChange = (newPage) => {
-    // setCurrentPage(page);
-    // setSearchParam((prev) => ({ ...prev, page: currentPage }));
     dispatch(setPage(newPage));
   };
 
   const handleConditionChange = (condition) => {
-    // setCondition(condition);
-    // setSearchParam((prev) => ({ ...prev, tabCondition: condition }));
     dispatch(setTabCondition(condition));
     dispatch(setPage(1));
+    dispatch(setSort("desc"));
+    dispatch(setBeachSearch(""));
+    beachRef.current.value = "";
+  };
+
+  const handleReset = () => {
+    setIsReset(false);
   };
 
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
-        <h1 className="text-xl font-bold mb-2 text-blue-700">New 작업</h1>
+        <h1
+          className="text-xl font-bold mb-2 text-blue-700 inline-block cursor-pointer"
+          onClick={() => {
+            dispatch(resetCondition());
+            navigate("/newWorks");
+          }}
+        >
+          New 작업
+        </h1>
         <div className="bg-white rounded-lg shadow px-14 py-4 mb-8 h-24">
           <div className="flex items-center justify-between w-full">
             <ConditionTabs
               setActiveTab={handleConditionChange}
               activeTab={tabCondition}
-              //initSearchParam={setSearchParam}
               tabNames={["조사 완료", "청소 완료"]}
               tabKeys={["조사 완료", "청소 완료"]}
-              //searchParams={searchParam}
             />
 
             <div className="flex items-center space-x-4 rounded-full p-2 w-full justify-end h-12">
               <Searchbar
-                //onSearchInputChange={handleSearchInputChange}
                 onSearch={handleSearch}
                 ref={beachRef}
                 placeholder="해안명을 입력하세요"
@@ -144,7 +119,12 @@ const NewWorksPage = () => {
           <>
             <div className="flex flex-wrap justify-start gap-4 mb-8 h-full w-full">
               {searchedData.map((report) => (
-                <Card key={report.id} report={report} tab={tabCondition} />
+                <Card
+                  key={report.id}
+                  report={report}
+                  tab={tabCondition}
+                  onMove={handleReset}
+                />
               ))}
             </div>
             <div className="flex justify-center mt-4">

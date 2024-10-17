@@ -15,10 +15,6 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
     return pages;
   };
 
-  useEffect(() => {
-    console.log("=======", totalPages);
-  });
-
   return (
     <div className="flex items-center space-x-2">
       {/* 맨 처음 페이지로 이동 */}

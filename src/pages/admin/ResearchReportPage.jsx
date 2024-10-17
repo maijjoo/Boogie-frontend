@@ -1,58 +1,49 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useNewWorks } from "../../hooks/useNewWorks";
+import { useAuth } from "../../hooks/useAuth";
+import { getNewWorksDetail, getImageByFileName } from "../../api/newWorksApi";
+import { getCompletedWorksDetail } from "../../api/workListApi";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import dot from "../../assets/icons/write/Circle.svg";
-import { useAuth } from "../../hooks/useAuth";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import KakaoMap from "../../components/commons/KakaoMap";
 import SubmitModal from "../../components/modal/SubmitModal";
-
-import { getNewWorksDetail, getImageByFileName } from "../../api/newWorksApi";
-// import { getImageByFileName } from "../../api/researchApi";
-import { useNewWorks } from "../../hooks/useNewWorks";
-import { getCompletedWorksDetail } from "../../api/workListApi";
-
 
 const ResearchReportPage = () => {
   const { isLoggedIn, role, id } = useAuth();
   const { handleComplete } = useNewWorks(id);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { reportId, isNeeded } = location.state || {};
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false); // 이미지 모달 상태
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false); // 승인 모달 상태
   const [myCoords, setMyCoords] = useState({ lat: "", lng: "" });
   const [coordLines, setCoordLines] = useState([]);
-  const location = useLocation();
-  const { reportId, isNeeded } = location.state || {};
-
-  const initData = {
-    beachName: "",
-    beachLength: 0,
-    reportTime: "",
-    researchers: "",
-    estimatedTrash: "50L 마대",
-    trashBags: 0,
-    totalVolume: 0,
-    recentDisaster: "",
-    weather: "",
-    latitude: "",
-    longitude: "",
-    mapImage: "",
-  };
-
-  const [detailData, setDetailData] = useState(initData);
   const [imgs, setImgs] = useState([]);
   const [hdImgs, setHdImgs] = useState([]);
   const [images, setImages] = useState([]);
   const [teamList, setTeamList] = useState([]);
   const [teamListString, setTeamListString] = useState("");
 
-  const fetchNewWorksDetail = async () => {
+  const initData = {
+    beachName: "",
+    beachLength: 0,
+    reportTime: "",
+    reporter: "",
+    totalVolume: 0,
+    recentDisaster: "",
+    weather: "",
+  };
+  const [detailData, setDetailData] = useState(initData);
+
+  const fetchWorksDetail = async () => {
     try {
       let response;
       if (isNeeded) response = await getNewWorksDetail(reportId, "조사 완료");
       else response = await getCompletedWorksDetail(reportId, "조사");
-      console.log("------------completedTasksDetail get response: ", response);
+      // console.log("------------completedTasksDetail get response: ", response);
 
       let formattedDate = "날짜 정보 없음";
 
@@ -92,8 +83,8 @@ const ResearchReportPage = () => {
         beachName: response.data.beachName,
         totalVolume: response.data.expectedTrashAmount,
         reportTime: formattedDate,
-        researchers: response.data.researcherName,
-        recentDisaster: response.data.specialNote,
+        reporter: response.data.researcherName,
+        recentDisaster: response.data?.specialNote || "없음",
         beachLength: response.data.totalBeachLength.toFixed(1),
         weather: response.data.weather,
       }));
@@ -119,7 +110,6 @@ const ResearchReportPage = () => {
                   const hdImage = await getImageByFileName(
                     img.replace(/^S_/, "")
                   );
-
                   setImgs((prev) => [...prev, image]);
                   setHdImgs((prev) => [...prev, hdImage]);
                 }
@@ -138,13 +128,13 @@ const ResearchReportPage = () => {
 
   useEffect(() => {
     if (!isLoggedIn || role !== "ADMIN") {
-      navigate(-1);
+      navigate("/", { replace: true });
     }
   }, [isLoggedIn, role, navigate]);
 
   useEffect(() => {
     if (reportId) {
-      fetchNewWorksDetail();
+      fetchWorksDetail();
     }
   }, [reportId]);
 
@@ -152,7 +142,7 @@ const ResearchReportPage = () => {
     setTeamListString(
       teamList
         .map((team) => team.split(" ")[0])
-        .join(" ")
+        .join(", ")
         .trim()
     );
   }, [teamList]);
@@ -181,15 +171,18 @@ const ResearchReportPage = () => {
 
     await handleComplete(reportId);
 
-    navigate(-1); // 승인 시 목록으로 이동
+    if (isNeeded) {
+      navigate("/newWorks", { state: { resetNew: false } });
+    } // 승인 시 목록으로 이동
   };
 
   return (
     <SidebarLayout>
       <div className="min-h-screen bg-gray-100 py-8 px-28">
-        <Link to={"/newWorks"}>
-          <h1 className="text-xl font-bold mb-2 text-blue-700">New 작업</h1>
-        </Link>
+        <h1 className="text-xl font-bold mb-2 text-blue-700">
+          {isNeeded ? "New 작업" : "작업 조회"}
+        </h1>
+
         {/* 보고서 폼 */}
         <div className="bg-white rounded-lg shadow px-32 py-14">
           <h1 className="text-xl font-bold mb-6 text-black text-center">
@@ -244,9 +237,6 @@ const ResearchReportPage = () => {
                 </h2>
                 <div className="flex flex-col items-center bg-white rounded-lg shadow mb-8 w-full h-64">
                   <KakaoMap myCoords={myCoords} lines={coordLines} />
-                  <p className="text-center text-sm text-gray-500 mt-2">
-                    구역 클릭 시 상세정보를 볼 수 있습니다
-                  </p>
                 </div>
               </div>
             </div>
@@ -270,15 +260,15 @@ const ResearchReportPage = () => {
                     {Math.ceil(detailData.totalVolume / 50)}개
                   </p>
                   <p className="border border-gray-300 rounded-md px-3 py-2 bg-gray-50 w-1/2">
-                    {detailData.totalVolume}
+                    {detailData.totalVolume}L
                   </p>
                 </div>
               </div>
               <DataDisplay
                 label="자연재해 유무(최근 5일 이내)"
-                value={detailData.recentDisaster}
+                value={detailData?.recentDisaster || "없음"}
               />
-              <DataDisplay label="날씨" value={detailData.weather} />
+              <DataDisplay label="날씨" value={detailData?.weather || "없음"} />
               <div className="flex w-full space-x-2">
                 <DataDisplay
                   className="w-1/2"
@@ -302,7 +292,13 @@ const ResearchReportPage = () => {
         {/* 버튼 */}
         <div className="flex justify-end mt-6">
           <button
-            onClick={() => navigate(-1)} // 이전 페이지로 이동
+            onClick={() => {
+              if (isNeeded) {
+                navigate("/newWorks", { state: { resetNew: false } });
+              } else {
+                navigate("/workList", { state: { resetOld: false } });
+              }
+            }} // 이전 페이지로 이동
             className="w-24 h-12 bg-gray-300 text-gray-700 px-4 py-2 mr-4 rounded-md hover:bg-gray-400 transition"
           >
             목록

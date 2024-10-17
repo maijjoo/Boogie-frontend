@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getImageByFileName } from "../../api/researchApi";
 import { useNavigate } from "react-router-dom";
 
-const Card = ({ report, tab }) => {
+const Card = ({ report, tab, onMove = null }) => {
   const [thumbnail, setThumbnail] = useState(null);
   const [formattedDate, setFormattedDate] = useState("날짜 정보 없음");
   const navigate = useNavigate();
@@ -42,6 +42,7 @@ const Card = ({ report, tab }) => {
     <div
       className="border rounded-lg shadow-sm overflow-hidden w-60 h-90 relative cursor-pointer"
       onClick={() => {
+        onMove();
         if (tab === "조사 완료") {
           navigate("/researchReport", {
             state: { reportId: report.id, isNeeded: true },

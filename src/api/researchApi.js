@@ -4,7 +4,7 @@ import jwtAxios from "../util/jwtUtil";
 const prefix = `${API_SERVER_HOST}/api/research`;
 
 export const postAdd = async (researchObj) => {
-  console.log("-------" + researchObj.get("json"));
+  // console.log("-------" + researchObj.get("json"));
   const res = await jwtAxios.post(`${prefix}/`, researchObj, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -18,7 +18,7 @@ export const postAdd = async (researchObj) => {
 
 export const getNameList = async (researcherId) => {
   const res = await jwtAxios.get(`${prefix}/${researcherId}`);
-  console.log("==========getNameList response : ", res);
+  // console.log("==========getNameList response : ", res);
   return res.data;
 };
 
