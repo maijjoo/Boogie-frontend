@@ -63,9 +63,11 @@ const loginSlice = createSlice({
         console.log("fulfilled...");
 
         const payload = action.payload;
+        const autoLogin = action.meta.arg.autoLogin;
 
         if (!payload.error) {
-          setCookie("member", JSON.stringify(payload), 1);
+          const cookieDuration = autoLogin ? 7 : 0;
+          setCookie("member", JSON.stringify(payload), cookieDuration);
 
           Object.assign(state, payload);
         }
