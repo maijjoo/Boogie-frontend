@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginPostAsync } from "../slices/loginSlice";
 import { useAuth } from "../hooks/useAuth";
+import { getCookie, removeCookie, setCookie } from "../util/cookieUtil";
 
 const Login = () => {
   // input 값 받아오는 ref
@@ -21,6 +22,17 @@ const Login = () => {
 
   const { isLoggedIn, role } = useAuth();
   const dispatch = useDispatch();
+
+  const autoLoginRef = useRef();
+  const saveIdRef = useRef();
+
+  useEffect(() => {
+    const saveId = getCookie("saveId");
+    if (saveId) {
+      id.current.value = saveId;
+      saveIdRef.current.checked = true;
+    }
+  }, []);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -35,11 +47,24 @@ const Login = () => {
   const handleLogin = async () => {
     const inputId = id.current.value;
     const inputPassword = password.current.value;
+    const isAutoLogin = autoLoginRef.current.checked;
+    const isSaveId = saveIdRef.current.checked;
+
     if (inputId.trim() && inputPassword.trim()) {
       try {
         const data = await dispatch(
-          loginPostAsync({ username: inputId, password: inputPassword })
+          loginPostAsync({
+            username: inputId,
+            password: inputPassword,
+            autoLogin: isAutoLogin,
+          })
         ).unwrap();
+
+        if (isSaveId) {
+          setCookie("saveId", inputId, 30);
+        } else {
+          removeCookie("saveId");
+        }
       } catch (error) {
         alert("id 혹은 비밀번호를 다시 확인해주세요.");
         console.log("Login Error: ", error);
@@ -49,6 +74,12 @@ const Login = () => {
       id.current.value = "";
       password.current.value = "";
       alert("id 혹은 비밀번호를 입력해주세요.");
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleLogin(); // 엔터키를 누르면 검색 실행
     }
   };
 
@@ -72,6 +103,7 @@ const Login = () => {
               type="text"
               ref={id}
               placeholder="아이디를 입력해 주세요."
+              onKeyDown={handleKeyDown}
             >
               아이디
             </InputWithLabel>
@@ -82,6 +114,7 @@ const Login = () => {
               type="password"
               ref={password}
               placeholder="비밀번호를 입력해 주세요."
+              onKeyDown={handleKeyDown}
             >
               비밀번호
             </InputWithLabel>
@@ -95,8 +128,8 @@ const Login = () => {
         )}
 
         <div className="w-full flex justify-between">
-          <CheckboxWithLabel>아이디 저장</CheckboxWithLabel>
-          <CheckboxWithLabel>자동 로그인</CheckboxWithLabel>
+          <CheckboxWithLabel ref={saveIdRef}>아이디 저장</CheckboxWithLabel>
+          <CheckboxWithLabel ref={autoLoginRef}>자동 로그인</CheckboxWithLabel>
         </div>
 
         <div className="flex justify-center w-full mt-6">
