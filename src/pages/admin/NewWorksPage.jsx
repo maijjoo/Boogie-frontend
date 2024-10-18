@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useNewWorks } from "../../hooks/useNewWorks";
 import { useAuth } from "../../hooks/useAuth";
+import { useResetConditions } from "../../hooks/useResetConditions";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import ConditionTabs from "../../components/searchCondition/admin/ConditionTabs";
 import Searchbar from "../../components/searchCondition/admin/Searchbar";
@@ -20,28 +21,24 @@ import {
 } from "../../slices/conditionSlice";
 
 const NewWorksPage = () => {
+  useResetConditions("old");
+
   const dispatch = useDispatch(); // 리덕스 실행하는 함수
   const { isLoggedIn, role, id } = useAuth();
+  // const location = useLocation();
   const navigate = useNavigate();
-  const [isReset, setIsReset] = useState(true);
-  const { resetNew } = useLocation().state || { resetNew: true };
+  // const [isReset, setIsReset] = useState(true);
 
-  const { page, tabCondition, beachSearch, sort } = useSelector(
-    (state) => state.condition
-  ); // 리덕스에서 사용할 값 가져오기
   const { searchedData, totalLength, totalPages, fetchNewWorks } =
     useNewWorks(id); // 훅에서 사용할 값 가져오기
   const beachRef = useRef(); // 검색창 컴포넌트에서 검색어 가져오기
 
-  // 다른 페이지로 이동 시 리덕스를 초기화
-  useEffect(() => {
-    if (isReset && resetNew) {
-      dispatch(resetCondition());
-    }
-  }, [dispatch]);
+  const { page, tabCondition, beachSearch, sort } = useSelector(
+    (state) => state.condition
+  ); // 리덕스에서 사용할 값 가져오기
 
   useEffect(() => {
-    if (!isLoggedIn || role !== "ADMIN") {
+    if (!isLoggedIn || role === "WORKER") {
       navigate("/", { replace: true });
     }
   }, [isLoggedIn, role, navigate]);
@@ -52,7 +49,10 @@ const NewWorksPage = () => {
 
   const handleSearch = () => {
     dispatch(setPage(1));
-    dispatch(setBeachSearch(beachRef.current.value));
+    if (beachRef.current) {
+      const searchValue = beachRef.current.getValue();
+      dispatch(setBeachSearch(searchValue));
+    }
     fetchNewWorks();
   };
 
@@ -70,11 +70,9 @@ const NewWorksPage = () => {
     dispatch(setPage(1));
     dispatch(setSort("desc"));
     dispatch(setBeachSearch(""));
-    beachRef.current.value = "";
-  };
-
-  const handleReset = () => {
-    setIsReset(false);
+    if (beachRef.current) {
+      beachRef.current.clear();
+    }
   };
 
   return (
@@ -84,7 +82,7 @@ const NewWorksPage = () => {
           className="text-xl font-bold mb-2 text-blue-700 inline-block cursor-pointer"
           onClick={() => {
             dispatch(resetCondition());
-            navigate("/newWorks");
+            navigate("/newWorks", { replace: true });
           }}
         >
           New 작업
@@ -119,12 +117,7 @@ const NewWorksPage = () => {
           <>
             <div className="flex flex-wrap justify-start gap-4 mb-8 h-full w-full">
               {searchedData.map((report) => (
-                <Card
-                  key={report.id}
-                  report={report}
-                  tab={tabCondition}
-                  onMove={handleReset}
-                />
+                <Card key={report.id} report={report} tab={tabCondition} />
               ))}
             </div>
             <div className="flex justify-center mt-4">

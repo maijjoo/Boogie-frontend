@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCompletedWorks } from "../../hooks/useCompletedWork";
 import { useAuth } from "../../hooks/useAuth";
+import { useResetConditions } from "../../hooks/useResetConditions";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import ConditionTabs from "../../components/searchCondition/admin/ConditionTabs";
 import Searchbar from "../../components/searchCondition/admin/Searchbar";
@@ -20,29 +21,24 @@ import {
 } from "../../slices/completedSlice";
 
 const WorkListPage = () => {
+  useResetConditions("new");
+
   const dispatch = useDispatch();
   const { isLoggedIn, role, id } = useAuth();
-  const navigate = useNavigate();
-  const [isReset, setIsReset] = useState(true);
-  const { resetOld } = useLocation().state || { resetOld: true };
 
-  const { page, tabCondition, beachSearch, sort } = useSelector(
-    (state) => state.completed
-  );
+  const navigate = useNavigate();
 
   const { searchedData, totalLength, totalPages, fetchCompletedWorks } =
     useCompletedWorks(id);
   const beachRef = useRef();
 
-  useEffect(() => {
-    if (isReset && resetOld) {
-      dispatch(resetCompleted());
-    }
-  }, [dispatch]);
+  const { page, tabCondition, beachSearch, sort } = useSelector(
+    (state) => state.completed
+  );
 
   // 관리자 id 아니면 로그인 페이지로 이동
   useEffect(() => {
-    if (!isLoggedIn || role !== "ADMIN") {
+    if (!isLoggedIn || role === "WORKER") {
       navigate("/", { replace: true });
     }
   }, [isLoggedIn, role, navigate]);
@@ -54,7 +50,10 @@ const WorkListPage = () => {
 
   const handleSearch = () => {
     dispatch(setPage(1));
-    dispatch(setBeachSearch(beachRef.current.value));
+    if (beachRef.current) {
+      const searchValue = beachRef.current.getValue();
+      dispatch(setBeachSearch(searchValue));
+    }
     fetchCompletedWorks();
   };
 
@@ -72,11 +71,9 @@ const WorkListPage = () => {
     dispatch(setPage(1));
     dispatch(setSort("desc"));
     dispatch(setBeachSearch(""));
-    beachRef.current.value = "";
-  };
-
-  const handleReset = () => {
-    setIsReset(false);
+    if (beachRef.current) {
+      beachRef.current.clear();
+    }
   };
 
   return (
@@ -85,8 +82,8 @@ const WorkListPage = () => {
         <h1
           className="text-xl font-bold mb-2 text-blue-700 inline-block cursor-pointer"
           onClick={() => {
-            dispatch(resetCompleted());
-            navigate("/workList");
+            dispatch(resetCompleted("old"));
+            navigate("/workList", { replace: true });
           }}
         >
           작업 조회
@@ -111,7 +108,6 @@ const WorkListPage = () => {
                 activeSearch={beachSearch}
               />
               <SearchButton onSearch={handleSearch} />
-              {/* 검색 버튼에 beachName 전달 */}
             </div>
           </div>
         </div>
@@ -127,12 +123,7 @@ const WorkListPage = () => {
             <div className="flex flex-wrap justify-start gap-4 mb-8 h-full w-full">
               {/* 그리드 레이아웃으로 카드 배열 */}
               {searchedData.map((report) => (
-                <Card
-                  key={report.id}
-                  report={report}
-                  tab={tabCondition}
-                  onMove={handleReset}
-                />
+                <Card key={report.id} report={report} tab={tabCondition} />
               ))}
             </div>
             <div className="flex justify-center mt-4">

@@ -1,7 +1,7 @@
 const ConditionTabs = ({
   activeTab,
   setActiveTab,
-  initSearchParam,
+  initSearchParam = null,
   tabNames = [], // 각 탭의 이름을 배열 형태로 받습니다
   tabKeys = [], // 각 탭의 key를 배열로 받습니다
   searchParams = {
@@ -21,8 +21,12 @@ const ConditionTabs = ({
           } text-[12pt] rounded-lg text-bold transition-colors duration-200`}
           onClick={() => {
             setActiveTab(tabKeys[index]);
-            handleOnSearch();
-            initSearchParam(searchParams); // 전달된 searchParams 사용
+            if (handleOnSearch) {
+              handleOnSearch();
+            }
+            if (initSearchParam) {
+              initSearchParam(searchParams);
+            } // 전달된 searchParams 사용
           }}
         >
           {name}

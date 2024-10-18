@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useResetConditions } from "../../hooks/useResetConditions.js";
+import { useAuth } from "../../hooks/useAuth.js";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import ConditionTabs from "../../components/searchCondition/ConditionTabs";
 import BeachCondition from "../../components/searchCondition/BeachCondition";
@@ -12,8 +14,14 @@ import YearAndMonthCondition from "../../components/searchCondition/basic/YearAn
 import YearCondition from "../../components/searchCondition/basic/YearCondition";
 import ExcelIcon from "../../assets/icons/write/ExcelIcon.png";
 import * as XLSX from "xlsx"; // 엑셀 라이브러리 추가
+import { useNavigate } from "react-router-dom";
 
 const BasicStatisticsPage = () => {
+  useResetConditions("all");
+
+  const { isLoggedIn, role } = useAuth();
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState("year");
   const [yearlyData, setYearlyData] = useState([]); // 연도별 데이터를 저장할 상태
   const [monthlyData, setMonthlyData] = useState([]); // 월별 데이터를 저장할 상태
@@ -52,6 +60,12 @@ const BasicStatisticsPage = () => {
     setSelectedYears(years);
     setSelectedMonth(month);
   };
+
+  useEffect(() => {
+    if (!isLoggedIn || role === "WORKER") {
+      navigate("/", { replace: true });
+    }
+  }, [isLoggedIn, role, navigate]);
 
   // yearlyData가 변경될 때마다 차트 데이터를 업데이트
   useEffect(() => {

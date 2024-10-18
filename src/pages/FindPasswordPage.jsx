@@ -30,7 +30,7 @@ const FindPasswordPage = () => {
   const [newPasswordCheck, setNewPasswordCheck] = useState();
 
   useEffect(() => {
-    if (!isLoggedIn || role === "ADMIN") {
+    if (isLoggedIn || role === "ADMIN") {
       navigate("/", { replace: true });
     }
   }, [role, isLoggedIn, navigate]);
