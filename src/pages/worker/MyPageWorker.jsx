@@ -11,7 +11,7 @@ import useConfirm from "../../components/commons/UseConfirm.jsx";
 import { useNavigate } from "react-router-dom";
 
 const MyPageWorker = () => {
-  const { memberInfo, isLoggedIn, id, role } = useAuth();
+  const { isLoggedIn, id, role } = useAuth();
   const navigate = useNavigate();
 
   const [userInfo, setUserInfo] = useState({
