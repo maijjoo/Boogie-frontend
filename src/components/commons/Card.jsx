@@ -75,7 +75,13 @@ const Card = ({ report, tab, onMove = null }) => {
         {report.status === "ASSIGNMENT_NEEDED"
           ? "배정 필요"
           : report.status === "ASSIGNMENT_COMPLETED"
-          ? "작업 완료"
+          ? tab === "조사"
+            ? "조사 완료"
+            : tab === "청소"
+            ? "청소 완료"
+            : tab === "수거"
+            ? "수거 완료"
+            : "작업 완료"
           : "상태 없음"}
       </p>
       <div className="p-4 bg-white h-30">
