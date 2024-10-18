@@ -30,10 +30,10 @@ const FindPasswordPage = () => {
   const [newPasswordCheck, setNewPasswordCheck] = useState();
 
   useEffect(() => {
-    if (isLoggedIn || role === "ADMIN") {
+    if (isLoggedIn) {
       navigate("/", { replace: true });
     }
-  }, [role, isLoggedIn, navigate]);
+  }, [isLoggedIn, navigate]);
 
   // 일치하는 이메일, 이름 있는지 user search
   // 있으면 이메일 보내기

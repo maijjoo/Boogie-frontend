@@ -65,7 +65,7 @@ const MyPageWorker = () => {
           managerDepartment: data.managerDepartment || "",
         });
       });
-    } else if (!isLoggedIn || role === "ADMIN") {
+    } else if (!isLoggedIn || role !== "WORKER") {
       navigate("/", { replace: true });
     }
   }, [id, isLoggedIn, role, navigate]);

@@ -1,17 +1,18 @@
-import React, { useEffect, useRef, useState } from "react";
-
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useAuth } from "../hooks/useAuth";
+import { useResetConditions } from "../hooks/useResetConditions";
+import { loginPostAsync } from "../slices/loginSlice";
+import { getCookie, removeCookie, setCookie } from "../util/cookieUtil";
 import Button from "../components/commons/Button";
 import InputWithLabel from "../components/commons/InputWithLabel";
 import logo from "../assets/images/logo_tr.png";
 import wave from "../assets/images/wave.jpg";
 import CheckboxWithLabel from "../components/commons/CheckboxWithLabel";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { loginPostAsync } from "../slices/loginSlice";
-import { useAuth } from "../hooks/useAuth";
-import { getCookie, removeCookie, setCookie } from "../util/cookieUtil";
 
 const Login = () => {
+  useResetConditions("all");
   // input 값 받아오는 ref
   // id.current.value 로 input 박스에 적혀있는 현재값 가져올수있음
   const id = useRef();
@@ -36,9 +37,9 @@ const Login = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      role === "ADMIN"
-        ? navigate("/adminMain", { replace: true })
-        : navigate("/workerMain", { replace: true });
+      role === "WORKER"
+        ? navigate("/workerMain", { replace: true })
+        : navigate("/adminMain", { replace: true });
     }
   }, [isLoggedIn, role, navigate]);
 
@@ -52,7 +53,7 @@ const Login = () => {
 
     if (inputId.trim() && inputPassword.trim()) {
       try {
-        const data = await dispatch(
+        await dispatch(
           loginPostAsync({
             username: inputId,
             password: inputPassword,
