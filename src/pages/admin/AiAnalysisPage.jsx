@@ -1,17 +1,30 @@
-import React, { useEffect } from "react";
-import { resetCondition } from "../../slices/conditionSlice";
-import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { useAuth } from "../../hooks/useAuth";
+import { useResetConditions } from "../../hooks/useResetConditions";
+import { useNavigate } from "react-router-dom";
 
 function AiAnalysisPage(props) {
-  const dispatch = useDispatch();
+  useResetConditions("all");
+  const navigate = useNavigate();
+  const { isLoggedIn, role } = useAuth();
 
   useEffect(() => {
-    return () => {
-      dispatch(resetCondition()); // 페이지를 벗어날 때 상태 초기화
-    };
-  }, [dispatch]);
+    if (!isLoggedIn || role === "WORKER") {
+      navigate("/", { replace: true });
+    }
+  }, [isLoggedIn, role, navigate]);
 
-  return <div>개발중</div>;
+  useEffect(() => {
+    const move = setTimeout(() => {
+      navigate("/adminMain", { replace: true });
+    }, 2000);
+
+    return () => {
+      clearTimeout(move);
+    };
+  });
+
+  return <div>개발중...</div>;
 }
 
 export default AiAnalysisPage;

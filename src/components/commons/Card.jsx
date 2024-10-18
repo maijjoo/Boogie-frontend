@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getImageByFileName } from "../../api/researchApi";
 import { useNavigate } from "react-router-dom";
 
-const Card = ({ report, tab, onMove = null }) => {
+const Card = ({ report, tab }) => {
   const [thumbnail, setThumbnail] = useState(null);
   const [formattedDate, setFormattedDate] = useState("날짜 정보 없음");
   const navigate = useNavigate();
@@ -31,10 +31,33 @@ const Card = ({ report, tab, onMove = null }) => {
   const handleThumbnails = async (img) => {
     try {
       const res = await getImageByFileName(img);
-
       return res;
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleNavigateToDetail = () => {
+    if (tab === "조사 완료") {
+      navigate("/researchReport", {
+        state: { reportId: report.id, isNeeded: true },
+      });
+    } else if (tab === "조사") {
+      navigate("/researchReport", {
+        state: { reportId: report.id, isNeeded: false },
+      });
+    } else if (tab === "청소 완료") {
+      navigate("/cleanReport", {
+        state: { reportId: report.id, isNeeded: true },
+      });
+    } else if (tab === "청소") {
+      navigate("/cleanReport", {
+        state: { reportId: report.id, isNeeded: false },
+      });
+    } else {
+      navigate("/collectReport", {
+        state: { reportId: report.id },
+      });
     }
   };
 
@@ -42,28 +65,7 @@ const Card = ({ report, tab, onMove = null }) => {
     <div
       className="border rounded-lg shadow-sm overflow-hidden w-60 h-90 relative cursor-pointer"
       onClick={() => {
-        onMove();
-        if (tab === "조사 완료") {
-          navigate("/researchReport", {
-            state: { reportId: report.id, isNeeded: true },
-          });
-        } else if (tab === "조사") {
-          navigate("/researchReport", {
-            state: { reportId: report.id, isNeeded: false },
-          });
-        } else if (tab === "청소 완료") {
-          navigate("/cleanReport", {
-            state: { reportId: report.id, isNeeded: true },
-          });
-        } else if (tab === "청소") {
-          navigate("/cleanReport", {
-            state: { reportId: report.id, isNeeded: false },
-          });
-        } else {
-          navigate("/collectReport", {
-            state: { reportId: report.id },
-          });
-        }
+        handleNavigateToDetail();
       }}
     >
       <img

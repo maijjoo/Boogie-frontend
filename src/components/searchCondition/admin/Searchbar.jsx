@@ -1,23 +1,28 @@
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 const Searchbar = forwardRef(function SearchBar(
   { onSearch, placeholder, activeSearch },
   ref
 ) {
-  const [searchValue, setSearchValue] = useState(activeSearch);
+  const [searchValue, setSearchValue] = useState(activeSearch || "");
 
-  const handleInputChange = (e) => {
-    const value = e.target.value;
+  useImperativeHandle(ref, () => ({
+    clear: () => setSearchValue(""),
+    getValue: () => searchValue,
+  }));
+
+  const handleInputChange = (event) => {
+    const value = event.target.value;
     setSearchValue(value);
   };
 
   useEffect(() => {
-    setSearchValue(activeSearch);
+    setSearchValue(activeSearch || "");
   }, [activeSearch]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      onSearch(searchValue); // 엔터키를 누르면 검색 실행
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      onSearch(); // 엔터키를 누르면 검색 실행
     }
   };
 

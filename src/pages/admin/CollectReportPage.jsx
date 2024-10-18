@@ -96,7 +96,7 @@ const CollectReportPage = () => {
   };
 
   useEffect(() => {
-    if (!isLoggedIn || role !== "ADMIN") {
+    if (!isLoggedIn || role === "WORKER") {
       navigate("/", { replace: true });
     }
   }, [isLoggedIn, role, navigate]);
@@ -230,9 +230,7 @@ const CollectReportPage = () => {
         {/* 버튼 */}
         <div className="flex justify-end mt-6">
           <button
-            onClick={() =>
-              navigate("/workList", { state: { resetOld: false } })
-            } // 이전 페이지로 이동
+            onClick={() => navigate("/workList", { replace: true })} // 이전 페이지로 이동
             className="w-24 h-12 bg-gray-300 text-gray-700 px-4 py-2 mr-4 rounded-md hover:bg-gray-400 transition"
           >
             목록
