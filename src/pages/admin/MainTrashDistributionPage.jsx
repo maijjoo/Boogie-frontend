@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useResetConditions } from "../../hooks/useResetConditions";
 import { getSearched } from "../../api/mainTrashDistributionApi";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import ConditionTabs from "../../components/searchCondition/ConditionTabs";
@@ -11,6 +12,8 @@ import PeriodCondition from "../../components/searchCondition/PeriodCondition";
 import KakaoMap from "../../components/commons/KakaoMap";
 
 const MainTrashDistributionPage = () => {
+  useResetConditions("all");
+
   const { isLoggedIn, role } = useAuth();
   const navigate = useNavigate();
   const [condition, setCondition] = useState("year");
@@ -24,10 +27,10 @@ const MainTrashDistributionPage = () => {
   const [searchedData, setSearchedData] = useState([]);
 
   useEffect(() => {
-    if (!isLoggedIn || role !== "ADMIN") {
+    if (!isLoggedIn || role === "WORKER") {
       navigate("/", { replace: true });
     }
-  });
+  }, [isLoggedIn, role, navigate]);
 
   useEffect(() => {
     const getLocation = async () => {

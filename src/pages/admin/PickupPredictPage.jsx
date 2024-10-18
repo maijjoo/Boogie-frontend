@@ -9,8 +9,11 @@ import YearCondition from "../../components/searchCondition/YearCondition";
 import Search from "../../components/searchCondition/Search";
 import PeriodCondition from "../../components/searchCondition/PeriodCondition";
 import KakaoMap from "../../components/commons/KakaoMap";
+import { useResetConditions } from "../../hooks/useResetConditions";
 
 const PickupPredictPage = () => {
+  useResetConditions("all");
+
   const { isLoggedIn, role } = useAuth();
   const navigate = useNavigate();
   const [condition, setCondition] = useState("year");
@@ -25,10 +28,10 @@ const PickupPredictPage = () => {
   const [trashs, setTrashs] = useState([]);
 
   useEffect(() => {
-    if (!isLoggedIn || role !== "ADMIN") {
+    if (!isLoggedIn || role === "WORKER") {
       navigate("/", { replace: true });
     }
-  });
+  }, [isLoggedIn, role, navigate]);
 
   useEffect(() => {
     const getLocation = async () => {

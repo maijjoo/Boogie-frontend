@@ -142,7 +142,7 @@ const CleanReportPage = () => {
   };
 
   useEffect(() => {
-    if (!isLoggedIn || role !== "ADMIN") {
+    if (!isLoggedIn || role === "WORKER") {
       navigate("/", { replace: true });
     }
   }, [isLoggedIn, role, navigate]);
@@ -197,7 +197,7 @@ const CleanReportPage = () => {
     await handleComplete(reportId);
 
     if (isNeeded) {
-      navigate("/newWorks", { state: { resetNew: false } });
+      navigate("/newWorks", { replace: true });
     }
   };
 
@@ -369,9 +369,9 @@ const CleanReportPage = () => {
           <button
             onClick={() => {
               if (isNeeded) {
-                navigate("/newWorks", { state: { resetNew: false } });
+                navigate("/newWorks", { replace: true });
               } else {
-                navigate("/workList", { state: { resetOld: false } });
+                navigate("/workList", { replace: true });
               }
             }} // 이전 페이지로 이동
             className="w-24 h-12 bg-gray-300 text-gray-700 px-4 py-2 mr-4 rounded-md hover:bg-gray-400 transition"

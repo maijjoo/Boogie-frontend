@@ -7,10 +7,14 @@ import { getAdminInfo, updateAdminInfo } from "../../api/adminInfoApi.js";
 import circle from "../../assets/icons/write/Circle.svg";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import useConfirm from "../../components/commons/UseConfirm.jsx";
+import { useResetConditions } from "../../hooks/useResetConditions.js";
+import { useNavigate } from "react-router-dom";
 
 const MyPageAdmin = () => {
-  const { isLoggedIn, id } = useAuth();
+  useResetConditions("all");
 
+  const { isLoggedIn, role, id } = useAuth();
+  const navigate = useNavigate();
   const [adminInfo, setAdminInfo] = useState({
     name: "",
     phone: "",
@@ -47,7 +51,9 @@ const MyPageAdmin = () => {
 
   // useEffect를 사용하여 memberInfo가 업데이트될 때 userInfo 상태 업데이트
   useEffect(() => {
-    if (isLoggedIn) {
+    if (!isLoggedIn || role === "WORKER") {
+      navigate("/", { replace: true });
+    } else {
       getAdminInfo(id).then((data) => {
         setAdminInfo({
           name: data.name || "",
@@ -62,7 +68,7 @@ const MyPageAdmin = () => {
         });
       });
     }
-  }, [id, isLoggedIn]);
+  }, [id, isLoggedIn, role, navigate]);
 
   // 입력 필드 변경 핸들러
   const handleInputChange = (e) => {
