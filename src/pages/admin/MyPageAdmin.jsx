@@ -9,13 +9,12 @@ import SidebarLayout from "../../layouts/SidebarLayout";
 import useConfirm from "../../components/commons/UseConfirm.jsx";
 
 const MyPageAdmin = () => {
-  const { memberInfo, isLoggedIn, id } = useAuth();
+  const { isLoggedIn, id } = useAuth();
 
   const [adminInfo, setAdminInfo] = useState({
     name: "",
-    contact: "",
+    phone: "",
     email: "",
-    workPlace: "",
     department: "",
   });
 
@@ -35,47 +34,45 @@ const MyPageAdmin = () => {
   const confirmSave = useConfirm("저장하시겠습니까?", savingPassword, abort);
 
   //개인정보 수정 컨펌
-  const updatePassword = () => console.log("수정중...");
+  const updateInfo = () => {
+    console.log("수정중...");
+    handleSubmit();
+  };
   const cancelUpdate = () => console.log("취소됨.");
   const confirmUpdate = useConfirm(
     "수정하시겠습니까?",
-    updatePassword,
+    updateInfo,
     cancelUpdate
   );
 
   // useEffect를 사용하여 memberInfo가 업데이트될 때 userInfo 상태 업데이트
   useEffect(() => {
     if (isLoggedIn) {
-      console.log(id);
-      const userInfo = getAdminInfo(id);
-      console.log("userInfo.data : ", userInfo);
-
       getAdminInfo(id).then((data) => {
-        console.log("---------result----------: ", data);
-
         setAdminInfo({
           name: data.name || "",
-          contact: data.phone || "",
+          phone: data.phone || "",
           email: data.email || "",
           workPlace: data.workPlace || "",
           department: data.department || "",
+          contact: data.contact || "",
+          position: data.position || "",
+          address: data.address || "",
+          addressDetail: data.addressDetail || "",
         });
       });
     }
-  }, [memberInfo, isLoggedIn]);
-
-  console.log(memberInfo);
+  }, [id, isLoggedIn]);
 
   // 입력 필드 변경 핸들러
   const handleInputChange = (e) => {
     if (!editMode) return;
     const { name, value } = e.target;
-    setAdminInfo({ ...adminInfo, [name]: value });
-  };
 
-  // 새로고침 버튼 클릭 핸들러
-  const handleRefresh = () => {
-    window.location.reload(); // 페이지 새로고침
+    setAdminInfo((prev) => ({
+      ...prev,
+      [name]: value, // 빈 문자열도 그대로 유지하도록 설정
+    }));
   };
 
   // 정보 수정 모드 토글
@@ -88,12 +85,36 @@ const MyPageAdmin = () => {
     setPasswordChange(!passwordChange); // passwordChange 상태를 반전시켜 비밀번호 변경 렌더링 토글
     setPButtonText(passwordChange ? "비밀번호 변경" : "저장하기"); // 버튼 텍스트 변경
   };
-
   // 폼 제출 핸들러
   const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Updated User Info: ", adminInfo);
-    // 여기서 업데이트 API 호출 등의 작업을 수행 가능
+    e && e.preventDefault();
+
+    const updatedData = {
+      name: adminInfo.name,
+      phone: adminInfo.phone,
+      email: adminInfo.email,
+      address: adminInfo.address,
+      addressDetail: adminInfo.addressDetail,
+      department: adminInfo.department,
+      position: adminInfo.position,
+      contact: adminInfo.contact,
+    };
+
+    console.log("업데이트할 데이터:", updatedData); // 데이터가 올바른지 확인
+
+    // 사용자 정보 업데이트 API 호출
+    updateAdminInfo(id, adminInfo)
+      .then((response) => {
+        console.log("사용자 정보 업데이트 성공:", response);
+        setSuccessMessage("사용자 정보가 성공적으로 업데이트되었습니다.");
+      })
+      .catch((error) => {
+        console.error("사용자 정보 업데이트 실패:", error);
+        setSuccessMessage("사용자 정보 업데이트에 실패했습니다.");
+      });
+
+    setEditMode(false);
+    setButtonText("내 정보 수정");
   };
 
   // 비밀번호 유효성 검사 함수
@@ -214,39 +235,39 @@ const MyPageAdmin = () => {
                 {/* 연락처 필드*/}
                 <MyPageInput
                   label="연락처"
-                  name="tel"
+                  name="phone"
                   type="tel"
-                  value={adminInfo.contact}
+                  value={adminInfo.phone}
                   onChange={handleInputChange}
                   readOnly={!editMode} // 수정 모드가 아닐 때는 readOnly 상태 유지
                   editMode={editMode}
                 />
 
-                {/* 근무처 필드*/}
-                <MyPageInput
-                  label="근무처"
-                  name="workPlace"
-                  type="text"
-                  value={adminInfo.workPlace}
-                  onChange={handleInputChange}
-                  readOnly={!editMode} // 수정 모드가 아닐 때는 readOnly 상태 유지
-                  editMode={editMode}
-                />
-
-                {/* 부서 필드 */}
+                {/* 근무처 필드 */}
                 <div>
                   <div className="font-bold">
                     <img src={circle} alt="dot" className="w-1 me-2 inline" />
-                    부서
+                    근무처
                   </div>
                   <div
                     className={`border border-gray-400 rounded-md p-1 ${
                       !editMode ? "bg-white" : "bg-gray-100"
                     }`}
                   >
-                    {adminInfo.department}
+                    {adminInfo.workPlace}
                   </div>
                 </div>
+
+                {/* 부서 필드*/}
+                <MyPageInput
+                  label="부서"
+                  name="department"
+                  type="text"
+                  value={adminInfo.department}
+                  onChange={handleInputChange}
+                  readOnly={!editMode} // 수정 모드가 아닐 때는 readOnly 상태 유지
+                  editMode={editMode}
+                />
               </div>
             )}
 
@@ -357,7 +378,7 @@ const MyPageAdmin = () => {
                       <Button
                         className="w-full py-3 rounded-lg"
                         color="blue"
-                        type={editMode ? "submit" : ""}
+                        type="button"
                         onClick={!editMode ? toggleEditMode : confirmUpdate} // 정보 수정 모드 토글
                       >
                         {buttonText} {/* 버튼 텍스트 변경 */}
