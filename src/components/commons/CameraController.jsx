@@ -1,6 +1,9 @@
 import React, { useRef, useState } from "react";
 import addImage from "../../assets/icons/write/Add Image.svg";
 import dot from "../../assets/icons/write/Circle.svg";
+import fatX from "../../assets/icons/workerMode/whiteFullX.png";
+import thinX from "../../assets/icons/workerMode/whiteThinX.png";
+import cancel from "../../assets/icons/write/Cancel.svg";
 
 const CameraController = ({ setSource, title, max, min, border = null }) => {
   const [sources, setSources] = useState([]);
@@ -41,19 +44,28 @@ const CameraController = ({ setSource, title, max, min, border = null }) => {
           {sources.map((source, index) => (
             <div
               key={index}
-              className="flex-shrink-0 w-24 h-24 cursor-pointer"
+              className="relative flex-shrink-0 w-24 h-24 cursor-pointer"
               onClick={() => {
-                if (confirm("사진을 삭제하시겠습니까?")) {
-                  setSources(
-                    (prevSources) => prevSources.filter((_, i) => i !== index) // 현재 인덱스를 제외한 새로운 배열 생성
-                  );
-                }
+                console.log("큰 사진 모달");
               }}
             >
               <img
                 src={source}
                 alt={`snap-${index}`}
                 className="w-full h-full object-cover rounded-md border border-black"
+              />
+              <img
+                src={fatX}
+                alt={`delete-${index}`}
+                className="absolute top-1 right-1 w-5 h-5 cursor-pointer"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  if (confirm("사진을 삭제하시겠습니까?")) {
+                    setSources(
+                      (prevSources) => prevSources.filter((_, i) => i !== index) // 현재 인덱스를 제외한 새로운 배열 생성
+                    );
+                  }
+                }}
               />
             </div>
           ))}
