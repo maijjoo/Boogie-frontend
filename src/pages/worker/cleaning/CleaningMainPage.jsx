@@ -189,6 +189,7 @@ const CleaningMainPage = () => {
       formData.append("endLatitude", endCoords[0]); // 청소 끝 위치 위도
       formData.append("endLongitude", endCoords[1]); // 청소 끝 위치 경도
       formData.append("specialNote", NaturalDisasterList[selected]); // 재연재해 값
+      formData.append("weather", "맑음");
 
       console.log("-------after inject main at form data---------" + formData);
 
