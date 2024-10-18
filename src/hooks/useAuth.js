@@ -3,6 +3,7 @@ import { logout } from "../slices/loginSlice";
 
 export const useAuth = () => {
   const memberInfo = useSelector((state) => state.login);
+
   const dispatch = useDispatch();
 
   const isLoggedIn = !!memberInfo?.username;
@@ -23,6 +24,10 @@ export const useAuth = () => {
 
   const managerId = memberInfo?.managerId || null;
 
+  const phone = memberInfo?.phone || "";
+
+  const nameWithPhone = name + " " + phone.slice(-4);
+
   const handleLogout = () => {
     dispatch(logout());
   };
@@ -39,5 +44,7 @@ export const useAuth = () => {
     name,
     managerId,
     id,
+    phone,
+    nameWithPhone,
   };
 };
