@@ -17,7 +17,7 @@ const WorkerMainPage = () => {
   const { isLoggedIn, isDriver, logout, role } = useAuth();
 
   useEffect(() => {
-    if (!isLoggedIn || role === "ADMIN") {
+    if (!isLoggedIn || role !== "WORKER") {
       navigate("/", { replace: true });
     } else {
       setHasRegisteredCar(isDriver);

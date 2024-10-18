@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth.js";
+import { postAdd, getNameList } from "../../../api/researchApi.js";
+import { NaturalDisasterList } from "../../../datas/NaturalDisasterList.js";
 import dot from "../../../assets/icons/write/Circle.svg";
 import plus from "../../../assets/icons/write/Plus.svg";
 import cancel from "../../../assets/icons/write/Cancel.svg";
-import { useNavigate } from "react-router-dom";
 import MobileHeader from "../../../components/menus/MobileHeader.jsx";
 import MobileFooter from "../../../components/menus/MobileFooter.jsx";
-import { NaturalDisasterList } from "../../../datas/NaturalDisasterList.js";
 import CheckBoxWithLabel from "../../../components/commons/CheckboxWithLabel.jsx";
 import CameraController from "../../../components/commons/CameraController.jsx";
 import Button from "../../../components/commons/Button.jsx";
 import FormSub from "../../../components/commons/FormSub.jsx";
-import { postAdd, getNameList } from "../../../api/researchApi.js";
-import { useAuth } from "../../../hooks/useAuth.js";
-import Toast from "../../../components/commons/Toast.jsx";
 
 // dto 구조 참고용
 // 개발 완료되면 지우기
@@ -38,7 +37,7 @@ const initState = {
 
 const ResearchMainPage = () => {
   const navigate = useNavigate();
-  const { username, isLoggedIn, id, role } = useAuth();
+  const { username, isLoggedIn, id, role, nameWithPhone } = useAuth();
 
   // 등록요청 성공시 리렌더링하기 위함
   const [result, setResult] = useState(false);
@@ -83,7 +82,7 @@ const ResearchMainPage = () => {
 
   // 로그인 판별, 등록 성공시 수행
   useEffect(() => {
-    if (!isLoggedIn || role === "ADMIN") {
+    if (!isLoggedIn || role !== "WORKER") {
       navigate("/", { replace: true });
     }
     if (result === "success") {
@@ -94,8 +93,13 @@ const ResearchMainPage = () => {
   const getNames = async () => {
     try {
       const data = await getNameList(id);
-      setBeachNameList(data?.beachNameList);
-      setMatchUsername(data?.nameWithNumberList);
+      if (data) {
+        setBeachNameList(data?.beachNameList);
+        const filteredData = data.nameWithNumberList.filter(
+          (item) => item !== nameWithPhone
+        );
+        setMatchUsername(filteredData);
+      }
     } catch (error) {
       console.error(error);
     }

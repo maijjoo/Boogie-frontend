@@ -15,7 +15,7 @@ import CameraController from "../../../components/commons/CameraController.jsx";
 
 const CleaningMainPage = () => {
   const navigate = useNavigate();
-  const { username, isLoggedIn, id, role } = useAuth();
+  const { username, isLoggedIn, id, role, nameWithPhone } = useAuth();
 
   const [result, setResult] = useState(false);
   const [isMainFormComplete, setIsMainFormComplete] = useState(false);
@@ -75,10 +75,13 @@ const CleaningMainPage = () => {
   const getNames = async () => {
     try {
       const data = await getNameList(id);
-      console.log("------------getNameList res : ", data.beachNameList);
-      setBeachNameList(data?.beachNameList);
-      console.log("------------getNameList res : ", data.nameWithNumberList);
-      setMatchUsername(data?.nameWithNumberList);
+      if (data) {
+        setBeachNameList(data?.beachNameList);
+        const filteredData = data.nameWithNumberList.filter(
+          (item) => item !== nameWithPhone
+        );
+        setMatchUsername(filteredData);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -89,13 +92,7 @@ const CleaningMainPage = () => {
   }, [id]);
 
   useEffect(() => {
-    if (result === "success") {
-      navigate("/cleaningSelect");
-    }
-  }, [result, navigate]);
-
-  useEffect(() => {
-    if (!isLoggedIn || role === "ADMIN") {
+    if (!isLoggedIn || role !== "WORKER") {
       navigate("/", { replace: true });
     }
     if (result === "success") {
