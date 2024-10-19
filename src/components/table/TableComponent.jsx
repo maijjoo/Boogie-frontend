@@ -1,6 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
-const TableComponent = ({ headers, rows, currentPage, itemsPerPage }) => {
+const TableComponent = ({
+  headers,
+  rows,
+  currentPage,
+  itemsPerPage,
+  onCheckChange,
+  onRowClick, // row 클릭 시 호출할 함수 props 추가
+}) => {
   const [isAllChecked, setIsAllChecked] = useState(false);
   const [checkedRows, setCheckedRows] = useState(
     new Array(rows.length).fill(false)
@@ -10,7 +17,9 @@ const TableComponent = ({ headers, rows, currentPage, itemsPerPage }) => {
   const handleAllCheck = (e) => {
     const checked = e.target.checked;
     setIsAllChecked(checked);
-    setCheckedRows(new Array(rows.length).fill(checked)); // 모든 row의 체크 상태를 업데이트
+    const updatedCheckedRows = new Array(rows.length).fill(checked);
+    setCheckedRows(updatedCheckedRows);
+    onCheckChange(updatedCheckedRows); // 체크된 상태를 부모로 전달
   };
 
   // 개별 row의 체크박스 클릭 시 실행되는 핸들러
@@ -18,6 +27,7 @@ const TableComponent = ({ headers, rows, currentPage, itemsPerPage }) => {
     const updatedCheckedRows = [...checkedRows];
     updatedCheckedRows[index] = !updatedCheckedRows[index];
     setCheckedRows(updatedCheckedRows);
+    onCheckChange(updatedCheckedRows); // 체크된 상태를 부모로 전달
   };
 
   return (
@@ -48,7 +58,11 @@ const TableComponent = ({ headers, rows, currentPage, itemsPerPage }) => {
       </thead>
       <tbody>
         {rows.map((row, rowIndex) => (
-          <tr key={rowIndex} className="hover:bg-gray-50">
+          <tr
+            key={rowIndex}
+            className="hover:bg-gray-50 cursor-pointer"
+            onClick={() => onRowClick(row)} // row 클릭 시 호출
+          >
             {headers.map((header, headerIndex) => (
               <td
                 key={headerIndex}
@@ -62,14 +76,14 @@ const TableComponent = ({ headers, rows, currentPage, itemsPerPage }) => {
                       className="form-checkbox h-6 w-6 text-blue-600"
                       checked={checkedRows[rowIndex]}
                       onChange={() => handleRowCheck(rowIndex)}
+                      onClick={(e) => e.stopPropagation()} // 클릭 시 체크박스 이벤트와 row 클릭 이벤트가 겹치지 않도록 방지
                     />
                   </div>
-                ) : // formatter가 있으면 실행하고, 없으면 기본 필드를 출력
-                header.formatter ? (
+                ) : header.formatter ? (
                   header.formatter(
                     row,
                     (currentPage - 1) * itemsPerPage + rowIndex + 1
-                  ) // 전체 인덱스를 계산
+                  )
                 ) : (
                   row[header.field] || "-"
                 )}
