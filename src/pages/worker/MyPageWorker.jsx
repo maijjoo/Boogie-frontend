@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "../../hooks/useAuth.js";
+import { useNavigate } from "react-router-dom";
+import { getUserInfo, updateUserInfo } from "../../api/workerInfoApi.js";
 import MobileHeader from "../../components/menus/MobileHeader";
 import MobileFooter from "../../components/menus/MobileFooter";
 import Button from "../../components/commons/Button.jsx";
 import MyPageInput from "../../components/commons/MyPageInput"; // InputField 컴포넌트 임포트
-import { useAuth } from "../../hooks/useAuth.js";
 import classNames from "classnames";
-import { getUserInfo, updateUserInfo } from "../../api/workerInfoApi.js";
 import circle from "../../assets/icons/write/Circle.svg";
 import useConfirm from "../../components/commons/UseConfirm.jsx";
-import { useNavigate } from "react-router-dom";
 
 const MyPageWorker = () => {
   const { isLoggedIn, id, role } = useAuth();
@@ -50,7 +50,7 @@ const MyPageWorker = () => {
 
   // useEffect를 사용하여 memberInfo가 업데이트될 때 userInfo 상태 업데이트
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isLoggedIn || role === "WORKER") {
       getUserInfo(id).then((data) => {
         setUserInfo({
           name: data.name || "",

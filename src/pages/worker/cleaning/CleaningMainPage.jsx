@@ -1,21 +1,23 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth.js";
+import { getNameList, postAdd } from "../../../api/cleaningApi.js";
+import { NaturalDisasterList } from "../../../datas/NaturalDisasterList.js";
 import dot from "../../../assets/icons/write/Circle.svg";
 import plus from "../../../assets/icons/write/Plus.svg";
 import cancel from "../../../assets/icons/write/Cancel.svg";
-import { useNavigate } from "react-router-dom";
 import MobileHeader from "../../../components/menus/MobileHeader.jsx";
 import MobileFooter from "../../../components/menus/MobileFooter.jsx";
-import { NaturalDisasterList } from "../../../datas/NaturalDisasterList.js";
 import CheckBoxWithLabel from "../../../components/commons/CheckboxWithLabel.jsx";
+import CameraController from "../../../components/commons/CameraController.jsx";
 import Button from "../../../components/commons/Button.jsx";
 import CleaningFormSub from "../../../components/commons/CleaningFormSub.jsx";
-import { getNameList, postAdd } from "../../../api/cleaningApi.js";
-import { useAuth } from "../../../hooks/useAuth.js";
-import CameraController from "../../../components/commons/CameraController.jsx";
+import useCurrentPosition from "../../../hooks/useCurrentPosition.js";
 
 const CleaningMainPage = () => {
   const navigate = useNavigate();
   const { username, isLoggedIn, id, role, nameWithPhone } = useAuth();
+  const { fetchLocation } = useCurrentPosition();
 
   const [result, setResult] = useState(false);
   const [isMainFormComplete, setIsMainFormComplete] = useState(false);
@@ -72,6 +74,9 @@ const CleaningMainPage = () => {
     setSelected(selected === index ? null : index);
   };
 
+  const [toast, setToast] = useState(false);
+  const [toastText, setToastText] = useState("");
+
   const getNames = async () => {
     try {
       const data = await getNameList(id);
@@ -110,9 +115,18 @@ const CleaningMainPage = () => {
   const canSubmitForm = isMainFormComplete && isComplete;
 
   const handleValidTeam = (username) => {
-    if (username.trim() !== "") {
+    if (
+      username.trim() !== "" &&
+      MatchUsername.includes(username.trim()) &&
+      !teamList.includes(username.trim())
+    ) {
+      setToast(false);
+      setToastText("");
       setTeamList((prevTeam) => [...prevTeam, username]);
       setInputName("");
+    } else if (teamList.includes(username.trim())) {
+      setToastText("이미 등록된 작업자입니다");
+      setToast(true);
     }
   };
 
@@ -121,29 +135,50 @@ const CleaningMainPage = () => {
     setTeamList((prevTeam) => prevTeam.filter((team) => team !== username));
   };
 
-  const handleStartCleaning = () => {
+  const handleStartCleaning = async () => {
+    const locData = await fetchLocation();
+
+    if (locData.coords) {
+      console.log("좌표 가져오기 성공: ", locData.coords);
+      setStartCoords([locData.coords[0], locData.coords[1]]);
+    } else if (locData.error) {
+      console.log("좌표 가져오기 오류: ", locData.error);
+      return;
+    }
     setIsCleaning(true);
     setIsMainFormCollapsed(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setStartCoords([pos.coords.latitude, pos.coords.longitude]);
-      },
-      (error) => {
-        alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
-      }
-    );
+    // navigator.geolocation.getCurrentPosition(
+    //   (pos) => {
+    //     setStartCoords([pos.coords.latitude, pos.coords.longitude]);
+    //   },
+    //   (error) => {
+    //     alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
+    //   }
+    // );
   };
 
   const onMainFormSubmit = async () => {
+    const locData = await fetchLocation();
+
+    let endCoord = [];
+    if (locData.coords) {
+      console.log("좌표 가져오기 성공: ", locData.coords);
+      setEndCoords([locData.coords[0], locData.coords[1]]);
+      endCoord = locData.coords;
+    } else if (locData.error) {
+      console.log("좌표 가져오기 오류: ", locData.error);
+      return;
+    }
+
     try {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setEndCoords([pos.coords.latitude, pos.coords.longitude]);
-        },
-        (error) => {
-          alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
-        }
-      );
+      //   navigator.geolocation.getCurrentPosition(
+      //     (pos) => {
+      //       setEndCoords([pos.coords.latitude, pos.coords.longitude]);
+      //     },
+      //     (error) => {
+      //       alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
+      //     }
+      //   );
 
       // const main = {
       //   cleanerUsername: username, // 작성자
@@ -157,7 +192,7 @@ const CleaningMainPage = () => {
       //   endLongitude: endCoords[1], // 청소 끝 위치 경도
       //   specialNote: NaturalDisasterList[selected], // 재연재해 값
       // };
-      console.log("----요청 전송--------------");
+      // console.log("----요청 전송--------------");
 
       const formData = new FormData();
 
@@ -183,17 +218,18 @@ const CleaningMainPage = () => {
       formData.append("mainTrashType", subData.mainTrashType); // 주요 쓰레기 유형
       formData.append("startLatitude", startCoords[0]); // 청소 시작 위치 위도
       formData.append("startLongitude", startCoords[1]); // 청소 시작 위치 경도
-      formData.append("endLatitude", endCoords[0]); // 청소 끝 위치 위도
-      formData.append("endLongitude", endCoords[1]); // 청소 끝 위치 경도
+      formData.append("endLatitude", endCoord[0]); // 청소 끝 위치 위도
+      formData.append("endLongitude", endCoord[1]); // 청소 끝 위치 경도
       formData.append("specialNote", NaturalDisasterList[selected]); // 재연재해 값
       formData.append("weather", "맑음");
+      formData.append("members", teamList);
 
-      console.log("-------after inject main at form data---------" + formData);
+      // console.log("-------after/ inject main at form data---------" + formData);
 
       // 나중에 바꿔야함
       postAdd(formData).then((data) => {
-        setResult(data.result);
         console.log("---------result----------: ", data.result);
+        setResult(data.result);
       });
     } catch (error) {
       console.error("Error submitting form: ", error);
@@ -308,6 +344,13 @@ const CleaningMainPage = () => {
 
                 {teamList.length > 0 && (
                   <ul className="flex flex-wrap gap-2">
+                    {toast && (
+                      <div>
+                        <p className="text-red-500 font-medium text-sm">
+                          {toastText}
+                        </p>
+                      </div>
+                    )}
                     {teamList.map((team, index) => (
                       <li key={index} className="me-1 flex items-center">
                         <div className="flex items-center justify-between p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600">

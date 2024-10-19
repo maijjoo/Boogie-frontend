@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import CheckBoxWithLabel from "./CheckboxWithLabel";
 import Button from "./Button.jsx";
 import dot from "../../assets/icons/write/Circle.svg";
 import { MainTrashList } from "../../datas/MainTrashList.js";
+import useCurrentPosition from "../../hooks/useCurrentPosition.js";
 
 const FormSub = ({
   beachName,
@@ -17,6 +18,8 @@ const FormSub = ({
   deleteSub = null,
   setCollapse = null,
 }) => {
+  const { fetchLocation } = useCurrentPosition();
+
   const [selectedTrash, setSelectedTrash] = useState(null);
 
   const [trashAmount, setTrashAmount] = useState(0);
@@ -30,31 +33,43 @@ const FormSub = ({
   };
 
   const handleComplete = async () => {
-    try {
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      });
+    // try {
+    //   const position = await new Promise((resolve, reject) => {
+    //     navigator.geolocation.getCurrentPosition(resolve, reject);
+    //   });
 
-      const subData = {
-        startLatitude: startcoord[0],
-        startLongitude: startcoord[1],
-        endLatitude: position.coords.latitude,
-        endLongitude: position.coords.longitude,
-        beachNameWithIndex: `${beachName}${subindex}`,
-        mainTrashType: selectedTrash,
-      };
+    const locData = await fetchLocation();
 
-      setAmount((prevAmount) => prevAmount + Number(trashAmount));
+    let receivedCoords = [];
 
-      setSubs((prevSubs) => [
-        ...prevSubs,
-        { data: subData, isCollapsed: true, trashAmount: trashAmount },
-      ]);
-      onComplete?.();
-    } catch (error) {
-      console.error("위치 정보 획득 실패:", error);
-      alert("위치 정보를 가져오는데 실패했습니다. GPS 설정을 확인해주세요.");
+    if (locData.coords) {
+      // console.log("좌표 가져오기 성공: ", locData.coords);
+      receivedCoords = locData.coords;
+    } else if (locData.error) {
+      // console.log("좌표 가져오기 오류: ", locData.error);
+      return;
     }
+
+    const subData = {
+      startLatitude: startcoord[0],
+      startLongitude: startcoord[1],
+      endLatitude: receivedCoords[0],
+      endLongitude: receivedCoords[1],
+      beachNameWithIndex: `${beachName}${subindex}`,
+      mainTrashType: MainTrashList[selectedTrash].type,
+    };
+
+    setAmount((prevAmount) => prevAmount + Number(trashAmount));
+
+    setSubs((prevSubs) => [
+      ...prevSubs,
+      { data: subData, isCollapsed: true, trashAmount: trashAmount },
+    ]);
+    onComplete?.();
+    // } catch (error) {
+    //   console.error("위치 정보 획득 실패:", error);
+    //   alert("위치 정보를 가져오는데 실패했습니다. GPS 설정을 확인해주세요.");
+    // }
   };
 
   if (isCollapsed) {

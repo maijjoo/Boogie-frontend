@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import CheckBoxWithLabel from "./CheckboxWithLabel.jsx";
 import { MainTrashList } from "../../datas/MainTrashList.js";
 
