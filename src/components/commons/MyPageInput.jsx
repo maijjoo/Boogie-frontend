@@ -14,7 +14,11 @@ const MyPageInput = ({
   className,
 }) => {
   return (
-    <div className={`form-group ${className}`}>
+    <div
+      className={`form-group ${className} ${
+        editMode ? "" : "caret-transparent"
+      }`}
+    >
       <label className="font-bold" htmlFor={id}>
         <img src={circle} alt="dot" className="w-1 me-2 inline" />
         {label}
@@ -23,7 +27,7 @@ const MyPageInput = ({
         className={`block p-1 border-solid border border-gray-400 rounded-md w-full ${
           editMode
             ? "bg-white text-black"
-            : " text-black focus:outline-none caret-transparent focus:border-solid border border-gray-400"
+            : " text-black focus:outline-none focus:border-solid border border-gray-400"
         }`}
         type={type}
         name={name}

@@ -249,7 +249,10 @@ const MyPageWorker = () => {
 
               {/* 주소 필드 */}
               <div>
-                <div className="font-bold">주소</div>
+                <div className="font-bold">
+                  <img src={circle} alt="dot" className="w-1 me-2 inline" />
+                  주소
+                </div>
                 <div
                   className={`border border-gray-400 rounded-md p-1 ${
                     !editMode ? "bg-white" : "bg-gray-100"
@@ -261,7 +264,10 @@ const MyPageWorker = () => {
 
               {/* 소속 필드 */}
               <div>
-                <div className="font-bold">소속</div>
+                <div className="font-bold">
+                  <img src={circle} alt="dot" className="w-1 me-2 inline" />
+                  소속
+                </div>
                 <div
                   className={`border border-gray-400 rounded-md p-1 ${
                     !editMode ? "bg-white" : "bg-gray-100"
@@ -273,7 +279,10 @@ const MyPageWorker = () => {
 
               {/* 매니저 전화번호 필드 */}
               <div>
-                <div className="font-bold">관리자 연락처</div>
+                <div className="font-bold">
+                  <img src={circle} alt="dot" className="w-1 me-2 inline" />
+                  관리자 연락처
+                </div>
                 <div
                   className={`border border-gray-400 rounded-md p-1 ${
                     !editMode ? "bg-white" : "bg-gray-100"
@@ -328,13 +337,23 @@ const MyPageWorker = () => {
                     </Button>
                   </div>
                 )}
+                <div
+                  className={`inline-block w-1/2 ${editMode ? "" : "hidden"}`}
+                >
+                  {/* 취소 버튼 */}
+                  <Button
+                    className="
+                    w-full py-3 rounded-lg"
+                    color="emptyBlue"
+                    type="button"
+                    onClick={toggleEditMode} // 정보 수정 모드 토글
+                  >
+                    취소
+                  </Button>
+                </div>
 
                 {!passwordChange && (
-                  <div
-                    className={
-                      editMode ? "inline-block w-full" : "inline-block w-1/2"
-                    }
-                  >
+                  <div className="inline-block w-1/2">
                     {/* 내 정보 수정 버튼 */}
                     <Button
                       className="
