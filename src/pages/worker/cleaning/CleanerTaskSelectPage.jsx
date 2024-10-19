@@ -1,18 +1,18 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../hooks/useAuth";
 import logo from "../../../assets/images/logo_tr.png";
 import wave from "../../../assets/images/wave.jpg";
 import Button from "../../../components/commons/Button";
 import clean from "../../../assets/icons/workerMode/Housekeeping.svg";
 import pickup from "../../../assets/icons/workerMode/Trash Pile.svg";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../hooks/useAuth";
 
 const CleanerTaskSelectPage = () => {
-  const { username, isLoggedIn, role } = useAuth();
+  const { isLoggedIn, role } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoggedIn || role === "ADMIN") {
+    if (!isLoggedIn || role !== "WORKER") {
       navigate("/", { replace: true });
     }
   }, [isLoggedIn, navigate, role]);

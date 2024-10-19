@@ -10,7 +10,7 @@ export const postAdd = async (cleaningObj) => {
     },
   });
 
-  // console.log("----------", res);
+  console.log("----------", res);
 
   return res.data;
 };

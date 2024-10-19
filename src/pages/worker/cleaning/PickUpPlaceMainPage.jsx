@@ -1,32 +1,33 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import CheckBoxWithLabel from "../../../components/commons/CheckboxWithLabel";
-import Button from "../../../components/commons/Button.jsx";
-import PickUpCameraController from "../../../components/commons/PickUpCameraController.jsx";
+import { useAuth } from "../../../hooks/useAuth.js";
+import { postAdd } from "../../../api/pickUpApi.js";
+import { MainTrashList } from "../../../datas/MainTrashList.js";
+import dot from "../../../assets/icons/write/Circle.svg";
 import MobileHeader from "../../../components/menus/MobileHeader.jsx";
 import MobileFooter from "../../../components/menus/MobileFooter.jsx";
-import { MainTrashList } from "../../../datas/MainTrashList.js";
-import { postAdd } from "../../../api/pickUpApi.js";
-import "../../../App.css";
-import { useAuth } from "../../../hooks/useAuth.js";
-import dot from "../../../assets/icons/write/Circle.svg";
+import CheckBoxWithLabel from "../../../components/commons/CheckboxWithLabel";
 import CameraController from "../../../components/commons/CameraController.jsx";
+import Button from "../../../components/commons/Button.jsx";
+import "../../../App.css";
+import useCurrentPosition from "../../../hooks/useCurrentPosition.js";
 
 const PickUpPlaceMainPage = () => {
   const navigate = useNavigate();
   const { username, isLoggedIn, role } = useAuth();
+  const { fetchLocation } = useCurrentPosition();
 
   // State 관리
+  const [result, setResult] = useState(false);
+  const [photos, setPhotos] = useState([]); // 사진 리스트
   const [pickUpPlace, setPickUpPlace] = useState(""); // 집하지 위치
   const [actualCollectedVolume, setActualCollectedVolume] = useState(""); // 50L 마대 수량
   const [mainTrashType, setMainTrashType] = useState(""); // 주요 쓰레기 타입
-  const [photos, setPhotos] = useState([]); // 사진 리스트
   const [startCoords, setStartCoords] = useState(); // 좌표 정보
-  const [result, setResult] = useState(false);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true); // 등록하기 버튼 상태 관리
 
   useEffect(() => {
-    if (!isLoggedIn || role === "ADMIN") {
+    if (!isLoggedIn || role !== "WORKER") {
       navigate("/", { replace: true });
     }
     if (result === "success") {
@@ -36,17 +37,17 @@ const PickUpPlaceMainPage = () => {
   }, [isLoggedIn, result, navigate, role]);
 
   // Handle Photo Upload
-  const handlePhotoUpload = (newPhotos) => {
-    if (photos.length + newPhotos.length > 3) {
-      alert("사진은 최대 3장까지 등록할 수 있습니다.");
-      return;
-    }
-  };
+  // const handlePhotoUpload = (newPhotos) => {
+  //   if (photos.length + newPhotos.length > 3) {
+  //     alert("사진은 최대 3장까지 등록할 수 있습니다.");
+  //     return;
+  //   }
+  // };
 
   // 총 쓰레기양 계산
-  const calculateTotalWasteVolume = () => {
-    return actualCollectedVolume * 50;
-  };
+  // const calculateTotalWasteVolume = () => {
+  //   return actualCollectedVolume * 50;
+  // };
 
   // 마대 갯수 => 쓰레기 양
   const replaceCountToL = () => {
@@ -69,31 +70,34 @@ const PickUpPlaceMainPage = () => {
   };
 
   // Form Submission Handler
-  const handleFormSubmit = () => {
-    if (
-      !pickUpPlace ||
-      !mainTrashType ||
-      actualCollectedVolume === 0 ||
-      (photos.length < 1 && photos.length > 4)
-    ) {
-      alert("모든 필드를 올바르게 입력해 주세요.");
+  const handleFormSubmit = async () => {
+    const locData = await fetchLocation();
+
+    let receivedCoord = [];
+    if (locData.coords) {
+      console.log("좌표 가져오기 성공: ", locData.coords);
+      receivedCoord = locData.coords;
+    } else if (locData.error) {
+      console.log("좌표 가져오기 오류: ", locData.error);
       return;
-    } else {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setStartCoords([pos.coords.latitude, pos.coords.longitude]);
-        },
-        (error) => {
-          alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
-        }
-      );
+    }
+
+    try {
+      // navigator.geolocation.getCurrentPosition(
+      //   (pos) => {
+      //     setStartCoords([pos.coords.latitude, pos.coords.longitude]);
+      //   },
+      //   (error) => {
+      //     alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
+      //   }
+      // );
 
       const pickUpRequestDto = {
         pickUpPlace: pickUpPlace,
         realTrashAmount: actualCollectedVolume,
         mainTrashType: mainTrashType,
-        latitude: startCoords[0],
-        longitude: startCoords[1],
+        latitude: receivedCoord[0],
+        longitude: receivedCoord[1],
         submitterUsername: username,
       };
       const files = photos;
@@ -116,6 +120,8 @@ const PickUpPlaceMainPage = () => {
         console.log("-----------data.result");
         console.log(data.result);
       });
+    } catch (error) {
+      console.log("error: ", error);
     }
   };
 
@@ -242,7 +248,18 @@ const PickUpPlaceMainPage = () => {
                     : "bg-blue-700 text-white hover:bg-blue-900"
                 }`}
                 color="blue"
-                onClick={handleFormSubmit}
+                onClick={() => {
+                  if (
+                    !pickUpPlace ||
+                    !mainTrashType ||
+                    actualCollectedVolume === 0 ||
+                    (photos.length < 1 && photos.length > 4)
+                  ) {
+                    alert("모든 필드를 올바르게 입력해 주세요.");
+                    return;
+                  }
+                  handleFormSubmit();
+                }}
                 disabled={isSubmitDisabled}
               >
                 등록하기

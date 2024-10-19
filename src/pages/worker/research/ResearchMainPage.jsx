@@ -12,39 +12,17 @@ import CheckBoxWithLabel from "../../../components/commons/CheckboxWithLabel.jsx
 import CameraController from "../../../components/commons/CameraController.jsx";
 import Button from "../../../components/commons/Button.jsx";
 import FormSub from "../../../components/commons/FormSub.jsx";
-
-// dto 구조 참고용
-// 개발 완료되면 지우기
-const initState = {
-  researcherUsername: "",
-  beachName: "",
-  totalBeachLength: "",
-  expectedTrashAmount: "",
-  weather: "",
-  specialNote: "",
-  members: [""],
-  researchSubList: [
-    {
-      beachNameWithIndex: "",
-      startLatitude: "",
-      startLongitude: "",
-      endLatitude: "",
-      endLongitude: "",
-      mainTrashType: "",
-    },
-  ],
-};
+import useCurrentPosition from "../../../hooks/useCurrentPosition.js";
 
 const ResearchMainPage = () => {
   const navigate = useNavigate();
   const { username, isLoggedIn, id, role, nameWithPhone } = useAuth();
-
-  // 등록요청 성공시 리렌더링하기 위함
-  const [result, setResult] = useState(false);
+  const { fetchLocation } = useCurrentPosition();
 
   // 임시저장 모달을 띄우기 위한 state
   // const [isTempExists, setIsTempExists] = useState(false);
-
+  // 등록요청 성공시 리렌더링하기 위함
+  const [result, setResult] = useState(false);
   // 서브조사리스트
   const [subs, setSubs] = useState([]);
   // 이미지 등록을 위한 파일 배열
@@ -80,7 +58,7 @@ const ResearchMainPage = () => {
   // 토스트 메세지 텍스트
   const [toastText, setToastText] = useState("");
 
-  // 로그인 판별, 등록 성공시 수행
+  // 로그인 판별, 등록 성공시 초기화
   useEffect(() => {
     if (!isLoggedIn || role !== "WORKER") {
       navigate("/", { replace: true });
@@ -90,6 +68,7 @@ const ResearchMainPage = () => {
     }
   }, [result, isLoggedIn, navigate, role]);
 
+  // 내 관리자에 등록된 작업자 리스트 불러오기
   const getNames = async () => {
     try {
       const data = await getNameList(id);
@@ -107,7 +86,7 @@ const ResearchMainPage = () => {
 
   useEffect(() => {
     getNames();
-  }, []);
+  }, [id]);
 
   // 등록요청 성공시 초기화
   const initializeAllStates = () => {
@@ -150,6 +129,9 @@ const ResearchMainPage = () => {
     setSelected(selected === index ? null : index);
   };
 
+  // 입력한 이름이 유효한지
+  // 지금은 그냥 드랍다운에 출력만되지 김 이렇게 입력해도 들어가짐
+  // 백엔드에 members 가 유효한지 판단하는 로직 있는지 확인필요
   const handleValidTeam = (username) => {
     if (
       username.trim() !== "" &&
@@ -166,8 +148,8 @@ const ResearchMainPage = () => {
     }
   };
 
+  // 등록했던 팀원 지우기
   const handleDeleteTeam = (username) => {
-    // 팀원 지우기
     setTeamList((prevTeam) => prevTeam.filter((team) => team !== username));
   };
 
@@ -182,47 +164,47 @@ const ResearchMainPage = () => {
     formImgs.length >= 3 &&
     formImgs.length <= 30;
 
-  const handleStartResearch = () => {
+  const handleStartResearch = async () => {
+    const locData = await fetchLocation();
+
+    if (locData.coords) {
+      console.log("좌표 가져오기 성공: ", locData.coords);
+      setStartCoords([locData.coords[0], locData.coords[1]]);
+    } else if (locData.error) {
+      console.log("좌표 가져오기 오류: ", locData.error);
+      return;
+    }
     setIsResearching(true);
     setIsMainFormCollapsed(true);
     setIsSubOnWrite(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setStartCoords([pos.coords.latitude, pos.coords.longitude]);
-      },
-      (error) => {
-        alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
-      }
-    );
   };
 
-  const handleAddNewSubForm = () => {
+  const handleAddNewSubForm = async () => {
+    const locData = await fetchLocation();
+
+    if (locData.coords) {
+      console.log("좌표 가져오기 성공: ", locData.coords);
+      setStartCoords([locData.coords[0], locData.coords[1]]);
+    } else if (locData.error) {
+      console.log("좌표 가져오기 오류: ", locData.error);
+      return;
+    }
     setIsSubOnWrite(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setStartCoords([pos.coords.latitude, pos.coords.longitude]);
-      },
-      (error) => {
-        alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
-      }
-    );
   };
 
   const onMainFormSubmit = async () => {
+    const subsData = subs.map((sub) => sub.data);
     try {
       const main = {
-        researcherUsername: username, // 작성자
-        beachName: beachName, //beachName
-        totalBeachLength: "", //각 sub의 위경도로 길이 구한 총합 빈값으로 보내도됨
-        expectedTrashAmount: trashAmount, // 각 sub의 trashAmount 총합
+        researcherUsername: username,
+        beachName: beachName,
+        totalBeachLength: "",
+        expectedTrashAmount: trashAmount,
         weather: "", // api 로 따와서 넘김
         specialNote: NaturalDisasterList[selected], // 재연재해 값
-        researchSubList: subs.data, //서브조사 리스트
+        researchSubList: subsData, //서브조사 리스트
         members: teamList,
       };
-
-      console.log("----요청 전송--------------");
-
       const formData = new FormData();
 
       // 이미지 ref 로 연결하기
@@ -233,13 +215,11 @@ const ResearchMainPage = () => {
           formData.append("files", files[i]);
         }
       }
-      console.log("---------formData", formData.get("files"));
       formData.append("json", JSON.stringify(main));
 
       postAdd(formData).then((data) => {
-        setResult(data.result);
-        console.log("-----------data.result");
         console.log(data.result);
+        setResult(data.result);
       });
     } catch (error) {
       console.error("Error submitting form: ", error);
@@ -486,17 +466,11 @@ const ResearchMainPage = () => {
         </div>
       </div>
 
-      {/* {toast && (
-        <div className="fixed bottom-32 z-50">
-          <Toast setToast={setToast} text={toastText} />
-        </div>
-      )} */}
-
       <div className="w-full xl:w-1/3 mt-3 flex flex-col justify-center">
         <div className="border-t-2 fixed bottom-0 z-40 bg-white w-full flex flex-col justify-center gap-2">
           <div className="flex mt-2 px-2 gap-2">
             <div className="w-1/2 inline-block">
-              <Button className="w-full py-3 rounded-lg" color="blue">
+              <Button className="w-full py-3 rounded-lg" color="blue" disabled>
                 임시저장
               </Button>
             </div>
