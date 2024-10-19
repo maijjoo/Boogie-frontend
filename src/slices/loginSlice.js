@@ -34,11 +34,13 @@ export const loginPostAsync = createAsyncThunk(
   async (param, { rejectWithValue }) => {
     try {
       const response = await loginPost(param);
-      // console.log(response);
-
+      console.log(response);
+      if (response.error) {
+        return rejectWithValue(response.error);
+      }
       return response;
     } catch (err) {
-      return rejectWithValue(err.response.data);
+      return rejectWithValue(err.response?.data || "Login failed");
     }
   }
 );
