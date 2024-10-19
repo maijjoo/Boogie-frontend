@@ -212,7 +212,10 @@ const MyPageAdmin = () => {
           <form onSubmit={handleSubmit}>
             {/* 사용자 이름 필드 */}
             {!passwordChange && (
-              <div className="px-44 pt-20 mb-[16px] gap-4 flex flex-col">
+              <div
+                className="px-10 2xl:px-44 xl:px-20 pt-20 mb-[16px] gap-4 flex flex-col transition-all duration-500
+              sm:text-sm text-[10px]"
+              >
                 <div>
                   <div className="font-bold">
                     <img src={circle} alt="dot" className="w-1 me-2 inline" />
@@ -279,11 +282,11 @@ const MyPageAdmin = () => {
 
             {/* 비밀번호 변경 탭 */}
             {passwordChange && (
-              <div className="px-44 pt-20 mb-[16px] gap-4 flex flex-col ">
+              <div className="px-10 2xl:px-44 xl:px-20 pt-20 mb-[16px] gap-4 flex flex-col transition-all duration-500 sm:text-sm text-[10px]">
                 <form className="flex flex-col" onSubmit={handlePasswordSubmit}>
                   {/* 현재 비밀번호 */}
                   <MyPageInput
-                    className="mb-4"
+                    className="mb-4 caret-black"
                     label="현재 비밀번호"
                     id="currentPassword"
                     name="currentPassword"
@@ -296,7 +299,9 @@ const MyPageAdmin = () => {
 
                   {/* 새로운 비밀번호*/}
                   <MyPageInput
-                    className={`mb-4${newPasswordError ? "mb-4" : ""}`}
+                    className={`mb-4 caret-black ${
+                      newPasswordError ? "mb-4" : ""
+                    }`}
                     label="새로운 비밀번호"
                     id="newPassword"
                     name="newPassword"
@@ -315,7 +320,9 @@ const MyPageAdmin = () => {
 
                   {/* 비밀번호 확인*/}
                   <MyPageInput
-                    className={!confirmPasswordError ? "mb-[131.2px]" : ""}
+                    className={`caret-black ${
+                      !confirmPasswordError ? "mb-[131.2px]" : ""
+                    }`}
                     label="비밀번호 확인"
                     id="newPasswordConfirm"
                     name="newPasswordConfirm"
@@ -343,7 +350,10 @@ const MyPageAdmin = () => {
 
             <div className="w-full mt-12 flex flex-col justify-center">
               <div className="w-full bg-white flex flex-col justify-center gap-2">
-                <div className="w-full flex mb-20 px-44 gap-2">
+                <div
+                  className="w-full flex flex-col sm:flex sm:flex-row-reverse sm:justify-center mb-20 px-10 2xl:px-44 xl:px-20 gap-2 transition-all duration-500
+                sm:text-sm text-[10px]"
+                >
                   {!editMode && (
                     <div
                       className={
@@ -370,6 +380,42 @@ const MyPageAdmin = () => {
                         }
                       >
                         {pbuttonText} {/* 버튼 텍스트 변경 */}
+                      </Button>
+                    </div>
+                  )}
+
+                  {!passwordChange ? (
+                    <div
+                      className={`inline-block w-full ${
+                        editMode ? "" : "hidden"
+                      }`}
+                    >
+                      {/* 취소 버튼 */}
+                      <Button
+                        className="
+                    w-full py-3 rounded-lg"
+                        color="emptyBlue"
+                        type="button"
+                        onClick={toggleEditMode} // 정보 수정 모드 토글
+                      >
+                        취소
+                      </Button>
+                    </div>
+                  ) : (
+                    <div
+                      className={`inline-block w-full ${
+                        passwordChange ? "" : "hidden"
+                      }`}
+                    >
+                      {/* 취소 버튼 */}
+                      <Button
+                        className="
+                    w-full py-3 rounded-lg"
+                        color="emptyBlue"
+                        type="button"
+                        onClick={passwordToggleEditMode} // 비밀번호 변경 모드 토글
+                      >
+                        취소
                       </Button>
                     </div>
                   )}
