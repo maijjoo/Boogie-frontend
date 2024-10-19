@@ -20,6 +20,7 @@ const Login = () => {
   const navigate = useNavigate();
   // 오류메세지 출력용
   const [loginSuccess, setLoginSuccess] = useState(undefined);
+  const [loginFailMessage, setLoginFailMessage] = useState("");
 
   const { isLoggedIn, role } = useAuth();
   const dispatch = useDispatch();
@@ -67,14 +68,23 @@ const Login = () => {
           removeCookie("saveId");
         }
       } catch (error) {
-        alert("id 혹은 비밀번호를 다시 확인해주세요.");
+        if (error && error.message) {
+          setLoginFailMessage(
+            error.message || "id 혹은 비밀번호를 다시 확인해주세요"
+          );
+        }
+        setLoginFailMessage("id 혹은 비밀번호를 다시 확인해주세요");
+        setLoginSuccess(false);
         console.log("Login Error: ", error);
       }
     } else {
+      if (!inputId.trim() && !inputPassword.trim())
+        setLoginFailMessage("id 와 비밀번호를 입력해주세요");
+      else if (!inputId.trim()) setLoginFailMessage("id를 입력해주세요");
+      else if (!inputPassword.trim())
+        setLoginFailMessage("비밀번호를 입력해주세요");
+
       setLoginSuccess(false);
-      id.current.value = "";
-      password.current.value = "";
-      alert("id 혹은 비밀번호를 입력해주세요.");
     }
   };
 
@@ -123,8 +133,8 @@ const Login = () => {
         </div>
 
         {loginSuccess !== undefined && !loginSuccess && (
-          <div className="text-red-500 text-sm mt-2">
-            <p>아이디 또는 비밀번호가 일치하지 않습니다.</p>
+          <div className="text-red-500 text-sm mt-2 font-semibold">
+            <p className="text-start">{loginFailMessage}</p>
           </div>
         )}
 
