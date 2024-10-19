@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 import logo from "../../assets/images/logo_tr.png";
 import wave from "../../assets/images/wave.jpg";
 import logout2 from "../../assets/icons/write/logout.png";
@@ -8,8 +9,6 @@ import clean from "../../assets/icons/workerMode/Housekeeping.svg";
 import collect from "../../assets/icons/workerMode/GarbageTruck.svg";
 import collectInactive from "../../assets/icons/workerMode/GarbageTruckInactive.svg";
 import Button from "../../components/commons/Button";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
 
 const WorkerMainPage = () => {
   const navigate = useNavigate();
