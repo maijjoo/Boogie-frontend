@@ -21,6 +21,7 @@ import Pagination from "../../components/commons/Pagination";
 import WebModal from "../../components/modal/WebModal";
 import WorkerDetailModalComponent from "../../components/admin/modal/WorkerDetailModalComponent";
 import CreateWorkerModalComponent from "../../components/admin/modal/CreateWorkerModalComponent";
+import ConfirmModalComponent from "../../components/Worker/Modal/ConfirmModalComponent";
 
 const MemberListPage = () => {
   const { isLoggedIn, role, id } = useAuth(); // 로그인 유저 정보 확인
@@ -268,6 +269,7 @@ const MemberListPage = () => {
             개별 등록
           </Button>
           <Button
+            onClick={openConfirmModalComponent} // 삭제 클릭 시 삭제 모달 열기
             color="emptyBlue"
             size="medium"
             className="ml-2 flex items-center justify-center"
