@@ -40,6 +40,11 @@ export const CleanReport = lazy(() => import("./admin/CleanReportPage.jsx"));
 export const CollectReport = lazy(() =>
   import("./admin/CollectReportPage.jsx")
 );
-export const MemberList = lazy(() => import("./admin/MemberListPage.jsx"));
+export const WorkerManagement = lazy(() =>
+  import("./admin/WorkerManagementPage.jsx")
+);
+export const MemberManagement = lazy(() =>
+  import("./admin/MemberManagementPage.jsx")
+);
 
 export const AiAnalysis = lazy(() => import("./admin/AiAnalysisPage.jsx"));

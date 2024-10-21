@@ -3,6 +3,7 @@ import jwtAxios from "../util/jwtUtil";
 
 const prefix = `${API_SERVER_HOST}/api/admin`;
 
+// 회원 목록 출력
 export const getMemberList = async (searchParam, adminId) => {
   console.log(
     "---member-inquiry get api called with: {tabCondition: ",
