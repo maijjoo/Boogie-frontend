@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth.js";
+import { useWeather } from "../../../hooks/useWeather.js";
 import { postAdd, getNameList } from "../../../api/researchApi.js";
 import { NaturalDisasterList } from "../../../datas/NaturalDisasterList.js";
 import dot from "../../../assets/icons/write/Circle.svg";
@@ -18,6 +19,7 @@ const ResearchMainPage = () => {
   const navigate = useNavigate();
   const { username, isLoggedIn, id, role, nameWithPhone } = useAuth();
   const { fetchLocation } = useCurrentPosition();
+  const { getAreaByBeachName } = useWeather();
 
   // 임시저장 모달을 띄우기 위한 state
   // const [isTempExists, setIsTempExists] = useState(false);
@@ -174,6 +176,9 @@ const ResearchMainPage = () => {
       console.log("좌표 가져오기 오류: ", locData.error);
       return;
     }
+
+    console.log(getAreaByBeachName(beachName));
+
     setIsResearching(true);
     setIsMainFormCollapsed(true);
     setIsSubOnWrite(true);
