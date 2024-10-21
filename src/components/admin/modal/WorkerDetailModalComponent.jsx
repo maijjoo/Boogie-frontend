@@ -22,13 +22,8 @@ const WorkerDetailModalComponent = ({ isOpen, onClose, selectedMember }) => {
   };
   const handleConfirm = async () => {
     try {
-      // API에 보낼 데이터를 console로 출력
-      console.log("업무시작일 :", startDate, "업무종료일 :", endDate);
-
       // updateWorkPeriodApi 함수 호출 시 startDate와 endDate를 그대로 전달
       await updateWorkPeriodApi(selectedMember.id, startDate, endDate);
-
-      console.log("업무기간 수정 완료:", startDate, endDate);
 
       // 수정 완료 후 상태를 다시 읽기 전용으로 변경
       setIsEditable(false);
@@ -54,7 +49,7 @@ const WorkerDetailModalComponent = ({ isOpen, onClose, selectedMember }) => {
           <input
             type="text"
             className={`w-56 text-right focus:outline-none focus:ring-0 ${
-              isEditable ? "text-gray-500" : "text-gray-700"
+              isEditable ? "text-gray-500" : "text-gray-800"
             }`}
             value={selectedMember.name}
             readOnly
@@ -65,7 +60,7 @@ const WorkerDetailModalComponent = ({ isOpen, onClose, selectedMember }) => {
           <input
             type="text"
             className={`w-56 text-right focus:outline-none focus:ring-0 ${
-              isEditable ? "text-gray-500" : "text-gray-700"
+              isEditable ? "text-gray-500" : "text-gray-800"
             }`}
             value={selectedMember.username}
             readOnly
@@ -76,7 +71,7 @@ const WorkerDetailModalComponent = ({ isOpen, onClose, selectedMember }) => {
           <input
             type="text"
             className={`w-56 text-right focus:outline-none focus:ring-0 ${
-              isEditable ? "text-gray-500" : "text-gray-700"
+              isEditable ? "text-gray-500" : "text-gray-800"
             }`}
             value={selectedMember.phone}
             readOnly
@@ -87,7 +82,7 @@ const WorkerDetailModalComponent = ({ isOpen, onClose, selectedMember }) => {
           <input
             type="text"
             className={`w-56 text-right focus:outline-none focus:ring-0 ${
-              isEditable ? "text-gray-500" : "text-gray-700"
+              isEditable ? "text-gray-500" : "text-gray-800"
             }`}
             value={selectedMember.birth}
             readOnly
@@ -98,7 +93,7 @@ const WorkerDetailModalComponent = ({ isOpen, onClose, selectedMember }) => {
           <input
             type="email"
             className={`w-56 text-right focus:outline-none focus:ring-0 ${
-              isEditable ? "text-gray-500" : "text-gray-700"
+              isEditable ? "text-gray-500" : "text-gray-800"
             }`}
             value={selectedMember.email}
             readOnly
@@ -109,7 +104,7 @@ const WorkerDetailModalComponent = ({ isOpen, onClose, selectedMember }) => {
           <input
             type="text"
             className={`w-56 text-right focus:outline-none focus:ring-0 ${
-              isEditable ? "text-gray-500" : "text-gray-700"
+              isEditable ? "text-gray-500" : "text-gray-800"
             }`}
             value={selectedMember.vehicleCapacity}
             readOnly
@@ -121,7 +116,7 @@ const WorkerDetailModalComponent = ({ isOpen, onClose, selectedMember }) => {
             <input
               type="text"
               className={`w-full text-left focus:outline-none focus:ring-0 ${
-                isEditable ? "text-gray-500" : "text-gray-700"
+                isEditable ? "text-gray-500" : "text-gray-800"
               }`}
               value={selectedMember.address}
               readOnly
@@ -130,7 +125,7 @@ const WorkerDetailModalComponent = ({ isOpen, onClose, selectedMember }) => {
           <input
             type="text"
             className={`w-full text-left focus:outline-none focus:ring-0 ${
-              isEditable ? "text-gray-500" : "text-gray-700"
+              isEditable ? "text-gray-500" : "text-gray-800"
             }`}
             value={selectedMember.addressDetail}
             readOnly
@@ -141,7 +136,7 @@ const WorkerDetailModalComponent = ({ isOpen, onClose, selectedMember }) => {
           <input
             type="text"
             className={`w-56 text-right focus:outline-none focus:ring-0 ${
-              isEditable ? "text-gray-500" : "text-gray-700"
+              isEditable ? "text-gray-500" : "text-gray-800"
             }`}
             value={`${workPlace} ${department}과`}
             readOnly
@@ -159,7 +154,9 @@ const WorkerDetailModalComponent = ({ isOpen, onClose, selectedMember }) => {
             }}
             isEditable={isEditable} // 수정 가능 여부 전달
             className={`${
-              isEditable ? "border-b border-b-gray-300" : "border-none"
+              isEditable
+                ? "border-b border-b-gray-300 text-black"
+                : "border-none text-gray-800"
             }`}
             ref={dateRangePickerRef}
           />

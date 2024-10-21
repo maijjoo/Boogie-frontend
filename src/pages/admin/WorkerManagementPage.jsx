@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import SidebarLayout from "../../layouts/SidebarLayout";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,7 @@ import Button from "../../components/searchCondition/admin/WebButton";
 import NoticeIcon from "../../assets/images/notice.png";
 import { getMemberList } from "../../api/memberListApi";
 import { getWorkerDetail, getAdminDetail } from "../../api/memberDetailApi";
-import { insertWorker, insertAdmin } from "../../api/createWorkerApi";
+import { deleteMemberApi } from "../../api/deleteMemberApi";
 import excelHoeverIcon from "../../assets/icons/write/ExcelIcon.png";
 import excelIcon from "../../assets/icons/adminMode/excelBlue.png";
 import addHoverIcon from "../../assets/icons/adminMode/add.png";
@@ -20,11 +20,12 @@ import ListCountAndSort from "../../components/commons/ListCountAndSort";
 import TableComponent from "../../components/table/TableComponent";
 import Pagination from "../../components/commons/Pagination";
 import WebModal from "../../components/modal/WebModal";
-import MemberDetailModal from "../../components/modal/WebDetailModal1";
-import InsertWorkerModal from "../../components/modal/WebDetailModal1";
+import WorkerDetailModalComponent from "../../components/admin/modal/WorkerDetailModalComponent";
+import CreateWorkerModalComponent from "../../components/admin/modal/CreateWorkerModalComponent";
+import { CreateWokerBulkModalComponent } from "../../components/admin/modal/CreateBulkModalComponent";
 
-const MemberListPage = () => {
-  const { isLoggedIn, role, id, workPlace, department } = useAuth(); // 로그인 유저 정보 확인
+const WorkerManagementPage = () => {
+  const { isLoggedIn, role, id } = useAuth(); // 로그인 유저 정보 확인
   const navigate = useNavigate();
   const [condition, setCondition] = useState("allWorkersTab"); // 검색 조건 탭 [전체], [조사/청소자], [수거자]
   const [rows, setRows] = useState([]); // 회원 목록
@@ -33,23 +34,33 @@ const MemberListPage = () => {
   const [totalCount, setTotalCount] = useState(0); // 목록의 총 회원 수
   const itemsPerPage = 20; // 페이지 당 항목 수
 
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // 회원 정보 모달 상태
-  const [isInsertModalOpen, setIsInsertModalOpen] = useState(false); // 회원 등록 모달 상태
-
-  // const [workerUpdate, setworkerUpdate] = useState(false); // 회원 정보 수정
-
-  const [checkedRows, setCheckedRows] = useState([]); // 체크된 row 상태 관리
-  // 체크된 상태를 업데이트하는 핸들러
-  const handleCheckChange = (checkedRows) => {
-    setCheckedRows(checkedRows); // 체크된 상태를 업데이트
+  // 회원 개별 등록 =================================================================================
+  const [isCreateWorkerModalComponent, setIsCreateWorkerModalComponent] =
+    useState(false); // 회원 개별 등록 모달 상태
+  const openCreateWorkerModalComponent = () => {
+    setIsCreateWorkerModalComponent(true); // 모달 열기 상태로 변경
   };
-  const [selectedMember, setSelectedMember] = useState(null); // 선택된 회원 정보 상태 관리
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // 회원 삭제 모달 상태
-  const openDeleteModal = () => setIsDeleteModalOpen(true); // 회원 삭제 모달 열기
-  const closeDeleteModal = () => setIsDeleteModalOpen(false); // 회원 삭제 모달 닫기
+  const closeCreateWorkerModalComponent = () => {
+    setIsCreateWorkerModalComponent(false); // 모달 닫기 상태로 변경
+  };
 
+  // 회원 일괄 등록 =================================================================================
+  const [isCreateWokerBulkModalComponent, setIsCreateWokerBulkModalComponent] =
+    useState(false); // 회원 일괄 등록 모달 상태
+  const openCreateWokerBulkModalComponent = () => {
+    setIsCreateWokerBulkModalComponent(true); // 모달 열기 상태로 변경
+  };
+  const closeCreateWokerBulkModalComponent = () => {
+    setIsCreateWokerBulkModalComponent(false); // 모달 닫기 상태로 변경
+  };
+  const handleCreateWorkerBulk = () => {
+    setIsCreateWokerBulkModalComponent(false);
+  };
+  // 회원 상세정보 =================================================================================
+  const [isWorkerDetailModalComponent, setIsWorkerDetailModalComponent] =
+    useState(false); // 회원 상세정보 모달 상태
   // 회원 상세 모달 열기 함수
-  const openDetailModal = async (member) => {
+  const openWorkerDetailModalComponent = async (member) => {
     try {
       // member에서 workerId를 가져와 API 호출
       const workerId = member.id; // 여기서 member의 id를 workerId로 사용
@@ -58,35 +69,56 @@ const MemberListPage = () => {
       // API에서 가져온 회원 상세 정보를 selectedMember에 설정
       setSelectedMember(response); // response는 getWorkerDetail에서 받은 데이터
 
-      setIsDetailModalOpen(true); // 상세 모달 열기
+      setIsWorkerDetailModalComponent(true); // 상세 모달 열기
     } catch (error) {
       console.error("회원 상세 정보를 가져오는 중 오류 발생:", error);
     }
   };
 
-  // const closeDetailModal = () => {
-  //   setIsDetailModalOpen(false);
-  //   setSelectedMember(null); // 모달 닫을 때 선택된 회원 초기화
-  // };
-
-  // 개별등록 버튼 클릭 시 insertWorkerModal을 여는 함수
-  const openInsertModal = () => {
-    setIsInsertModalOpen(true); // 모달 열기 상태로 변경
+  const closeWorkerDetailModalComponent = () => {
+    setIsWorkerDetailModalComponent(false); // 모달 닫기 상태로 변경
+    setSelectedMember(null); // 모달 닫을 때 선택된 회원 초기화
   };
-  // // 등록 모달 닫기 함수
-  // const closeInsertModal = () => {
-  //   setIsInsertModalOpen(false); // 모달 닫기 상태로 변경
-  // };
 
-  // const handleDelete = async () => {
-  //   setIsDeleteModalOpen(false);
-  //   fetchMemberList(); // 삭제 후 회원 목록 다시 불러오는 함수를 호출하여 화면 갱신
-  // };
+  // const [workerUpdate, setworkerUpdate] = useState(false); // 회원 정보 수정
+
+  const [checkedRows, setCheckedRows] = useState([]); // 체크된 row 상태 관리
+  // 체크된 상태를 업데이트하는 핸들러
+  const handleCheckChange = (checkedRows) => {
+    console.log("체크된 회원 ID 목록:", checkedRows); // 여기에 선택된 회원 ID를 출력
+    setCheckedRows(checkedRows); // 체크된 상태를 업데이트
+  };
+  const [selectedMember, setSelectedMember] = useState(null); // 선택된 회원 정보 상태 관리
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // 회원 삭제 모달 상태
+  const openDeleteModal = () => setIsDeleteModalOpen(true); // 회원 삭제 모달 열기
+  const closeDeleteModal = () => setIsDeleteModalOpen(false); // 회원 삭제 모달 닫기
+
+  // 삭제 함수: 체크된 회원 ID를 삭제
+  const handleDelete = async () => {
+    const idsToDelete = checkedRows
+      .filter((checked) => checked) // 체크된 행 필터링
+      .map((row) => row.id); // 회원 ID 추출
+    // 삭제할 ID 확인
+    console.log("삭제할 회원 ID 목록:", idsToDelete);
+    console.log(
+      "삭제할 회원 ID 목록:",
+      checkedRows
+        .filter((checked) => checked) // 체크된 행 필터링
+        .map((row) => row.id)
+    );
+    try {
+      await deleteMemberApi(idsToDelete); // API 호출
+      setIsDeleteModalOpen(false);
+      fetchMemberList(); // 삭제 후 목록 새로고침
+    } catch (error) {
+      console.error("회원 삭제 중 오류 발생:", error);
+    }
+  };
 
   // 조회 파라미터
   const [searchParam, setSearchParam] = useState({
     tabCondition: "전체", // 기본 탭 지정 [전체]
-    searchName: "", // 검색어 회원명 초기값은 빈 문자열
+    nameSearch: "", // 검색어 회원명 초기값은 빈 문자열
     page: currentPage,
   });
   const [searchedData, setSearchedData] = useState([]); // 조회 결과 데이터
@@ -98,151 +130,6 @@ const MemberListPage = () => {
       name: inputValue, // 검색어를 name으로 설정
     }));
   };
-
-  // 회원 상세 모달
-  const detailFields = selectedMember
-    ? [
-        {
-          label: "이름",
-          value: selectedMember.name,
-          type: "text",
-          readOnly: true,
-          layout: "horizontal",
-          textAlign: "right",
-        },
-        {
-          label: "아이디",
-          value: selectedMember.username,
-          type: "text",
-          readOnly: true,
-          layout: "horizontal",
-          textAlign: "right",
-        },
-        {
-          label: "연락처",
-          value: selectedMember.phone,
-          type: "text",
-          readOnly: true,
-          layout: "horizontal",
-          textAlign: "right",
-        },
-        {
-          label: "생년월일",
-          value: selectedMember.birth,
-          type: "text",
-          readOnly: true,
-          layout: "horizontal",
-          textAlign: "right",
-        },
-        {
-          label: "이메일",
-          value: selectedMember.email,
-          type: "text",
-          readOnly: true,
-          layout: "horizontal",
-          textAlign: "right",
-        },
-        {
-          label: "차량 적재량(t)",
-          value: selectedMember.vehicleCapacity,
-          type: "text",
-          readOnly: true,
-          layout: "horizontal",
-          textAlign: "right",
-        },
-        {
-          label: "주소",
-          value: `${selectedMember.address}\n${selectedMember.addressDetail}`,
-          type: "text",
-          readOnly: true,
-          layout: "vertical",
-          textAlign: "left",
-        },
-        {
-          label: "소속",
-          value: selectedMember.workGroup,
-          type: "text",
-          readOnly: true,
-          layout: "horizontal",
-          textAlign: "right",
-        },
-        {
-          label: "업무 기간",
-          value: `${selectedMember.startDate} ~ ${selectedMember.endDate}`,
-          type: "date",
-          readOnly: true,
-          layout: "horizontal",
-          textAlign: "right",
-        },
-      ]
-    : [];
-  // 회원 등록 모달
-  const insertFields = [
-    {
-      label: "이름",
-      value: "",
-      type: "text",
-      readOnly: false,
-      layout: "horizontal",
-      textAlign: "right",
-    },
-    {
-      label: "연락처",
-      value: "",
-      type: "text",
-      readOnly: false,
-      layout: "horizontal",
-      textAlign: "right",
-    },
-    {
-      label: "생년월일",
-      value: "",
-      type: "text",
-      readOnly: false,
-      layout: "horizontal",
-      textAlign: "right",
-    },
-    {
-      label: "이메일",
-      value: "",
-      type: "text",
-      readOnly: false,
-      layout: "horizontal",
-      textAlign: "right",
-    },
-    {
-      label: "차량 적재량(t)",
-      value: "",
-      type: "text",
-      readOnly: false,
-      layout: "horizontal",
-      textAlign: "right",
-    },
-    {
-      label: "주소",
-      value: "",
-      type: "text",
-      readOnly: false,
-      layout: "vertical",
-      textAlign: "left",
-    },
-    {
-      label: "소속",
-      value: [workPlace, department].join(" "),
-      type: "text",
-      readOnly: true,
-      layout: "horizontal",
-      textAlign: "right",
-    },
-    {
-      label: "업무 기간",
-      value: "",
-      type: "date",
-      readOnly: false,
-      layout: "horizontal",
-      textAlign: "right",
-    },
-  ];
 
   // 회원 목록 테이블 컴포넌트 td값 지정
   const headers = [
@@ -270,22 +157,14 @@ const MemberListPage = () => {
       width: "150px",
       isCheckbox: false,
       field: "createdDate",
-      formatter: (row) => row.createdDate.split("T")[0],
+      formatter: (row) => row.createdDate && row.createdDate.split("T")[0],
     },
   ];
-  const handleConfirm = () => {
-    console.log("회원 등록 처리");
-    setIsInsertModalOpen(false); // 등록 완료 후 모달 닫기
-  };
-
-  const handleCancel = () => {
-    console.log("취소 클릭됨");
-    setIsDetailModalOpen(false);
-  };
 
   // 검색어 상태 및 핸들러
   const [searchValue, setSearchValue] = useState("");
   const handlePageChange = (page) => {
+    console.log("handlePageChange");
     setCurrentPage(page);
     setSearchParam((prev) => ({
       ...prev,
@@ -293,10 +172,16 @@ const MemberListPage = () => {
     }));
   };
 
+  // 입력 값이 바뀔 때 호출되는 함수
   const handleInputChange = (e) => {
-    const value = e.target.value;
-    setSearchValue(value);
-    handleSearchInputChange(value);
+    console.log("handleInputChange");
+
+    const value = e.target.value; // 입력된 값
+    setSearchValue(value); // 검색창 상태 업데이트
+    setSearchParam((prev) => ({
+      ...prev,
+      nameSearch: value, // nameSearch 값 업데이트
+    }));
   };
 
   const handleSearch = () => {
@@ -391,10 +276,11 @@ const MemberListPage = () => {
             <div className="flex items-center space-x-4 rounded-full p-2 w-full justify-end h-12">
               <Searchbar
                 placeholder="회원명을 입력하세요"
-                searchValue={searchValue}
-                onSearchInputChange={handleInputChange}
-                onSearch={handleSearch}
+                searchValue={searchValue} // 현재 검색어 값을 전달
+                onSearchInputChange={handleInputChange} // 입력이 바뀔 때 호출
+                onSearch={handleSearch} // 검색 버튼 클릭 시 호출
               />
+
               <SearchButton onSearch={handleSearch} />
             </div>
           </div>
@@ -403,7 +289,7 @@ const MemberListPage = () => {
         {/* 등록 및 삭제 버튼 */}
         <div className="flex justify-end items-center mb-8">
           <Button
-            onClick={openInsertModal} // 삭제 클릭 시 삭제 모달 열기
+            onClick={openCreateWorkerModalComponent} // 회원 개별 등록 모달 열기
             color="emptyBlue"
             size="medium"
             className="flex items-center justify-center"
@@ -422,6 +308,7 @@ const MemberListPage = () => {
             개별 등록
           </Button>
           <Button
+            onClick={openCreateWokerBulkModalComponent} // 회원 일괄 등록 모달 열기
             color="emptyBlue"
             size="medium"
             className="ml-2 flex items-center justify-center"
@@ -440,7 +327,11 @@ const MemberListPage = () => {
             일괄 등록
           </Button>
           <Button
-            onClick={openDeleteModal} // 삭제 클릭 시 삭제 모달 열기
+            onClick={
+              checkedRows.filter((checked) => checked).length === 0
+                ? null
+                : openDeleteModal
+            } // 0개일 때 클릭 이벤트 없음
             color="emptyBlue"
             size="medium"
             className="ml-2 flex items-center justify-center"
@@ -471,7 +362,7 @@ const MemberListPage = () => {
               currentPage={currentPage}
               itemsPerPage={itemsPerPage}
               onCheckChange={handleCheckChange} // checked개수
-              onRowClick={openDetailModal} // row 클릭 시 상세 모달 열기
+              onRowClick={openWorkerDetailModalComponent} // row 클릭 시 상세 모달 열기
             />
             <div className="flex justify-center mt-4">
               <Pagination
@@ -489,7 +380,7 @@ const MemberListPage = () => {
               className="w-8 h-8 object-cover mb-2"
             />
             <p className="text-[#014EB6] font-semibold text-lg">
-              {searchParam.searchName
+              {searchParam.nameSearch
                 ? "검색 결과가 없습니다"
                 : "해당 데이터가 없습니다"}
             </p>
@@ -498,29 +389,29 @@ const MemberListPage = () => {
       </div>
 
       {/* 회원 상세 모달 */}
-      {isDetailModalOpen && selectedMember && (
-        <MemberDetailModal
-          title="회원 정보"
-          fields={detailFields}
-          confirmText="수정하기"
-          cancelText="회원 삭제"
-          onConfirm={handleConfirm}
-          onCancel={handleCancel}
+      {isWorkerDetailModalComponent && selectedMember && (
+        <WorkerDetailModalComponent
+          isOpen={isWorkerDetailModalComponent}
+          onClose={closeWorkerDetailModalComponent}
+          selectedMember={selectedMember} // 선택된 회원 정보 전달
         />
       )}
 
-      {/* 회원 등록 모달 */}
-      {isInsertModalOpen && (
-        <InsertWorkerModal
-          title="회원 등록"
-          fields={insertFields}
-          confirmText="등록하기"
-          cancelText="취소"
-          onConfirm={handleConfirm}
-          onCancel={handleCancel}
+      {/* 회원 개별 등록 모달 */}
+      {isCreateWorkerModalComponent && (
+        <CreateWorkerModalComponent
+          isOpen={isCreateWorkerModalComponent}
+          onClose={closeCreateWorkerModalComponent}
         />
       )}
-
+      {/* 회원 일괄 등록 모달 */}
+      {isCreateWokerBulkModalComponent && (
+        <CreateWokerBulkModalComponent
+          onConfirm={handleCreateWorkerBulk}
+          onCancel={closeCreateWokerBulkModalComponent}
+          isOpen={isCreateWokerBulkModalComponent}
+        />
+      )}
       {/* 회원삭제 모달 */}
       {isDeleteModalOpen && (
         <WebModal
@@ -537,4 +428,4 @@ const MemberListPage = () => {
   );
 };
 
-export default MemberListPage;
+export default WorkerManagementPage;

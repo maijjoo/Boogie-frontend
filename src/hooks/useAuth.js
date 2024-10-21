@@ -14,6 +14,8 @@ export const useAuth = () => {
 
   const username = memberInfo?.username || "";
 
+  const workCity = memberInfo?.workCity || "";
+
   const workPlace = memberInfo?.workPlace || "";
 
   const department = memberInfo?.department || "";
@@ -39,6 +41,7 @@ export const useAuth = () => {
     username,
     isDriver,
     logout: handleLogout,
+    workCity,
     workPlace,
     department,
     name,
