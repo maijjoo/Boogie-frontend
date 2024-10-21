@@ -1,8 +1,11 @@
 import { API_SERVER_HOST } from "./commonApi";
 import jwtAxios from "../util/jwtUtil";
-import { useAuth } from "../hooks/useAuth";
 
+const prefix = `${API_SERVER_HOST}/api/admin`;
+
+// createWorkerApi 함수
 export const createWorkerApi = async (
+  adminId, // 로그인한 관리자의 ID
   name,
   phone,
   birth,
@@ -13,23 +16,34 @@ export const createWorkerApi = async (
   startDate,
   endDate
 ) => {
-  const { isLoggedIn, role, id } = useAuth(); // 로그인한 관리자의 부서 정보
-  const prefix = `${API_SERVER_HOST}/api/admin`;
   try {
-    const res = await jwtAxios.post(`${prefix}/create/worker/${id}`, {
-      name,
-      phone,
-      birth,
-      email,
-      vehicleCapacity,
-      address,
-      addressDetail,
-      startDate,
-      endDate,
-    });
-    return res.data; // 필요한 데이터만 반환 (res.data로 수정)
+    // 로컬 스토리지 또는 다른 경로에서 JWT 토큰 가져오기
+    const token = localStorage.getItem("accessToken");
+
+    // 서버로 POST 요청 보내기
+    const res = await jwtAxios.post(
+      `${prefix}/create/worker/${adminId}`,
+      {
+        name: name,
+        phone: phone,
+        birth: birth,
+        email: email,
+        vehicleCapacity: vehicleCapacity,
+        address: address,
+        addressDetail: addressDetail,
+        startDate: startDate,
+        endDate: endDate,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // JWT 토큰을 Authorization 헤더에 추가
+        },
+      }
+    );
+
+    return res.data; // 응답 데이터 반환
   } catch (error) {
     console.error(`---/create/worker/${adminId} API 호출 오류:`, error);
-    throw error; // 에러를 상위 로직에서 처리하도록 던짐
+    throw error; // 오류 처리
   }
 };
