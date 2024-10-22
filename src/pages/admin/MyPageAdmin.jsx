@@ -6,7 +6,7 @@ import classNames from "classnames";
 import { getAdminInfo, updateAdminInfo } from "../../api/adminInfoApi.js";
 import circle from "../../assets/icons/write/Circle.svg";
 import SidebarLayout from "../../layouts/SidebarLayout";
-import useConfirm from "../../components/commons/UseConfirm.jsx";
+import useConfirm from "../../hooks/UseConfirm.jsx";
 import { useResetConditions } from "../../hooks/useResetConditions.js";
 import { useNavigate } from "react-router-dom";
 

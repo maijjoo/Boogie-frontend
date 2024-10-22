@@ -8,7 +8,7 @@ import Button from "../../components/commons/Button.jsx";
 import MyPageInput from "../../components/commons/MyPageInput"; // InputField 컴포넌트 임포트
 import classNames from "classnames";
 import circle from "../../assets/icons/write/Circle.svg";
-import useConfirm from "../../components/commons/UseConfirm.jsx";
+import useConfirm from "../../hooks/UseConfirm.js";
 
 const MyPageWorker = () => {
   const { isLoggedIn, id, role } = useAuth();
