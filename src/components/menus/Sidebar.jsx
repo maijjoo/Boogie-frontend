@@ -13,7 +13,7 @@ import { useAuth } from "../../hooks/useAuth";
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation(); // 현재 경로 가져오기
-  const { logout, department, workPlace, name, username } = useAuth(); // username 추가
+  const { logout, name, username, departmentInfo } = useAuth(); // username 추가
 
   const [activeMenu, setActiveMenu] = useState(""); // 클릭된 메뉴 상태 관리
   const [hoverMenu, setHoverMenu] = useState(""); // hover 상태 관리
@@ -35,9 +35,9 @@ const Sidebar = () => {
   const getMemberManagementPath = () => {
     const usernameString = String(username); // username을 문자열로 변환
     if (usernameString.startsWith("S")) {
-      return "/MemberManagement";
+      return "/memberManagement";
     } else if (usernameString.startsWith("A")) {
-      return "/WorkerManagement";
+      return "/workerManagement";
     }
     return "#"; // 기본값
   };
@@ -56,12 +56,7 @@ const Sidebar = () => {
           <div className="ml-4 text-left justify-between">
             <span className="text-[12pt] font-semibold">{name}</span>
             <span className="text-[10pt] ">님</span>
-            <div className="text-[10pt]">
-              {workPlace.replace(" ", "").trim() +
-                " " +
-                department.replace(" ", "").trim() +
-                "과"}
-            </div>
+            <div className="text-[10pt]">{departmentInfo}</div>
           </div>
         </div>
         <div className="flex justify-center items-center mb-4">
