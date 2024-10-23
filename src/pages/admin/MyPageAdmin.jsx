@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Button from "../../components/commons/Button.jsx";
 import MyPageInput from "../../components/commons/MyPageInput"; // InputField 컴포넌트 임포트
 import { useAuth } from "../../hooks/useAuth.js";
 import classNames from "classnames";
 import { getAdminInfo, updateAdminInfo } from "../../api/adminInfoApi.js";
 import circle from "../../assets/icons/write/Circle.svg";
+import searchIcon from "../../assets/icons/write/Search.png";
 import SidebarLayout from "../../layouts/SidebarLayout";
-import useConfirm from "../../hooks/UseConfirm.jsx";
+import useConfirm from "../../hooks/UseConfirm.js";
 import { useResetConditions } from "../../hooks/useResetConditions.js";
 import { useNavigate } from "react-router-dom";
+import useKakaoAddress from "../../hooks/useKakaoAddress.js";
 
 const MyPageAdmin = () => {
   useResetConditions("all");
@@ -20,7 +22,26 @@ const MyPageAdmin = () => {
     phone: "",
     email: "",
     department: "",
+    address: "",
+    addressDetail: "",
   });
+  const [kDetailAddress, setKDetailAddress] = useState(
+    adminInfo.addressDetail || ""
+  );
+
+  const handleAddressSelected = (address, extraAddress) => {
+    // 주소 선택 시 adminInfo 상태 업데이트
+    setAdminInfo((prev) => ({
+      ...prev,
+      address: address,
+      addressDetail: extraAddress,
+    }));
+    setKDetailAddress(extraAddress);
+  };
+
+  const { postcode, kAddress, execDaumPostcode } = useKakaoAddress(
+    handleAddressSelected
+  );
 
   const [editMode, setEditMode] = useState(false); // 수정 가능 여부 상태 관리
   const [buttonText, setButtonText] = useState("내 정보 수정"); // 버튼 텍스트 상태 관리
@@ -66,6 +87,7 @@ const MyPageAdmin = () => {
           address: data.address || "",
           addressDetail: data.addressDetail || "",
         });
+        setKDetailAddress(data.addressDetail || "");
       });
     }
   }, [id, isLoggedIn, role, navigate]);
@@ -81,6 +103,15 @@ const MyPageAdmin = () => {
     }));
   };
 
+  const handleDetailAddressChange = (e) => {
+    const value = e.target.value;
+    setKDetailAddress(value); // 상세주소 상태 업데이트
+    setAdminInfo((prev) => ({
+      ...prev,
+      addressDetail: value, // adminInfo 상태의 addressDetail도 업데이트
+    }));
+  };
+
   // 정보 수정 모드 토글
   const toggleEditMode = () => {
     setEditMode(!editMode); // editMode 상태를 반전시켜 수정 가능 여부를 토글
@@ -91,6 +122,7 @@ const MyPageAdmin = () => {
     setPasswordChange(!passwordChange); // passwordChange 상태를 반전시켜 비밀번호 변경 렌더링 토글
     setPButtonText(passwordChange ? "비밀번호 변경" : "저장하기"); // 버튼 텍스트 변경
   };
+
   // 폼 제출 핸들러
   const handleSubmit = (e) => {
     e && e.preventDefault();
@@ -99,7 +131,7 @@ const MyPageAdmin = () => {
       name: adminInfo.name,
       phone: adminInfo.phone,
       email: adminInfo.email,
-      address: adminInfo.address,
+      address: kAddress,
       addressDetail: adminInfo.addressDetail,
       department: adminInfo.department,
       position: adminInfo.position,
@@ -217,12 +249,12 @@ const MyPageAdmin = () => {
               sm:text-sm text-[10px]"
               >
                 <div>
-                  <div className="font-bold">
+                  <div className="font-bold mb-2">
                     <img src={circle} alt="dot" className="w-1 me-2 inline" />
                     이름
                   </div>
                   <div
-                    className={`border border-gray-400 rounded-md p-1 ${
+                    className={`border border-gray-400 rounded-md p-2 ${
                       !editMode ? "bg-white" : "bg-gray-100"
                     }`}
                   >
@@ -252,6 +284,51 @@ const MyPageAdmin = () => {
                   editMode={editMode}
                 />
 
+                {/* 주소 필드 */}
+                <div className="flex flex-col">
+                  <div className="flex justify-between items-end w-full">
+                    <div className="w-11/12">
+                      <div className="font-bold">
+                        <img
+                          src={circle}
+                          alt="dot"
+                          className="w-1 me-2 inline"
+                        />
+                        주소
+                      </div>
+                      <div
+                        onChange={handleInputChange}
+                        className={`border border-gray-400 rounded-md p-2 w-11/12`}
+                      >
+                        {adminInfo.address}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={execDaumPostcode}
+                      className={`w-10 h-10 bg-gray-400 text-gray-700 rounded-md hover:bg-gray-400 transition flex items-center justify-center
+                      ${editMode ? "" : "hidden"}`}
+                    >
+                      <img
+                        src={searchIcon}
+                        alt="searchIcon"
+                        className="w-6 h-6"
+                      />
+                    </button>
+                  </div>
+                  <MyPageInput
+                    className="mt-[2px]"
+                    imgClassName="hidden"
+                    placeholder="상세주소"
+                    name="addressDetail"
+                    type="text"
+                    value={kDetailAddress}
+                    onChange={handleDetailAddressChange}
+                    readOnly={!editMode} // 수정 모드가 아닐 때는 readOnly 상태 유지
+                    editMode={editMode}
+                  />
+                </div>
+
                 {/* 근무처 필드 */}
                 <div>
                   <div className="font-bold">
@@ -259,7 +336,7 @@ const MyPageAdmin = () => {
                     근무처
                   </div>
                   <div
-                    className={`border border-gray-400 rounded-md p-1 ${
+                    className={`border border-gray-400 rounded-md p-2 ${
                       !editMode ? "bg-white" : "bg-gray-100"
                     }`}
                   >
