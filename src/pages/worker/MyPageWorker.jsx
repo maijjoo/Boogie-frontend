@@ -9,6 +9,8 @@ import MyPageInput from "../../components/commons/MyPageInput"; // InputField �
 import classNames from "classnames";
 import circle from "../../assets/icons/write/Circle.svg";
 import useConfirm from "../../hooks/UseConfirm.js";
+import useKakaoAddress from "../../hooks/useKakaoAddress.js";
+import searchIcon from "../../assets/icons/write/Search.png";
 
 const MyPageWorker = () => {
   const { isLoggedIn, id, role } = useAuth();
@@ -18,7 +20,27 @@ const MyPageWorker = () => {
     email: "",
     phone: "",
     vehicleCapacity: "",
+    address: "",
+    addressDetail: "",
   });
+
+  const [kDetailAddress, setKDetailAddress] = useState(
+    userInfo.addressDetail || ""
+  );
+
+  const handleAddressSelected = (address, extraAddress) => {
+    // 주소 선택 시 userInfo 상태 업데이트
+    setUserInfo((prev) => ({
+      ...prev,
+      address: address,
+      addressDetail: extraAddress,
+    }));
+    setKDetailAddress(extraAddress);
+  };
+
+  const { postcode, kAddress, execDaumPostcode } = useKakaoAddress(
+    handleAddressSelected
+  );
 
   const [editMode, setEditMode] = useState(false); // 수정 가능 여부 상태 관리
   const [buttonText, setButtonText] = useState("내 정보 수정"); // 버튼 텍스트 상태 관리
@@ -55,7 +77,7 @@ const MyPageWorker = () => {
         setUserInfo({
           name: data.name || "",
           email: data.email || "",
-          workGroup: data.address || "",
+          address: data.address || "",
           addressDetail: data.addressDetail || "",
           vehicleCapacity: data.vehicleCapacity > 0 ? data.vehicleCapacity : "",
           phone: data.phone || "",
@@ -64,6 +86,7 @@ const MyPageWorker = () => {
           assignmentAreaList: data.assignmentAreaList || "",
           managerDepartment: data.managerDepartment || "",
         });
+        setKDetailAddress(data.addressDetail || "");
       });
     } else if (!isLoggedIn || role !== "WORKER") {
       navigate("/", { replace: true });
@@ -78,6 +101,15 @@ const MyPageWorker = () => {
     setUserInfo((prev) => ({
       ...prev,
       [name]: value, // 빈 문자열도 그대로 유지하도록 설정
+    }));
+  };
+
+  const handleDetailAddressChange = (e) => {
+    const value = e.target.value;
+    setKDetailAddress(value); // 상세주소 상태 업데이트
+    setUserInfo((prev) => ({
+      ...prev,
+      addressDetail: value, // userInfo 상태의 addressDetail도 업데이트
     }));
   };
 
@@ -103,6 +135,8 @@ const MyPageWorker = () => {
         userInfo.vehicleCapacity === ""
           ? null
           : parseFloat(userInfo.vehicleCapacity),
+      address: kAddress,
+      addressDetail: userInfo.addressDetail,
     };
 
     console.log("업데이트할 데이터:", updatedData); // 데이터가 올바른지 확인
@@ -217,7 +251,7 @@ const MyPageWorker = () => {
                   이름
                 </div>
                 <div
-                  className={`border border-gray-400 rounded-md p-1 ${
+                  className={`border border-gray-400 rounded-md p-2 ${
                     !editMode ? "bg-white" : "bg-gray-100"
                   }`}
                 >
@@ -248,22 +282,62 @@ const MyPageWorker = () => {
               />
 
               {/* 주소 필드 */}
-              <div>
-                <div className="font-bold">
-                  <img src={circle} alt="dot" className="w-1 me-2 inline" />
-                  주소
+              <div className="flex flex-col">
+                <div className="flex justify-between items-end w-full">
+                  <div className="w-11/12">
+                    <div className="font-bold">
+                      <img src={circle} alt="dot" className="w-1 me-2 inline" />
+                      주소
+                    </div>
+                    <div
+                      onChange={handleInputChange}
+                      className={`border border-gray-400 rounded-md p-2 w-11/12 ${
+                        !editMode ? "bg-white" : "bg-gray-100"
+                      }`}
+                    >
+                      {userInfo.address}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={execDaumPostcode}
+                    className={`hidden w-10 h-10 bg-gray-400 text-gray-700 rounded-md hover:bg-gray-400 transition flex items-center justify-center
+                      `}
+                  >
+                    {/* ${editMode ? "" : "hidden"} 주소 수정 가능할시 추가*/}
+                    <img
+                      src={searchIcon}
+                      alt="searchIcon"
+                      className="w-6 h-6"
+                    />
+                  </button>
                 </div>
-                <div
-                  className={`border border-gray-400 rounded-md p-1 ${
-                    !editMode ? "bg-white" : "bg-gray-100"
-                  }`}
-                >
-                  {userInfo.workGroup + " " + userInfo.addressDetail}
+                <div className="w-full">
+                  <div
+                    onChange={handleInputChange}
+                    className={`border border-gray-400 rounded-md p-2 w-full mt-[3px] ${
+                      !editMode ? "bg-white" : "bg-gray-100"
+                    }`}
+                  >
+                    {userInfo.addressDetail}
+                  </div>
                 </div>
+                {/* 상세정보 (수정가능하면 이것으로 사용할것) */}
+                {/* <MyPageInput
+                  className={`mt-[2px]`}
+                  imgClassName="hidden"
+                  placeholder="상세주소"
+                  name="addressDetail"
+                  type="text"
+                  value={kDetailAddress}
+                  onChange={handleDetailAddressChange}
+                  readOnly={!editMode}
+                  editMode={editMode}
+                /> */}
               </div>
 
               {/* 소속 필드 */}
-              <div>
+              {/* <div>
                 <div className="font-bold">
                   <img src={circle} alt="dot" className="w-1 me-2 inline" />
                   소속
@@ -275,7 +349,7 @@ const MyPageWorker = () => {
                 >
                   {userInfo.workGroup} {userInfo.managerDepartment}과
                 </div>
-              </div>
+              </div> */}
 
               {/* 매니저 전화번호 필드 */}
               <div>
@@ -284,7 +358,7 @@ const MyPageWorker = () => {
                   관리자 연락처
                 </div>
                 <div
-                  className={`border border-gray-400 rounded-md p-1 ${
+                  className={`border border-gray-400 rounded-md p-2 ${
                     !editMode ? "bg-white" : "bg-gray-100"
                   }`}
                 >

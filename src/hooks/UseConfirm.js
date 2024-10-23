@@ -15,7 +15,7 @@ const useConfirm = (message = "", onConfirm, onCancel) => {
   const confirmAction = () => {
     if (window.confirm(message)) {
       onConfirm();
-      handleRefresh(); // onConfirm 후 새로고침 실행
+      // handleRefresh(); // onConfirm 후 새로고침 실행
     } else {
       onCancel();
     }
