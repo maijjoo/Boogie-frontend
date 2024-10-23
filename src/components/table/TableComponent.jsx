@@ -1,45 +1,65 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const TableComponent = ({
   headers,
   rows,
   currentPage,
   itemsPerPage,
-  onCheckChange,
+  onCheckChange = null,
   onRowClick, // row 클릭 시 호출할 함수 props 추가
+  checkedRows = null,
+  setCheckedRows = null,
 }) => {
   const [isAllChecked, setIsAllChecked] = useState(false);
   // const [checkedRows, setCheckedRows] = useState(
   //   new Array(rows.length).fill(false)
   // );
-  const [checkedRows, setCheckedRows] = useState(
-    rows.map((row) => {
-      return { id: row.id, checked: false };
-    })
-  );
+
+  // const [checkedRows, setCheckedRows] = useState(
+  //   rows.map((row) => {
+  //     return { id: row.id, checked: false };
+  //   })
+  // );
+
+  useEffect(() => {
+    setIsAllChecked(false);
+  }, [rows]);
 
   // 전체 체크박스 클릭 시 실행되는 핸들러
   const handleAllCheck = (e) => {
     const checked = e.target.checked;
     setIsAllChecked(checked);
-    const updatedCheckedRows = new Array(rows.length).fill(checked);
-    setCheckedRows(updatedCheckedRows);
-    onCheckChange(updatedCheckedRows); // 체크된 상태를 부모로 전달
+    if (checked) {
+      setCheckedRows((prev) => {
+        const allRowIds = rows.map((row) => row.id);
+        return [...new Set([...prev, ...allRowIds])];
+      });
+    } else {
+      setCheckedRows([]);
+    }
+
+    // const updatedCheckedRows = new Array(rows.length).fill(checked);
+    // setCheckedRows(updatedCheckedRows);
+    // onCheckChange(updatedCheckedRows); // 체크된 상태를 부모로 전달
   };
 
   // 개별 row의 체크박스 클릭 시 실행되는 핸들러
-  const handleRowCheck = (index) => {
-    const updatedCheckedRows = [...checkedRows];
+  const handleRowCheck = (id) => {
+    if (checkedRows.includes(id)) {
+      setCheckedRows((prev) => prev.filter((row) => row !== id));
+    } else {
+      setCheckedRows((prev) => [...prev, id]);
+    }
     // [true, false, true]   ->
     // [
     //    {id: 126, checked: true}, {id: 106, checked: false}, {id: 96, checked: true}
     // ]
 
     // updatedCheckedRows[index] = !updatedCheckedRows[index];
-    updatedCheckedRows[index].checked = !updatedCheckedRows[index].checked;
+    // updatedCheckedRows[index].checked = !updatedCheckedRows[index].checked;
 
-    setCheckedRows(updatedCheckedRows);
-    onCheckChange(updatedCheckedRows); // 체크된 상태를 부모로 전달
+    // setCheckedRows(updatedCheckedRows);
+    // onCheckChange(updatedCheckedRows); // 체크된 상태를 부모로 전달
   };
 
   return (
@@ -87,8 +107,8 @@ const TableComponent = ({
                       id={row.id}
                       type="checkbox"
                       className="form-checkbox h-6 w-6 text-blue-600"
-                      checked={checkedRows[rowIndex].checked}
-                      onChange={() => handleRowCheck(rowIndex)}
+                      checked={checkedRows.includes(row.id)}
+                      onChange={() => handleRowCheck(row.id)}
                       onClick={(e) => e.stopPropagation()} // 클릭 시 체크박스 이벤트와 row 클릭 이벤트가 겹치지 않도록 방지
                     />
                   </div>

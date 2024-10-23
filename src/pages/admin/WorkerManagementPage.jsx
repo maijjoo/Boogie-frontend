@@ -1,15 +1,19 @@
-import React, { useState, useRef, useEffect } from "react";
-import SidebarLayout from "../../layouts/SidebarLayout";
-import { useAuth } from "../../hooks/useAuth";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import {
+  getMemberList,
+  deleteMembers,
+  createBulkMember,
+} from "../../api/memberListApi";
+import { deleteMemberApi } from "../../api/deleteMemberApi";
+import { getWorkerDetail, getAdminDetail } from "../../api/memberDetailApi";
+import SidebarLayout from "../../layouts/SidebarLayout";
 import ConditionTabs from "../../components/searchCondition/admin/ConditionTabs";
 import Searchbar from "../../components/searchCondition/admin/Searchbar";
 import SearchButton from "../../components/searchCondition/admin/SearchButton";
 import Button from "../../components/searchCondition/admin/WebButton";
 import NoticeIcon from "../../assets/images/notice.png";
-import { getMemberList } from "../../api/memberListApi";
-import { getWorkerDetail, getAdminDetail } from "../../api/memberDetailApi";
-import { deleteMemberApi } from "../../api/deleteMemberApi";
 import excelHoeverIcon from "../../assets/icons/write/ExcelIcon.png";
 import excelIcon from "../../assets/icons/adminMode/excelBlue.png";
 import addHoverIcon from "../../assets/icons/adminMode/add.png";
@@ -22,10 +26,10 @@ import Pagination from "../../components/commons/Pagination";
 import WebModal from "../../components/modal/WebModal";
 import WorkerDetailModalComponent from "../../components/admin/modal/WorkerDetailModalComponent";
 import CreateWorkerModalComponent from "../../components/admin/modal/CreateWorkerModalComponent";
-import { CreateWokerBulkModalComponent } from "../../components/admin/modal/CreateBulkModalComponent";
+import CreateBulkModalComponent from "../../components/admin/modal/CreateBulkModalComponent";
 
 const WorkerManagementPage = () => {
-  const { isLoggedIn, role, id } = useAuth(); // 로그인 유저 정보 확인
+  const { isLoggedIn, role, id, departmentInfo } = useAuth(); // 로그인 유저 정보 확인
   const navigate = useNavigate();
   const [condition, setCondition] = useState("allWorkersTab"); // 검색 조건 탭 [전체], [조사/청소자], [수거자]
   const [rows, setRows] = useState([]); // 회원 목록
@@ -33,6 +37,7 @@ const WorkerManagementPage = () => {
   const [totalPages, setTotalPages] = useState(0); // 총 페이지 수
   const [totalCount, setTotalCount] = useState(0); // 목록의 총 회원 수
   const itemsPerPage = 20; // 페이지 당 항목 수
+  const nameRef = useRef();
 
   // 회원 개별 등록 =================================================================================
   const [isCreateWorkerModalComponent, setIsCreateWorkerModalComponent] =
@@ -40,25 +45,40 @@ const WorkerManagementPage = () => {
   const openCreateWorkerModalComponent = () => {
     setIsCreateWorkerModalComponent(true); // 모달 열기 상태로 변경
   };
-  const closeCreateWorkerModalComponent = () => {
+  const closeCreateWorkerModalComponent = (message) => {
     setIsCreateWorkerModalComponent(false); // 모달 닫기 상태로 변경
+    if (message === "success") {
+      fetchMemberList();
+    }
   };
 
   // 회원 일괄 등록 =================================================================================
   const [isCreateWokerBulkModalComponent, setIsCreateWokerBulkModalComponent] =
     useState(false); // 회원 일괄 등록 모달 상태
+
   const openCreateWokerBulkModalComponent = () => {
     setIsCreateWokerBulkModalComponent(true); // 모달 열기 상태로 변경
   };
+
   const closeCreateWokerBulkModalComponent = () => {
     setIsCreateWokerBulkModalComponent(false); // 모달 닫기 상태로 변경
   };
-  const handleCreateWorkerBulk = () => {
+
+  const handleCreateWorkerBulk = (formData) => {
+    console.log("mngmnt page got formData: ");
+
+    for (let [key, value] of formData.entries()) {
+      console.log("key: ", key, ", value: ", value); // FormData에 파일이 제대로 들어갔는지 확인
+    }
+    const res = createBulkMember(formData, id, "worker");
+    console.log("create bulk user res: ", res);
+
     setIsCreateWokerBulkModalComponent(false);
   };
   // 회원 상세정보 =================================================================================
   const [isWorkerDetailModalComponent, setIsWorkerDetailModalComponent] =
     useState(false); // 회원 상세정보 모달 상태
+
   // 회원 상세 모달 열기 함수
   const openWorkerDetailModalComponent = async (member) => {
     try {
@@ -84,10 +104,10 @@ const WorkerManagementPage = () => {
 
   const [checkedRows, setCheckedRows] = useState([]); // 체크된 row 상태 관리
   // 체크된 상태를 업데이트하는 핸들러
-  const handleCheckChange = (checkedRows) => {
-    console.log("체크된 회원 ID 목록:", checkedRows); // 여기에 선택된 회원 ID를 출력
-    setCheckedRows(checkedRows); // 체크된 상태를 업데이트
-  };
+  // const handleCheckChange = (checkedRows) => {
+  //   console.log("체크된 회원 ID 목록:", checkedRows); // 여기에 선택된 회원 ID를 출력
+  //   setCheckedRows(checkedRows); // 체크된 상태를 업데이트
+  // };
   const [selectedMember, setSelectedMember] = useState(null); // 선택된 회원 정보 상태 관리
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // 회원 삭제 모달 상태
   const openDeleteModal = () => setIsDeleteModalOpen(true); // 회원 삭제 모달 열기
@@ -95,19 +115,14 @@ const WorkerManagementPage = () => {
 
   // 삭제 함수: 체크된 회원 ID를 삭제
   const handleDelete = async () => {
-    const idsToDelete = checkedRows
-      .filter((checked) => checked) // 체크된 행 필터링
-      .map((row) => row.id); // 회원 ID 추출
+    // const idsToDelete = checkedRows
+    //   .filter((row) => row.checked === true) // 체크된 행 필터링
+    //   .map((row) => row.id); // 회원 ID 추출
     // 삭제할 ID 확인
-    console.log("삭제할 회원 ID 목록:", idsToDelete);
-    console.log(
-      "삭제할 회원 ID 목록:",
-      checkedRows
-        .filter((checked) => checked) // 체크된 행 필터링
-        .map((row) => row.id)
-    );
+    // console.log("삭제할 회원 ID 목록:", idsToDelete);
+
     try {
-      await deleteMemberApi(idsToDelete); // API 호출
+      await deleteMemberApi(checkedRows); // API 호출
       setIsDeleteModalOpen(false);
       fetchMemberList(); // 삭제 후 목록 새로고침
     } catch (error) {
@@ -122,14 +137,6 @@ const WorkerManagementPage = () => {
     page: currentPage,
   });
   const [searchedData, setSearchedData] = useState([]); // 조회 결과 데이터
-
-  // 유저가 입력한 검색어로 searchParam 업데이트
-  const handleSearchInputChange = (inputValue) => {
-    setSearchParam((prev) => ({
-      ...prev,
-      name: inputValue, // 검색어를 name으로 설정
-    }));
-  };
 
   // 회원 목록 테이블 컴포넌트 td값 지정
   const headers = [
@@ -162,40 +169,39 @@ const WorkerManagementPage = () => {
   ];
 
   // 검색어 상태 및 핸들러
-  const [searchValue, setSearchValue] = useState("");
   const handlePageChange = (page) => {
     console.log("handlePageChange");
     setCurrentPage(page);
+    setCheckedRows([]);
     setSearchParam((prev) => ({
       ...prev,
-      page: page, // 검색어를 name으로 설정
-    }));
-  };
-
-  // 입력 값이 바뀔 때 호출되는 함수
-  const handleInputChange = (e) => {
-    console.log("handleInputChange");
-
-    const value = e.target.value; // 입력된 값
-    setSearchValue(value); // 검색창 상태 업데이트
-    setSearchParam((prev) => ({
-      ...prev,
-      nameSearch: value, // nameSearch 값 업데이트
+      page: page,
     }));
   };
 
   const handleSearch = () => {
+    setCurrentPage(1);
+    setCheckedRows([]);
+    setSortOrder("desc");
+    setSearchParam((prev) => ({
+      ...prev,
+      nameSearch: nameRef.current.getValue(), // 검색어를 name으로 설정
+      page: 1,
+    }));
+    console.log("------fetch by handleSearch------");
+
     fetchMemberList();
   };
 
   const [sortOrder, setSortOrder] = useState("desc"); // 기본 정렬은 내림차순
-  const handleSortChange = (sortOrder) => {
-    setSortOrder(sortOrder);
-    setSearchParam((prev) => ({ ...prev, sort: sortOrder }));
+
+  const handleSortChange = (sortOrders) => {
+    setSortOrder(sortOrders);
+    setCheckedRows([]);
     const sortedRows = [...rows].sort((a, b) => {
       const dateA = new Date(a.createdDate);
       const dateB = new Date(b.createdDate);
-      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+      return sortOrder === "asc" ? dateB - dateA : dateA - dateB;
     });
 
     setRows(sortedRows); // 정렬된 데이터를 상태로 업데이트
@@ -216,9 +222,13 @@ const WorkerManagementPage = () => {
         {
           ...searchParam,
           tabCondition,
+          nameSearch: nameRef.current.getValue(),
+          page: currentPage,
         },
         id
       );
+      setCheckedRows([]);
+      setSortOrder("desc");
       setRows(response.data.dtoList);
       setSearchedData(response.data);
       setTotalPages(response.data.totalPage);
@@ -228,6 +238,19 @@ const WorkerManagementPage = () => {
     }
   };
 
+  const handleTabChange = (tabCondition) => {
+    nameRef.current.clear();
+    setCurrentPage(1);
+    setCondition(tabCondition);
+    setSortOrder("desc");
+    setCheckedRows([]);
+    setSearchParam({
+      nameSearch: "",
+      tabCondition: condition,
+      page: 1,
+    });
+  };
+
   // 각 버튼의 hover 상태관리
   const [isHovered, setIsHovered] = useState({
     add: false,
@@ -235,20 +258,25 @@ const WorkerManagementPage = () => {
     delete: false,
   });
 
+  useEffect(() => {
+    console.log("===========checkedRows : ", checkedRows);
+  }, [checkedRows]);
+
   // 관리자 id 아니면 로그인 페이지로 이동
   useEffect(() => {
-    if (!isLoggedIn || role === "WORKER") {
+    if (!isLoggedIn || role !== "ADMIN") {
       navigate("/", { replace: true });
     }
   }, [isLoggedIn, role, navigate]);
 
   // 탭이나 검색어가 변경될 때마다 데이터를 새로 가져옴
   useEffect(() => {
+    console.log("------fetch by useEffect------");
     fetchMemberList();
-  }, [condition, searchParam]);
+  }, [condition, currentPage]);
 
   useEffect(() => {
-    console.log("--------------------" + searchedData);
+    console.log("--------------------", searchedData);
   }, [searchedData]);
 
   return (
@@ -260,7 +288,7 @@ const WorkerManagementPage = () => {
           <div className="flex items-center justify-between w-full">
             {/* 탭 버튼: 왼쪽 정렬 */}
             <ConditionTabs
-              setActiveTab={setCondition}
+              setActiveTab={handleTabChange}
               activeTab={condition}
               initSearchParam={setSearchParam}
               tabNames={["전체", "조사/청소", "수거자"]}
@@ -276,9 +304,8 @@ const WorkerManagementPage = () => {
             <div className="flex items-center space-x-4 rounded-full p-2 w-full justify-end h-12">
               <Searchbar
                 placeholder="회원명을 입력하세요"
-                searchValue={searchValue} // 현재 검색어 값을 전달
-                onSearchInputChange={handleInputChange} // 입력이 바뀔 때 호출
                 onSearch={handleSearch} // 검색 버튼 클릭 시 호출
+                ref={nameRef}
               />
 
               <SearchButton onSearch={handleSearch} />
@@ -327,11 +354,7 @@ const WorkerManagementPage = () => {
             일괄 등록
           </Button>
           <Button
-            onClick={
-              checkedRows.filter((checked) => checked).length === 0
-                ? null
-                : openDeleteModal
-            } // 0개일 때 클릭 이벤트 없음
+            onClick={checkedRows.length === 0 ? null : openDeleteModal} // 0개일 때 클릭 이벤트 없음
             color="emptyBlue"
             size="medium"
             className="ml-2 flex items-center justify-center"
@@ -353,6 +376,7 @@ const WorkerManagementPage = () => {
         <ListCountAndSort
           totalCount={totalCount}
           onSortChange={handleSortChange}
+          activeSort={sortOrder}
         />
         {rows && rows.length > 0 ? (
           <div className="">
@@ -361,8 +385,10 @@ const WorkerManagementPage = () => {
               rows={rows}
               currentPage={currentPage}
               itemsPerPage={itemsPerPage}
-              onCheckChange={handleCheckChange} // checked개수
+              //onCheckChange={handleCheckChange} // checked개수
               onRowClick={openWorkerDetailModalComponent} // row 클릭 시 상세 모달 열기
+              checkedRows={checkedRows}
+              setCheckedRows={setCheckedRows}
             />
             <div className="flex justify-center mt-4">
               <Pagination
@@ -402,21 +428,23 @@ const WorkerManagementPage = () => {
         <CreateWorkerModalComponent
           isOpen={isCreateWorkerModalComponent}
           onClose={closeCreateWorkerModalComponent}
+          adminDpt={departmentInfo}
         />
       )}
       {/* 회원 일괄 등록 모달 */}
       {isCreateWokerBulkModalComponent && (
-        <CreateWokerBulkModalComponent
+        <CreateBulkModalComponent
           onConfirm={handleCreateWorkerBulk}
           onCancel={closeCreateWokerBulkModalComponent}
           isOpen={isCreateWokerBulkModalComponent}
+          target="worker"
         />
       )}
       {/* 회원삭제 모달 */}
       {isDeleteModalOpen && (
         <WebModal
           message={`선택하신 회원 ${
-            checkedRows.filter((checked) => checked).length // 배열의 true 값 개수 세기
+            checkedRows.length // 배열의 true 값 개수 세기
           }건을 삭제하시겠습니까?`}
           confirmText="삭제"
           cancelText="취소"

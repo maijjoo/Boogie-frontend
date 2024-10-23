@@ -20,6 +20,8 @@ export const useAuth = () => {
 
   const department = memberInfo?.department || "";
 
+  const departmentInfo = workPlace + "청 " + department + "과";
+
   const name = memberInfo?.name || "";
 
   const id = memberInfo?.id || "";
@@ -49,5 +51,6 @@ export const useAuth = () => {
     id,
     phone,
     nameWithPhone,
+    departmentInfo,
   };
 };

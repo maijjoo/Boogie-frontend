@@ -5,7 +5,8 @@ import DateRangePicker from "../../commons/DateRangePicker";
 import DatePickerComponent from "../../commons/DatePicker";
 import searchIcon from "../../../assets/icons/write/Search.png";
 import { createWorkerApi } from "../../../api/createWorkerApi";
-const CreateWorkerModalComponent = ({ isOpen, onClose }) => {
+import { createSingleWorker } from "../../../api/memberListApi";
+const CreateWorkerModalComponent = ({ isOpen, onClose, adminDpt }) => {
   const { workPlace, department, id } = useAuth(); // 로그인한 관리자의 부서 정보
   const [name, setName] = useState(""); // 이름 상태
   const [phone, setPhone] = useState(""); // 연락처 상태
@@ -52,7 +53,7 @@ const CreateWorkerModalComponent = ({ isOpen, onClose }) => {
   const handleConfirm = async () => {
     try {
       // 입력된 데이터를 API에 전달
-      await createWorkerApi(
+      await createSingleWorker(
         id,
         name,
         phone,
@@ -66,7 +67,7 @@ const CreateWorkerModalComponent = ({ isOpen, onClose }) => {
       );
 
       console.log("등록 완료!");
-      onClose(); // 모달 닫기
+      onClose("success"); // 모달 닫기
     } catch (error) {
       console.error("회원 등록 중 오류 발생:", error);
       alert("회원 등록 중 오류가 발생했습니다.");
@@ -80,7 +81,7 @@ const CreateWorkerModalComponent = ({ isOpen, onClose }) => {
       setPhone("");
       setBirth(null);
       setEmail("");
-      setVehicleCapacity("");
+      setVehicleCapacity(0.0);
       setAddress("");
       setDetailAddress("");
       setStartDate(null);
@@ -145,7 +146,7 @@ const CreateWorkerModalComponent = ({ isOpen, onClose }) => {
         <div className="flex justify-between items-center mb-3 ">
           <label className="font-semibold">차량 적재량(t)</label>
           <input
-            type="text"
+            type="number"
             className="w-56 border-b border-b-gray-300 text-right"
             value={vehicleCapacity}
             onChange={(e) =>
@@ -185,7 +186,7 @@ const CreateWorkerModalComponent = ({ isOpen, onClose }) => {
           <input
             type="text"
             className="w-3/5 border-b border-b-gray-300 text-right"
-            value={`${workPlace} ${department}과`}
+            value={adminDpt}
             readOnly
           />
         </div>

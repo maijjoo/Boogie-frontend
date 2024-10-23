@@ -103,11 +103,11 @@ const root = createBrowserRouter([
     element: <CollectReport />,
   },
   {
-    path: "WorkerManagement",
+    path: "workerManagement",
     element: <WorkerManagement />,
   },
   {
-    path: "MemberManagement",
+    path: "memberManagement",
     element: <MemberManagement />,
   },
   {
