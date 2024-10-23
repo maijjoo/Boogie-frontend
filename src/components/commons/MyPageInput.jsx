@@ -12,6 +12,8 @@ const MyPageInput = ({
   placeholder,
   editMode,
   className,
+  imgClassName,
+  disabled,
 }) => {
   return (
     <div
@@ -19,12 +21,16 @@ const MyPageInput = ({
         editMode ? "" : "caret-transparent"
       }`}
     >
-      <label className="font-bold" htmlFor={id}>
-        <img src={circle} alt="dot" className="w-1 me-2 inline" />
+      <label className={`font-bold mb-2`} htmlFor={id}>
+        <img
+          src={circle}
+          alt="dot"
+          className={`w-1 me-2 inline ${imgClassName} `}
+        />
         {label}
       </label>
       <input
-        className={`block p-1 border-solid border border-gray-400 rounded-md w-full ${
+        className={`block p-2 border-solid border border-gray-400 rounded-md ${className} w-full  ${
           editMode
             ? "bg-white text-black"
             : " text-black focus:outline-none focus:border-solid border border-gray-400"
@@ -34,6 +40,8 @@ const MyPageInput = ({
         value={value}
         placeholder={placeholder}
         onChange={onChange}
+        readOnly={!editMode}
+        disabled={disabled}
       />
     </div>
   );
