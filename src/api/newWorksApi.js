@@ -17,7 +17,7 @@ export const getNewWorks = async (id, searchParam) => {
     params: searchParam, // 쿼리 파라미터로 전달
   });
 
-  // console.log("-----------new-tasks get api response: ", res);
+  console.log("-----------new-tasks get api response: ", res);
 
   return res;
 };
@@ -44,7 +44,7 @@ export const completeNewWorks = async (id, condition) => {
 
 // 이미지파일 받아오기
 export const getImageByFileName = async (filename) => {
-  // console.log("-----------get api called by: imageName( ", filename, " )");
+  console.log("-----------get api called by: imageName( ", filename, " )");
 
   const res = await jwtAxios.get(
     `${API_SERVER_HOST}/api/admin/view/${filename}`,
@@ -57,7 +57,7 @@ export const getImageByFileName = async (filename) => {
 
   const url = URL.createObjectURL(res.data);
 
-  // console.log("-----------file to blob: ", url);
+  console.log("-----------file to blob: ", url);
 
   return url;
 };

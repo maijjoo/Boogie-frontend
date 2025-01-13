@@ -16,9 +16,10 @@ const Card = ({ report, tab }) => {
       const day = String(date.getDate()).padStart(2, "0");
       setFormattedDate(`${year}.${month}.${day}`);
     }
+
     const fetchThumbnail = async () => {
       try {
-        const thumbnailData = await handleThumbnails(report.data);
+        const thumbnailData = await handleThumbnails(report.thumbnail);
         setThumbnail(thumbnailData); // thumbnail.data가 이미지 경로라고 가정
       } catch (error) {
         console.error("Error fetching thumbnail:", error);
