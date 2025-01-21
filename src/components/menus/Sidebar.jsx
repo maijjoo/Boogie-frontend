@@ -214,7 +214,7 @@ const Sidebar = () => {
 
         {/* 회원 관리 메뉴 */}
         <Link
-          to={"/MemberList"}
+          to={"/workerManagement"}
           className={`flex items-center w-52 mb-4 p-5 cursor-pointer ${
             activeMenu === "member" || hoverMenu === "member"
               ? "bg-white rounded-md text-[#014EB6]"
