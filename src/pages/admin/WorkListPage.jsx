@@ -28,8 +28,15 @@ const WorkListPage = () => {
 
   const navigate = useNavigate();
 
-  const { searchedData, totalLength, totalPages, fetchCompletedWorks } =
-    useCompletedWorks(id);
+  const {
+    searchedData,
+    totalLength,
+    totalPages,
+    fetchCompletedWorks,
+    nextPage,
+    prevPage,
+    pageNumberList,
+  } = useCompletedWorks(id);
   const beachRef = useRef();
 
   const { page, tabCondition, beachSearch, sort } = useSelector(
@@ -131,6 +138,9 @@ const WorkListPage = () => {
                 totalPages={totalPages}
                 currentPage={page}
                 onPageChange={handlePageChange}
+                nextPage={nextPage}
+                prevPage={prevPage}
+                pageNumberList={pageNumberList}
               />
             </div>
           </>
