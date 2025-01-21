@@ -1,13 +1,29 @@
-import React, { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import addImage from "../../assets/icons/write/Add Image.svg";
 import dot from "../../assets/icons/write/Circle.svg";
 import fatX from "../../assets/icons/workerMode/whiteFullX.png";
-import thinX from "../../assets/icons/workerMode/whiteThinX.png";
-import cancel from "../../assets/icons/write/Cancel.svg";
 
-const CameraController = ({ setSource, title, max, min, border = null }) => {
+const CameraController = ({
+  setSource,
+  title,
+  max,
+  min,
+  border = null,
+  onDelete,
+  refresh,
+}) => {
   const [sources, setSources] = useState([]);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (refresh) {
+      const newSources = sources.filter(
+        (_, index) => index !== Number(localStorage.getItem("deleteIndex"))
+      );
+      setSources(newSources);
+      localStorage.removeItem("deleteIndex");
+    }
+  }, [refresh]);
 
   const handleCapture = (target) => {
     if (target.files && target.files.length !== 0) {
@@ -23,6 +39,12 @@ const CameraController = ({ setSource, title, max, min, border = null }) => {
   const handleSvgClick = () => {
     fileInputRef.current.click();
   };
+
+  const handleDelete = (index) => {
+    localStorage.setItem("deleteIndex", index);
+    onDelete(index);
+  };
+
   return (
     <div
       className={`w-full xl:w-1/3 h-fit mt-3 flex flex-col bg-white ${border}`}
@@ -60,11 +82,8 @@ const CameraController = ({ setSource, title, max, min, border = null }) => {
                 className="absolute top-1 right-1 w-5 h-5 cursor-pointer"
                 onClick={(event) => {
                   event.stopPropagation();
-                  if (confirm("사진을 삭제하시겠습니까?")) {
-                    setSources(
-                      (prevSources) => prevSources.filter((_, i) => i !== index) // 현재 인덱스를 제외한 새로운 배열 생성
-                    );
-                  }
+
+                  handleDelete(index);
                 }}
               />
             </div>

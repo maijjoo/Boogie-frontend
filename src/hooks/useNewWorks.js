@@ -46,6 +46,7 @@ export const useNewWorks = (id) => {
       setTotalLength(response.data.totalCount);
       setSearchedData(response.data.dtoList);
       setTotalPages(Math.ceil(response.data.totalCount / itemsPerPage));
+      console.log("res: ", response);
     } catch (error) {
       console.error("데이터 검색 중 오류 발생 : ", error);
     }

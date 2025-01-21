@@ -115,7 +115,7 @@ const NewWorksPage = () => {
 
         {searchedData && searchedData.length > 0 ? (
           <>
-            <div className="flex flex-wrap justify-start gap-4 mb-8 h-full w-full">
+            <div className="mt-4 flex flex-wrap justify-start gap-y-10 gap-x-16 mb-8 h-full w-full">
               {searchedData.map((report) => (
                 <Card key={report.id} report={report} tab={tabCondition} />
               ))}
