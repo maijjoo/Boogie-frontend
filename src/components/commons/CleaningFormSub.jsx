@@ -60,7 +60,8 @@ const CleaningFormSub = ({ setIsComplete, subData }) => {
               checked={selectedTrash === index}
               onChange={() => handleTrashChange(index)}
             >
-              {trash.type}
+              {trash.type.replace(/_/g, " ")}
+              <p className="inline text-sm">{trash.description}</p>
             </CheckBoxWithLabel>
           </li>
         ))}

@@ -11,9 +11,10 @@ const FormSub = ({
   setSubs = null,
   setAmount,
   startcoord,
-  isCollapsed,
+  isCollapsed = undefined,
   _trashAmount,
-  mainTrashIndex,
+  mainTrashType,
+  trashIndex,
   onComplete,
   deleteSub = null,
   setCollapse = null,
@@ -63,7 +64,12 @@ const FormSub = ({
 
     setSubs((prevSubs) => [
       ...prevSubs,
-      { data: subData, isCollapsed: true, trashAmount: trashAmount },
+      {
+        data: subData,
+        isCollapsed: true,
+        trashAmount: trashAmount,
+        trashIndex: selectedTrash,
+      },
     ]);
     onComplete?.();
     // } catch (error) {
@@ -124,7 +130,7 @@ const FormSub = ({
         <div className="w-full flex flex-col justify-start">
           <label className="inline font-semibold">
             <img src={dot} alt="dot" className="w-1 me-2 inline" />
-            주요 쓰레기 종류(택 1)
+            주요 쓰레기 종류{isCollapsed === undefined && "(택 1)"}
           </label>
         </div>
         {isCollapsed === undefined ? (
@@ -135,7 +141,7 @@ const FormSub = ({
                   checked={selectedTrash === index}
                   onChange={() => handleTrashChange(index)}
                 >
-                  {trash.type}
+                  {trash.type.replace(/_/g, " ")}
                   <p className="inline text-sm">{trash.description}</p>
                 </CheckBoxWithLabel>
               </li>
@@ -143,11 +149,9 @@ const FormSub = ({
           </ul>
         ) : (
           <div className="flex items-center mt-3">
-            <label className="font-bold">
-              {MainTrashList[mainTrashIndex].type}
-            </label>
+            <label className="">{mainTrashType.replace(/_/g, " ")}</label>
             <p className="inline text-sm">
-              {MainTrashList[mainTrashIndex].description}
+              {MainTrashList[trashIndex]?.description}
             </p>
           </div>
         )}
@@ -163,9 +167,7 @@ const FormSub = ({
               deleteSub === null
                 ? handleComplete
                 : () => {
-                    if (confirm("삭제하시겠습니다?")) {
-                      deleteSub();
-                    }
+                    deleteSub();
                   }
             }
           >
