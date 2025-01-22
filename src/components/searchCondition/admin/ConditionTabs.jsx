@@ -10,7 +10,7 @@ const ConditionTabs = ({
   handleOnSearch = null,
 }) => {
   return (
-    <div className="flex items-center justify-center space-x-4 h-16 me-10">
+    <div className="flex items-center justify-center space-x-4 h-16">
       {tabNames.map((name, index) => (
         <button
           key={index}

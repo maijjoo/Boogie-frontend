@@ -265,7 +265,9 @@ const WorkerManagementPage = () => {
   // 관리자 id 아니면 로그인 페이지로 이동
   useEffect(() => {
     if (!isLoggedIn || role !== "ADMIN") {
-      navigate("/", { replace: true });
+      if (role === "SUPER_ADMIN")
+        navigate("/memberManagement", { replace: true });
+      else navigate("/", { replace: true });
     }
   }, [isLoggedIn, role, navigate]);
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getNewWorks, completeNewWorks } from "../api/newWorksApi";
+import { useDispatch, useSelector } from "react-redux";
 import {
   setTabCondition,
   setBeachSearch,
@@ -7,12 +7,15 @@ import {
   setSize,
   setSort,
 } from "../slices/conditionSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { getNewWorks, completeNewWorks } from "../api/newWorksApi";
 
 export const useNewWorks = (id) => {
   const [searchedData, setSearchedData] = useState([]);
   const [totalLength, setTotalLength] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [nextPage, setNextPage] = useState(0);
+  const [prevPage, setPrevPage] = useState(0);
+  const [pageNumberList, setPageNumberList] = useState([]);
   // const [currentPage, setCurrentPage] = useState(1);
   // const [condition, setCondition] = useState("조사 완료");
   // const [sortOrder, setSortOrder] = useState("desc");
@@ -46,6 +49,9 @@ export const useNewWorks = (id) => {
       setTotalLength(response.data.totalCount);
       setSearchedData(response.data.dtoList);
       setTotalPages(Math.ceil(response.data.totalCount / itemsPerPage));
+      setNextPage(response.data.nextPage);
+      setPrevPage(response.data.prevPage);
+      setPageNumberList(response.data.pageNumberList);
     } catch (error) {
       console.error("데이터 검색 중 오류 발생 : ", error);
     }
@@ -72,6 +78,9 @@ export const useNewWorks = (id) => {
     totalPages,
     page,
     tabCondition,
+    nextPage,
+    prevPage,
+    pageNumberList,
     setTabCondition: (condition) => dispatch(setTabCondition(condition)),
     setBeachSearch: (search) => dispatch(setBeachSearch(search)),
     setPage: (newPage) => dispatch(setPage(newPage)),

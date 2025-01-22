@@ -27,7 +27,7 @@ const Searchbar = forwardRef(function SearchBar(
   };
 
   return (
-    <div className="flex items-center border border-gray-300 rounded-full p-2 w-96 h-12 focus-within:border-2 focus-within:border-gray-700 hover:border-gray-700">
+    <div className="flex items-center border border-gray-300 rounded-full p-2 w-96 h-12 focus-within:border-2 focus-within:border-gray-700 hover:border-gray-700 bg-white">
       <input
         type="text"
         ref={ref}

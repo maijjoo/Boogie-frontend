@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth.js";
 import { getNameList, postAdd } from "../../../api/cleaningApi.js";
@@ -13,6 +13,7 @@ import CameraController from "../../../components/commons/CameraController.jsx";
 import Button from "../../../components/commons/Button.jsx";
 import CleaningFormSub from "../../../components/commons/CleaningFormSub.jsx";
 import useCurrentPosition from "../../../hooks/useCurrentPosition.js";
+import MobileModal from "../../../components/modal/MobileModal.jsx";
 
 const CleaningMainPage = () => {
   const navigate = useNavigate();
@@ -33,22 +34,49 @@ const CleaningMainPage = () => {
 
   // 해안명 관리 state
   const [beachName, setBeachName] = useState("");
+  // 백엔드에서 받아온 담당 해안명
+  const [BeachNameList, setBeachNameList] = useState([]);
   // 해안명 자동완성 드랍다운
   const [beachNameOptions, setBeachNameOptions] = useState([]);
+  // 팀원이름 입력값
+  const [inputName, setInputName] = useState("");
+  // 팀원 입력 input 자동완성 렌더링을 위한 state
+  const [inputNameOptions, setInputNameOptions] = useState([]);
+  // 백엔드에서 받아온 담당 팀원명
+  const [MatchUsername, setMatchUsername] = useState([]);
+
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isTeamDropdownVisible, setIsTeamDropdownVisible] = useState(false);
+  const [refreshB, setRefreshB] = useState(false);
+  const [refreshA, setRefreshA] = useState(false);
+  const [deleteImgIndex, setDeleteImgIndex] = useState(null);
+  const [isDeleteBModalOpen, setIsDeleteBModalOpen] = useState(false);
+  const [isDeleteAModalOpen, setIsDeleteAModalOpen] = useState(false);
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
   const handleBeachNameChange = (e) => {
     const beachname = e.target.value.trim();
     setBeachName(beachname);
 
-    const filtered = BeachNameList.filter((option) =>
-      option.toLowerCase().includes(beachname.toLowerCase())
-    );
+    const filtered =
+      beachname === ""
+        ? BeachNameList
+        : BeachNameList.filter((option) =>
+            option.toLowerCase().includes(beachname.toLowerCase())
+          );
     setBeachNameOptions(filtered);
+    setIsDropdownVisible(true);
   };
 
-  const [inputName, setInputName] = useState("");
-  // 팀원 입력 input 자동완성 렌더링을 위한 state
-  const [inputNameOptions, setInputNameOptions] = useState([]);
+  useEffect(() => {
+    setBeachNameOptions(BeachNameList);
+  }, [BeachNameList]);
+
+  // 옵션 선택 핸들러 추가
+  const handleOptionSelect = (selectedBeach) => {
+    setBeachName(selectedBeach);
+    setIsDropdownVisible(false);
+  };
 
   const handleInputNameChange = (e) => {
     const inputname = e.target.value.trim();
@@ -67,21 +95,28 @@ const CleaningMainPage = () => {
   // 체크박스 관리 state
   const [selected, setSelected] = useState(null);
 
-  const [BeachNameList, setBeachNameList] = useState([]);
-  const [MatchUsername, setMatchUsername] = useState([]);
+  const [toast, setToast] = useState(false);
+  const [toastText, setToastText] = useState("");
+
+  useEffect(() => {
+    if (!isLoggedIn || role !== "WORKER") {
+      navigate("/", { replace: true });
+    }
+    if (result === "success") {
+      navigate("/cleaningSelect", { replace: true });
+    }
+  }, [result, isLoggedIn, navigate, role]);
 
   const handleCheckboxChange = (index) => {
     setSelected(selected === index ? null : index);
   };
-
-  const [toast, setToast] = useState(false);
-  const [toastText, setToastText] = useState("");
 
   const getNames = async () => {
     try {
       const data = await getNameList(id);
       if (data) {
         setBeachNameList(data?.beachNameList);
+        setBeachNameOptions(data?.beachNameList);
         const filteredData = data.nameWithNumberList.filter(
           (item) => item !== nameWithPhone
         );
@@ -97,14 +132,10 @@ const CleaningMainPage = () => {
   }, [id]);
 
   useEffect(() => {
-    if (!isLoggedIn || role !== "WORKER") {
-      navigate("/", { replace: true });
+    if (BeachNameList.length > 0) {
+      setBeachNameOptions(BeachNameList);
     }
-    if (result === "success") {
-      alert("등록완료");
-      navigate("/cleaningSelect", { replace: true });
-    }
-  }, [result, isLoggedIn, navigate, role]);
+  }, [BeachNameList]);
 
   useEffect(() => {
     setIsMainFormComplete(
@@ -112,7 +143,11 @@ const CleaningMainPage = () => {
     );
   }, [beachName, teamList, selected]);
 
-  const canSubmitForm = isMainFormComplete && isComplete;
+  const canSubmitForm =
+    isMainFormComplete &&
+    isComplete &&
+    bsource.length >= 3 &&
+    asource.length >= 3;
 
   const handleValidTeam = (username) => {
     if (
@@ -147,14 +182,6 @@ const CleaningMainPage = () => {
     }
     setIsCleaning(true);
     setIsMainFormCollapsed(true);
-    // navigator.geolocation.getCurrentPosition(
-    //   (pos) => {
-    //     setStartCoords([pos.coords.latitude, pos.coords.longitude]);
-    //   },
-    //   (error) => {
-    //     alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
-    //   }
-    // );
   };
 
   const onMainFormSubmit = async () => {
@@ -171,29 +198,6 @@ const CleaningMainPage = () => {
     }
 
     try {
-      //   navigator.geolocation.getCurrentPosition(
-      //     (pos) => {
-      //       setEndCoords([pos.coords.latitude, pos.coords.longitude]);
-      //     },
-      //     (error) => {
-      //       alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
-      //     }
-      //   );
-
-      // const main = {
-      //   cleanerUsername: username, // 작성자
-      //   beachName: beachName, //beachName
-      //   totalBeachLength: "", //각 sub의 위경도로 길이 구한 총합 빈값으로 보내도됨
-      //   realTrashAmount: subData.realTrashAmount,
-      //   mainTrashType: subData.mainTrashType,
-      //   startLatitude: startCoords[0], //  청소 시작 위치 위도
-      //   startLongitude: startCoords[1], // 청소 시작 위치 경도
-      //   endLatitude: endCoords[0], //  청소 끝 위치 위도
-      //   endLongitude: endCoords[1], // 청소 끝 위치 경도
-      //   specialNote: NaturalDisasterList[selected], // 재연재해 값
-      // };
-      // console.log("----요청 전송--------------");
-
       const formData = new FormData();
 
       const beforeFiles = bsource;
@@ -235,6 +239,91 @@ const CleaningMainPage = () => {
       console.error("Error submitting form: ", error);
     }
   };
+
+  // 외부 클릭 감지를 위한 useEffect
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".beach-dropdown")) {
+        setIsDropdownVisible(false);
+      }
+      if (!e.target.closest(".team-dropdown")) {
+        setIsTeamDropdownVisible(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  const handleOpenSubmitModal = () => {
+    setIsSubmitModalOpen(true);
+  };
+
+  const handleCloseSubmitModal = () => {
+    setIsSubmitModalOpen(false);
+  };
+
+  const handleOpenDeleteBModal = () => {
+    setIsDeleteBModalOpen(true);
+  };
+
+  const handleCloseDeleteBModal = () => {
+    setIsDeleteBModalOpen(false);
+  };
+
+  const handleDeleteBImg = (index) => {
+    setDeleteImgIndex(index);
+    handleOpenDeleteBModal();
+  };
+
+  const handleOpenDeleteAModal = () => {
+    setIsDeleteAModalOpen(true);
+  };
+
+  const handleCloseDeleteAModal = () => {
+    setIsDeleteAModalOpen(false);
+  };
+
+  const handleDeleteAImg = (index) => {
+    setDeleteImgIndex(index);
+    handleOpenDeleteAModal();
+  };
+
+  const handleConfirmDeleteImg = (type) => {
+    if (deleteImgIndex === null) {
+      handleCloseDeleteBModal();
+      return;
+    }
+    if (type === "B") {
+      setBSource((prevImgs) => prevImgs.filter((_, i) => i !== deleteImgIndex));
+      handleCloseDeleteBModal();
+      setRefreshB((prev) => !prev);
+    } else if (type === "A") {
+      setASource((prevImgs) => prevImgs.filter((_, i) => i !== deleteImgIndex));
+      handleCloseDeleteAModal();
+      setRefreshA((prev) => !prev);
+    }
+  };
+
+  // refresh 상태가 변경된 후 cleanup
+  useEffect(() => {
+    if (refreshB) {
+      const timeoutId = setTimeout(() => {
+        setRefreshB(false);
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+    if (refreshA) {
+      const timeoutId = setTimeout(() => {
+        setRefreshA(false);
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [refreshB, refreshA]);
 
   return (
     <div className="w-full h-full flex flex-col items-center">
@@ -298,19 +387,32 @@ const CleaningMainPage = () => {
                     </div>
                   )}
                 </div>
-                <div className="w-full mt-3">
+                <div className="w-full mt-3 relative beach-dropdown">
                   <input
+                    type="text"
                     value={beachName}
                     onChange={handleBeachNameChange}
+                    onFocus={() => {
+                      setBeachNameOptions(BeachNameList);
+                      setIsDropdownVisible(true);
+                    }}
                     className="block p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 w-full"
-                    list="beachoptions"
+                    autoComplete="off"
                     placeholder="해안명을 입력하세요"
                   />
-                  <datalist id="beachoptions">
-                    {beachNameOptions.map((option, index) => (
-                      <option key={index} value={option} />
-                    ))}
-                  </datalist>
+                  {isDropdownVisible && (
+                    <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-[100]">
+                      {beachNameOptions?.map((beach, index) => (
+                        <div
+                          key={index}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-150"
+                          onClick={() => handleOptionSelect(beach)}
+                        >
+                          {beach}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="w-full flex flex-col justify-start mb-4">
@@ -319,26 +421,34 @@ const CleaningMainPage = () => {
                   청소 인원
                 </label>
                 <div className="flex items-center justify-between">
-                  <input
-                    value={inputName}
-                    onChange={handleInputNameChange}
-                    className="p-1 mb-2 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-2"
-                    list="nameoptions"
-                  />
-                  <datalist id="nameoptions">
-                    {inputNameOptions.map((option, index) => (
-                      <option key={index} value={option} />
-                    ))}
-                  </datalist>
-                  <div className="ml-2">
-                    <img
-                      src={plus}
-                      alt="plus"
-                      className="inline w-8 cursor-pointer"
-                      onClick={() => {
-                        handleValidTeam(inputName);
+                  <div className="relative w-full team-dropdown">
+                    <input
+                      value={inputName}
+                      onChange={handleInputNameChange}
+                      onFocus={() => {
+                        setInputNameOptions(MatchUsername);
+                        setIsTeamDropdownVisible(true);
                       }}
+                      placeholder="조사자를 입력해 주세요"
+                      className="p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full"
+                      autoComplete="off"
                     />
+                    {isTeamDropdownVisible && (
+                      <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-[100]">
+                        {inputNameOptions.map((name, index) => (
+                          <div
+                            key={index}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-150"
+                            onClick={() => {
+                              handleValidTeam(name);
+                              setIsTeamDropdownVisible(false);
+                            }}
+                          >
+                            {name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -401,6 +511,8 @@ const CleaningMainPage = () => {
             max="15"
             min="3"
             border="p-3 border border-gray-400 rounded-md"
+            onDelete={handleDeleteBImg}
+            refresh={refreshB}
           />
         )}
         {isCleaning && (
@@ -410,6 +522,8 @@ const CleaningMainPage = () => {
             max="15"
             min="3"
             border="p-3 border border-gray-400 rounded-md"
+            onDelete={handleDeleteAImg}
+            refresh={refreshA}
           />
         )}
 
@@ -450,7 +564,7 @@ const CleaningMainPage = () => {
                 className="w-full py-3 rounded-lg"
                 color={canSubmitForm ? "blue" : "gray"}
                 disabled={!canSubmitForm}
-                onClick={onMainFormSubmit}
+                onClick={handleOpenSubmitModal}
               >
                 제출하기
               </Button>
@@ -459,6 +573,36 @@ const CleaningMainPage = () => {
           <MobileFooter homeroot="/workerMain" />
         </div>
       </div>
+
+      {isSubmitModalOpen && (
+        <MobileModal
+          onClose={handleCloseSubmitModal}
+          onConfirm={onMainFormSubmit}
+          confirmText="제출"
+        >
+          <p className="font-semibold">보고서를 제출하시겠습니까?</p>
+        </MobileModal>
+      )}
+
+      {isDeleteBModalOpen && (
+        <MobileModal
+          onClose={handleCloseDeleteBModal}
+          onConfirm={() => handleConfirmDeleteImg("B")}
+          confirmText="삭제"
+        >
+          <p className="font-semibold">사진을 삭제하시겠습니까?</p>
+        </MobileModal>
+      )}
+
+      {isDeleteAModalOpen && (
+        <MobileModal
+          onClose={handleCloseDeleteAModal}
+          onConfirm={() => handleConfirmDeleteImg("A")}
+          confirmText="삭제"
+        >
+          <p className="font-semibold">사진을 삭제하시겠습니까?</p>
+        </MobileModal>
+      )}
     </div>
   );
 };

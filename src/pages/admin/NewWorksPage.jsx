@@ -29,8 +29,15 @@ const NewWorksPage = () => {
   const navigate = useNavigate();
   // const [isReset, setIsReset] = useState(true);
 
-  const { searchedData, totalLength, totalPages, fetchNewWorks } =
-    useNewWorks(id); // 훅에서 사용할 값 가져오기
+  const {
+    searchedData,
+    totalLength,
+    totalPages,
+    fetchNewWorks,
+    nextPage,
+    prevPage,
+    pageNumberList,
+  } = useNewWorks(id); // 훅에서 사용할 값 가져오기
   const beachRef = useRef(); // 검색창 컴포넌트에서 검색어 가져오기
 
   const { page, tabCondition, beachSearch, sort } = useSelector(
@@ -88,15 +95,14 @@ const NewWorksPage = () => {
           New 작업
         </h1>
         <div className="bg-white rounded-lg shadow px-14 py-4 mb-8 h-24">
-          <div className="flex items-center justify-between w-full">
+          <div className="flex justify-between items-center w-full">
             <ConditionTabs
               setActiveTab={handleConditionChange}
               activeTab={tabCondition}
               tabNames={["조사 완료", "청소 완료"]}
               tabKeys={["조사 완료", "청소 완료"]}
             />
-
-            <div className="flex items-center space-x-4 rounded-full p-2 w-full justify-end h-12">
+            <div className="flex items-center rounded-full p-2 w-3/5 justify-end h-12">
               <Searchbar
                 onSearch={handleSearch}
                 ref={beachRef}
@@ -115,7 +121,7 @@ const NewWorksPage = () => {
 
         {searchedData && searchedData.length > 0 ? (
           <>
-            <div className="flex flex-wrap justify-start gap-4 mb-8 h-full w-full">
+            <div className="mt-4 flex flex-wrap justify-start gap-y-10 gap-x-16 mb-8 h-full w-full">
               {searchedData.map((report) => (
                 <Card key={report.id} report={report} tab={tabCondition} />
               ))}
@@ -125,6 +131,9 @@ const NewWorksPage = () => {
                 totalPages={totalPages}
                 currentPage={page}
                 onPageChange={handlePageChange}
+                nextPage={nextPage}
+                prevPage={prevPage}
+                pageNumberList={pageNumberList}
               />
             </div>
           </>

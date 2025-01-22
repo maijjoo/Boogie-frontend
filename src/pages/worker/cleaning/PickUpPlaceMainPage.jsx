@@ -11,6 +11,7 @@ import CameraController from "../../../components/commons/CameraController.jsx";
 import Button from "../../../components/commons/Button.jsx";
 import "../../../App.css";
 import useCurrentPosition from "../../../hooks/useCurrentPosition.js";
+import MobileModal from "../../../components/modal/MobileModal.jsx";
 
 const PickUpPlaceMainPage = () => {
   const navigate = useNavigate();
@@ -23,75 +24,47 @@ const PickUpPlaceMainPage = () => {
   const [pickUpPlace, setPickUpPlace] = useState(""); // 집하지 위치
   const [actualCollectedVolume, setActualCollectedVolume] = useState(""); // 50L 마대 수량
   const [mainTrashType, setMainTrashType] = useState(""); // 주요 쓰레기 타입
-  const [startCoords, setStartCoords] = useState(); // 좌표 정보
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true); // 등록하기 버튼 상태 관리
+  const [refresh, setRefresh] = useState(false); // 사진 삭제 후 새로고침 위한 state
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false); // 등록하기 모달 상태 관리
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // 사진 삭제 모달 상태 관리
+  const [deleteImgIndex, setDeleteImgIndex] = useState(null); // 사진 삭제 모달 상태 관리
 
   useEffect(() => {
     if (!isLoggedIn || role !== "WORKER") {
       navigate("/", { replace: true });
     }
     if (result === "success") {
-      alert("등록 완료");
       navigate("/cleaningSelect", { replace: true });
     }
   }, [isLoggedIn, result, navigate, role]);
 
-  // Handle Photo Upload
-  // const handlePhotoUpload = (newPhotos) => {
-  //   if (photos.length + newPhotos.length > 3) {
-  //     alert("사진은 최대 3장까지 등록할 수 있습니다.");
-  //     return;
-  //   }
-  // };
-
-  // 총 쓰레기양 계산
-  // const calculateTotalWasteVolume = () => {
-  //   return actualCollectedVolume * 50;
-  // };
-
-  // 마대 갯수 => 쓰레기 양
   const replaceCountToL = () => {
     return actualCollectedVolume * 50;
   };
 
-  // input태그에서 빈 값이거나 0보다 큰 숫자만 상태에 반영
-
   const handleInput = (e) => {
     const value = e.target.value;
-    //
     if (value === "" || Number(value) > 0) {
       setActualCollectedVolume(value);
     }
   };
 
-  // Handle Trash Type Change
   const handleTrashTypeChange = (type) => {
     setMainTrashType(type);
   };
 
-  // Form Submission Handler
   const handleFormSubmit = async () => {
     const locData = await fetchLocation();
 
     let receivedCoord = [];
     if (locData.coords) {
-      console.log("좌표 가져오기 성공: ", locData.coords);
       receivedCoord = locData.coords;
     } else if (locData.error) {
-      console.log("좌표 가져오기 오류: ", locData.error);
       return;
     }
 
     try {
-      // navigator.geolocation.getCurrentPosition(
-      //   (pos) => {
-      //     setStartCoords([pos.coords.latitude, pos.coords.longitude]);
-      //   },
-      //   (error) => {
-      //     alert("위치 정보를 가져오는데 실패했습니다: " + error.message);
-      //   }
-      // );
-
       const pickUpRequestDto = {
         pickUpPlace: pickUpPlace,
         realTrashAmount: actualCollectedVolume,
@@ -117,8 +90,6 @@ const PickUpPlaceMainPage = () => {
 
       postAdd(formData).then((data) => {
         setResult(data.result);
-        console.log("-----------data.result");
-        console.log(data.result);
       });
     } catch (error) {
       console.log("error: ", error);
@@ -138,6 +109,47 @@ const PickUpPlaceMainPage = () => {
       setIsSubmitDisabled(true); // 조건을 만족하지 않으면 비활성화
     }
   }, [pickUpPlace, mainTrashType, actualCollectedVolume, photos]);
+
+  const handleOpenDeleteModal = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleDeleteImg = (index) => {
+    setDeleteImgIndex(index);
+    handleOpenDeleteModal();
+  };
+
+  const handleConfirmDeleteImg = () => {
+    if (deleteImgIndex === null) {
+      handleCloseDeleteModal();
+      return;
+    }
+    setPhotos((prev) => prev.filter((_, i) => i !== deleteImgIndex));
+    handleCloseDeleteModal();
+    setRefresh((prev) => !prev);
+  };
+
+  useEffect(() => {
+    if (refresh) {
+      const timeoutId = setTimeout(() => {
+        setRefresh(false);
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [refresh]);
+
+  const handleOpenSubmitModal = () => {
+    setIsSubmitModalOpen(true);
+  };
+
+  const handleCloseSubmitModal = () => {
+    setIsSubmitModalOpen(false);
+  };
 
   return (
     <div className="w-full flex flex-col items-center bg-gray-50">
@@ -165,16 +177,15 @@ const PickUpPlaceMainPage = () => {
               </span>
             </div>
 
-            {/* 사진 첨부 */}
-
             <CameraController
               setSource={setPhotos}
               title="집하지 사진"
               max="3"
               min="1"
+              onDelete={handleDeleteImg}
+              refresh={refresh}
             />
 
-            {/* 실제 쓰레기양 입력 */}
             <div className="w-full flex flex-col justify-start mb-4 mt-2">
               <label className="block font-semibold mb-2">
                 <img src={dot} alt="dot" className="w-1 me-2 inline" />
@@ -217,8 +228,8 @@ const PickUpPlaceMainPage = () => {
                     checked={mainTrashType === trash.type}
                     onChange={() => handleTrashTypeChange(trash.type)}
                   >
-                    {trash.type}{" "}
-                    <span className="text-sm">{trash.description}</span>
+                    {trash.type.replace(/_/g, " ")}
+                    <p className="inline text-sm">{trash.description}</p>
                   </CheckBoxWithLabel>
                 ))}
               </div>
@@ -227,7 +238,6 @@ const PickUpPlaceMainPage = () => {
         </div>
       </div>
 
-      {/* 버튼 영역 */}
       <div className="w-full xl:w-1/3 mt-3 flex flex-col justify-center">
         <div className="border-t-2 fixed bottom-0 z-50 bg-white w-full flex flex-col justify-center gap-2">
           <div className="flex mt-2 px-2 gap-2">
@@ -248,18 +258,7 @@ const PickUpPlaceMainPage = () => {
                     : "bg-blue-700 text-white hover:bg-blue-900"
                 }`}
                 color="blue"
-                onClick={() => {
-                  if (
-                    !pickUpPlace ||
-                    !mainTrashType ||
-                    actualCollectedVolume === 0 ||
-                    (photos.length < 1 && photos.length > 4)
-                  ) {
-                    alert("모든 필드를 올바르게 입력해 주세요.");
-                    return;
-                  }
-                  handleFormSubmit();
-                }}
+                onClick={handleOpenSubmitModal}
                 disabled={isSubmitDisabled}
               >
                 등록하기
@@ -269,6 +268,26 @@ const PickUpPlaceMainPage = () => {
           <MobileFooter homeroot="/workerMain" />
         </div>
       </div>
+
+      {isSubmitModalOpen && (
+        <MobileModal
+          onClose={handleCloseSubmitModal}
+          onConfirm={handleFormSubmit}
+          confirmText="제출"
+        >
+          <p className="font-semibold">집하지를 등록하시겠습니까?</p>
+        </MobileModal>
+      )}
+
+      {isDeleteModalOpen && (
+        <MobileModal
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDeleteImg}
+          confirmText="삭제"
+        >
+          <p className="font-semibold">사진을 삭제하시겠습니까?</p>
+        </MobileModal>
+      )}
     </div>
   );
 };

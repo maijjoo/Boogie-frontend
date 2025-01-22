@@ -5,7 +5,6 @@ import { useWeather } from "../../../hooks/useWeather.js";
 import { postAdd, getNameList } from "../../../api/researchApi.js";
 import { NaturalDisasterList } from "../../../datas/NaturalDisasterList.js";
 import dot from "../../../assets/icons/write/Circle.svg";
-import plus from "../../../assets/icons/write/Plus.svg";
 import cancel from "../../../assets/icons/write/Cancel.svg";
 import MobileHeader from "../../../components/menus/MobileHeader.jsx";
 import MobileFooter from "../../../components/menus/MobileFooter.jsx";
@@ -14,6 +13,7 @@ import CameraController from "../../../components/commons/CameraController.jsx";
 import Button from "../../../components/commons/Button.jsx";
 import FormSub from "../../../components/commons/FormSub.jsx";
 import useCurrentPosition from "../../../hooks/useCurrentPosition.js";
+import MobileModal from "../../../components/modal/MobileModal.jsx";
 
 const ResearchMainPage = () => {
   const navigate = useNavigate();
@@ -21,8 +21,6 @@ const ResearchMainPage = () => {
   const { fetchLocation } = useCurrentPosition();
   const { getAreaByBeachName } = useWeather();
 
-  // 임시저장 모달을 띄우기 위한 state
-  // const [isTempExists, setIsTempExists] = useState(false);
   // 등록요청 성공시 리렌더링하기 위함
   const [result, setResult] = useState(false);
   // 서브조사리스트
@@ -42,7 +40,7 @@ const ResearchMainPage = () => {
   // 백엔드에서 받아온 담당 해안명
   const [BeachNameList, setBeachNameList] = useState([]);
   // 해안명 자동완성 드랍다운
-  const [beachNameOptions, setBeachNameOptions] = useState([]);
+  const [beachNameOptions, setBeachNameOptions] = useState(BeachNameList);
   // 팀원이름 입력값
   const [inputName, setInputName] = useState("");
   // 백엔드에서 받아온 담당 팀원명
@@ -60,6 +58,15 @@ const ResearchMainPage = () => {
   // 토스트 메세지 텍스트
   const [toastText, setToastText] = useState("");
 
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isTeamDropdownVisible, setIsTeamDropdownVisible] = useState(false);
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteImgIndex, setDeleteImgIndex] = useState(null);
+  const [refresh, setRefresh] = useState(false);
+  const [isDeleteSubModalOpen, setIsDeleteSubModalOpen] = useState(false);
+  const [deleteSubIndex, setDeleteSubIndex] = useState(null);
+
   // 로그인 판별, 등록 성공시 초기화
   useEffect(() => {
     if (!isLoggedIn || role !== "WORKER") {
@@ -76,6 +83,7 @@ const ResearchMainPage = () => {
       const data = await getNameList(id);
       if (data) {
         setBeachNameList(data?.beachNameList);
+        setBeachNameOptions(data?.beachNameList);
         const filteredData = data.nameWithNumberList.filter(
           (item) => item !== nameWithPhone
         );
@@ -89,6 +97,12 @@ const ResearchMainPage = () => {
   useEffect(() => {
     getNames();
   }, [id]);
+
+  useEffect(() => {
+    if (BeachNameList.length > 0) {
+      setBeachNameOptions(BeachNameList);
+    }
+  }, [BeachNameList]);
 
   // 등록요청 성공시 초기화
   const initializeAllStates = () => {
@@ -111,10 +125,24 @@ const ResearchMainPage = () => {
     const beachname = e.target.value.trim();
     setBeachName(beachname);
 
-    const filtered = BeachNameList.filter((option) =>
-      option.toLowerCase().includes(beachname.toLowerCase())
-    );
+    const filtered =
+      beachname === ""
+        ? BeachNameList
+        : BeachNameList.filter((option) =>
+            option.toLowerCase().includes(beachname.toLowerCase())
+          );
     setBeachNameOptions(filtered);
+    setIsDropdownVisible(true);
+  };
+
+  useEffect(() => {
+    setBeachNameOptions(BeachNameList);
+  }, [BeachNameList]);
+
+  // 옵션 선택 핸들러 추가
+  const handleOptionSelect = (selectedBeach) => {
+    setBeachName(selectedBeach);
+    setIsDropdownVisible(false);
   };
 
   const handleInputNameChange = (e) => {
@@ -197,6 +225,49 @@ const ResearchMainPage = () => {
     setIsSubOnWrite(true);
   };
 
+  const handleOpenSubmitModal = () => {
+    setIsSubmitModalOpen(true);
+  };
+
+  const handleCloseSubmitModal = () => {
+    setIsSubmitModalOpen(false);
+  };
+
+  const handleOpenDeleteModal = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleDeleteImg = (index) => {
+    setDeleteImgIndex(index);
+    handleOpenDeleteModal();
+  };
+
+  const handleConfirmDeleteImg = () => {
+    if (deleteImgIndex === null) {
+      handleCloseDeleteModal();
+      return;
+    }
+
+    setFormImgs((prevImgs) => prevImgs.filter((_, i) => i !== deleteImgIndex));
+    handleCloseDeleteModal();
+    setRefresh((prev) => !prev);
+  };
+
+  // refresh 상태가 변경된 후 cleanup
+  useEffect(() => {
+    if (refresh) {
+      const timeoutId = setTimeout(() => {
+        setRefresh(false);
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [refresh]);
+
   const onMainFormSubmit = async () => {
     const subsData = subs.map((sub) => sub.data);
     try {
@@ -229,6 +300,41 @@ const ResearchMainPage = () => {
     } catch (error) {
       console.error("Error submitting form: ", error);
     }
+  };
+
+  // 외부 클릭 감지를 위한 useEffect
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".beach-dropdown")) {
+        setIsDropdownVisible(false);
+      }
+      if (!e.target.closest(".team-dropdown")) {
+        setIsTeamDropdownVisible(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  const handleOpenDeleteSubModal = (index) => {
+    setDeleteSubIndex(index);
+    setIsDeleteSubModalOpen(true);
+  };
+
+  const handleCloseDeleteSubModal = () => {
+    setIsDeleteSubModalOpen(false);
+  };
+
+  const handleDeleteSub = () => {
+    if (deleteSubIndex === null) {
+      handleCloseDeleteSubModal();
+      return;
+    }
+    setSubs((prevSubs) => prevSubs.filter((_, i) => i !== deleteSubIndex));
+    handleCloseDeleteSubModal();
   };
 
   return (
@@ -293,19 +399,32 @@ const ResearchMainPage = () => {
                     </div>
                   )}
                 </div>
-                <div className="w-full mt-3">
+                <div className="w-full mt-3 relative beach-dropdown">
                   <input
+                    type="text"
                     value={beachName}
                     onChange={handleBeachNameChange}
+                    onFocus={() => {
+                      setBeachNameOptions(BeachNameList);
+                      setIsDropdownVisible(true);
+                    }}
                     className="block p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 w-full"
-                    list="beachoptions"
+                    autoComplete="off"
                     placeholder="해안명을 입력해 주세요"
                   />
-                  <datalist id="beachoptions">
-                    {beachNameOptions.map((option, index) => (
-                      <option key={index} value={option} />
-                    ))}
-                  </datalist>
+                  {isDropdownVisible && (
+                    <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-[100]">
+                      {beachNameOptions?.map((beach, index) => (
+                        <div
+                          key={index}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-150"
+                          onClick={() => handleOptionSelect(beach)}
+                        >
+                          {beach}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="w-full flex flex-col justify-start mb-4">
@@ -314,27 +433,34 @@ const ResearchMainPage = () => {
                   조사 인원
                 </label>
                 <div className="flex items-center justify-between">
-                  <input
-                    value={inputName}
-                    onChange={handleInputNameChange}
-                    placeholder="조사자를 입력해 주세요"
-                    className="p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full me-2"
-                    list="nameoptions"
-                  />
-                  <datalist id="nameoptions">
-                    {inputNameOptions.map((option, index) => (
-                      <option key={index} value={option} />
-                    ))}
-                  </datalist>
-                  <div className="ml-2">
-                    <img
-                      src={plus}
-                      alt="plus"
-                      className="inline w-8 cursor-pointer"
-                      onClick={() => {
-                        handleValidTeam(inputName);
+                  <div className="relative w-full team-dropdown">
+                    <input
+                      value={inputName}
+                      onChange={handleInputNameChange}
+                      onFocus={() => {
+                        setInputNameOptions(MatchUsername);
+                        setIsTeamDropdownVisible(true);
                       }}
+                      placeholder="조사자를 입력해 주세요"
+                      className="p-1 border-solid border rounded-md border-stone-300 bg-white text-stone-600 focus:outline-none focus:border-blue-950 inline w-full"
+                      autoComplete="off"
                     />
+                    {isTeamDropdownVisible && (
+                      <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-[100]">
+                        {inputNameOptions.map((name, index) => (
+                          <div
+                            key={index}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-150"
+                            onClick={() => {
+                              handleValidTeam(name);
+                              setIsTeamDropdownVisible(false);
+                            }}
+                          >
+                            {name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -397,6 +523,8 @@ const ResearchMainPage = () => {
             max="30"
             min="3"
             border="p-3 border border-gray-400 rounded-md"
+            onDelete={handleDeleteImg}
+            refresh={refresh}
           />
         )}
 
@@ -423,11 +551,10 @@ const ResearchMainPage = () => {
                     });
                   })
                 }
-                deleteSub={() =>
-                  setSubs((prevSubs) => prevSubs.filter((_, i) => i !== index))
-                }
+                deleteSub={() => handleOpenDeleteSubModal(index)}
                 _trashAmount={sub.trashAmount}
-                mainTrashIndex={sub.data.mainTrashType}
+                mainTrashType={sub.data.mainTrashType}
+                trashIndex={sub.trashIndex}
               />
             ))}
 
@@ -472,7 +599,7 @@ const ResearchMainPage = () => {
       </div>
 
       <div className="w-full xl:w-1/3 mt-3 flex flex-col justify-center">
-        <div className="border-t-2 fixed bottom-0 z-40 bg-white w-full flex flex-col justify-center gap-2">
+        <div className="fixed bottom-0 z-40 bg-white w-full flex flex-col justify-center gap-2">
           <div className="flex mt-2 px-2 gap-2">
             <div className="w-1/2 inline-block">
               <Button className="w-full py-3 rounded-lg" color="blue" disabled>
@@ -484,7 +611,7 @@ const ResearchMainPage = () => {
                 className="w-full py-3 rounded-lg"
                 color={canSubmitForm ? "blue" : "gray"}
                 disabled={!canSubmitForm}
-                onClick={onMainFormSubmit}
+                onClick={handleOpenSubmitModal}
               >
                 제출하기
               </Button>
@@ -493,6 +620,38 @@ const ResearchMainPage = () => {
           <MobileFooter homeroot="/workerMain" />
         </div>
       </div>
+
+      {isSubmitModalOpen && (
+        <MobileModal
+          onClose={handleCloseSubmitModal}
+          onConfirm={onMainFormSubmit}
+          confirmText="제출"
+        >
+          <p className="font-semibold">보고서를 제출하시겠습니까?</p>
+        </MobileModal>
+      )}
+
+      {isDeleteModalOpen && (
+        <MobileModal
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDeleteImg}
+          confirmText="삭제"
+        >
+          <p className="font-semibold">사진을 삭제하시겠습니까?</p>
+        </MobileModal>
+      )}
+
+      {isDeleteSubModalOpen && (
+        <MobileModal
+          onClose={handleCloseDeleteSubModal}
+          onConfirm={handleDeleteSub}
+          confirmText="삭제"
+        >
+          <p className="font-semibold">{`${beachName}${
+            deleteSubIndex + 1
+          } 를 삭제하시겠습니까?`}</p>
+        </MobileModal>
+      )}
     </div>
   );
 };
