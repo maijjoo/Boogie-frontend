@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   FiChevronsLeft,
   FiChevronLeft,
@@ -6,13 +6,21 @@ import {
   FiChevronsRight,
 } from "react-icons/fi";
 
-const Pagination = ({ totalPages, currentPage, onPageChange }) => {
-  const getPageNumbers = () => {
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-    return pages;
+const Pagination = ({
+  totalPages,
+  currentPage,
+  onPageChange,
+  nextPage,
+  prevPage,
+  pageNumberList,
+}) => {
+  // 범위 변경 함수
+  const handlePrevRange = () => {
+    onPageChange(prevPage);
+  };
+
+  const handleNextRange = () => {
+    onPageChange(nextPage);
   };
 
   return (
@@ -20,31 +28,27 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
       {/* 맨 처음 페이지로 이동 */}
       <button
         className={`px-2 py-1 ${
-          currentPage === 1
-            ? "text-gray-300"
-            : "text-gray-600 hover:text-gray-800"
+          prevPage === 0 ? "text-gray-300" : "text-gray-600 hover:text-gray-800"
         }`}
         onClick={() => onPageChange(1)}
-        disabled={currentPage === 1}
+        disabled={prevPage === 0}
       >
         <FiChevronsLeft size={16} />
       </button>
 
-      {/* 이전 페이지로 이동 */}
+      {/* 이전 범위로 이동 */}
       <button
         className={`px-2 py-1 ${
-          currentPage === 1
-            ? "text-gray-300"
-            : "text-gray-600 hover:text-gray-800"
+          prevPage === 0 ? "text-gray-300" : "text-gray-600 hover:text-gray-800"
         }`}
-        onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
+        onClick={handlePrevRange}
+        disabled={prevPage === 0}
       >
         <FiChevronLeft size={16} />
       </button>
 
       {/* 페이지 번호 버튼 */}
-      {getPageNumbers().map((page) => (
+      {pageNumberList.map((page) => (
         <button
           key={page}
           className={`px-3 py-1 rounded-md ${
@@ -58,17 +62,13 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
         </button>
       ))}
 
-      {/* 다음 페이지로 이동 */}
+      {/* 다음 범위로 이동 */}
       <button
         className={`px-2 py-1 ${
-          currentPage === totalPages
-            ? "text-gray-300"
-            : "text-gray-600 hover:text-gray-800"
+          nextPage === 0 ? "text-gray-300" : "text-gray-600 hover:text-gray-800"
         }`}
-        onClick={() =>
-          currentPage < totalPages && onPageChange(currentPage + 1)
-        }
-        disabled={currentPage === totalPages}
+        onClick={handleNextRange}
+        disabled={nextPage === 0}
       >
         <FiChevronRight size={16} />
       </button>
@@ -76,12 +76,10 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
       {/* 맨 마지막 페이지로 이동 */}
       <button
         className={`px-2 py-1 ${
-          currentPage === totalPages
-            ? "text-gray-300"
-            : "text-gray-600 hover:text-gray-800"
+          nextPage === 0 ? "text-gray-300" : "text-gray-600 hover:text-gray-800"
         }`}
         onClick={() => onPageChange(totalPages)}
-        disabled={currentPage === totalPages}
+        disabled={nextPage === 0}
       >
         <FiChevronsRight size={16} />
       </button>
