@@ -72,7 +72,7 @@ const Card = ({ report, tab }) => {
       <img
         src={thumbnail}
         alt={report?.beachName || report?.pickUpPlace || "장소 정보 없음"}
-        className="w-60 h-60 object-cover"
+        className="w-full h-60 object-cover"
       />
       <p className="absolute top-3 right-3 p-1 font-bold bg-red-500 text-base text-white rounded">
         {report.status === "ASSIGNMENT_NEEDED"

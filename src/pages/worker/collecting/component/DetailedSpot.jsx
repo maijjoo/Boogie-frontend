@@ -7,12 +7,11 @@ import DefaultImgs from "../../../../assets/icons/write/Add Image.svg";
 import Button from "../../../../components/commons/Button.jsx";
 import AuthImage from "./AuthImage.jsx";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import MobileModal from "../../../../components/modal/MobileModal.jsx";
 
 const DetailedSpot = ({
   spot,
   onClose,
-  onAddSpot,
-  onClearSpot,
   fetchAddress,
   neededSpots,
   addedSpots,
@@ -26,12 +25,12 @@ const DetailedSpot = ({
   const [isAdded, setIsAdded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
 
   const getSpotInfoBySpotId = async () => {
     const selectedSpot1 = neededSpots.find((spotInfo) => spotInfo.id === spot);
     if (selectedSpot1) {
-      console.log("=============selectedSpot============: ", selectedSpot1);
-
       setSpotInfo(selectedSpot1);
       await fetchAddress(
         setAddress,
@@ -41,8 +40,6 @@ const DetailedSpot = ({
     }
     const selectedSpot2 = addedSpots.find((spotInfo) => spotInfo.id === spot);
     if (selectedSpot2) {
-      console.log("=============selectedSpot============: ", selectedSpot2);
-
       setSpotInfo(selectedSpot2);
       setIsAdded(true);
       await fetchAddress(
@@ -51,7 +48,6 @@ const DetailedSpot = ({
         selectedSpot2.longitude
       );
     }
-    console.log("=============address============= : ", address);
   };
 
   const closeModal = () => {
@@ -74,12 +70,10 @@ const DetailedSpot = ({
   };
 
   useEffect(() => {
-    console.log("=============DetailedSpot========== : ", spotInfo);
     getSpotInfoBySpotId();
     if (spot && spot.latitude && spot.longitude) {
       fetchAddress(setAddress, spotInfo.latitude, spotInfo.longitude);
     }
-    console.log("=============address============= : ", address);
   }, [spot]);
 
   useEffect(() => {
@@ -107,6 +101,36 @@ const DetailedSpot = ({
       fetchSpotImages();
     }
   }, [spotInfo]);
+
+  const handleOpenAddModal = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+  };
+
+  const handleAddToRoute = () => {
+    console.log("경로에 추가");
+    onUpdateSpot(spotInfo.id, "toAdded");
+    onClose(false);
+    handleCloseAddModal();
+  };
+
+  const handleOpenCompleteModal = () => {
+    setIsCompleteModalOpen(true);
+  };
+
+  const handleCloseCompleteModal = () => {
+    setIsCompleteModalOpen(false);
+  };
+
+  const handleCompleted = () => {
+    console.log("수거 완료");
+    onUpdateSpot(spotInfo.id, "toCompleted");
+    onClose(false);
+    handleCloseCompleteModal();
+  };
 
   return (
     <div className="w-full flex flex-col justify-center items-left p-3 border border-gray-500 bg-white rounded-t-xl pb-10">
@@ -214,16 +238,7 @@ const DetailedSpot = ({
         <Button
           color="white"
           className="w-1/2 rounded-md px-3 py-2 text-base"
-          onClick={() => {
-            if (
-              confirm(
-                spotInfo.pickUpPlace + "을(를) 수거 경로에 추가하시겠습니까?"
-              )
-            ) {
-              onUpdateSpot(spotInfo.id, "toAdded");
-              onClose(false);
-            }
-          }}
+          onClick={handleOpenAddModal}
           disabled={isAdded}
         >
           경로 추가
@@ -231,14 +246,26 @@ const DetailedSpot = ({
         <Button
           color="blue"
           className="w-1/2 rounded-lg px-3 py-2 text-base"
-          onClick={() => {
-            onUpdateSpot(spotInfo.id, "toCompleted");
-            onClose(false);
-          }}
+          onClick={handleOpenCompleteModal}
         >
           수거 완료
         </Button>
       </div>
+
+      {isAddModalOpen && (
+        <MobileModal onClose={handleCloseAddModal} onConfirm={handleAddToRoute}>
+          <p>{spotInfo.pickUpPlace + "을(를) 수거 경로에 추가하시겠습니까?"}</p>
+        </MobileModal>
+      )}
+
+      {isCompleteModalOpen && (
+        <MobileModal
+          onClose={handleCloseCompleteModal}
+          onConfirm={handleCompleted}
+        >
+          <p>{spotInfo.pickUpPlace + "을(를) 수거하셨습니까?"}</p>
+        </MobileModal>
+      )}
     </div>
   );
 };

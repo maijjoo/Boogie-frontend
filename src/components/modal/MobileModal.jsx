@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 
 const MobileModal = ({
   children,
@@ -15,7 +16,7 @@ const MobileModal = ({
     onConfirm();
   };
 
-  return (
+  return ReactDOM.createPortal(
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center px-4">
       <div className="w-full bg-white px-4 py-6 rounded-lg border border-blue-700 flex flex-col justify-center gap-5">
         <div>{children}</div>
@@ -34,7 +35,8 @@ const MobileModal = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
