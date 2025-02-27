@@ -1,7 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from "react";
-import up from "../../../../assets/icons/write/Sort Up.svg";
-import down from "../../../../assets/icons/write/Sort Down.svg";
-import tab from "../../../../assets/icons/write/opened.png";
+import { useEffect, useState } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import MobileFooter from "../../../../components/menus/MobileFooter";
 import PickedSpot from "./PickedSpot";
@@ -12,31 +9,10 @@ const FooterInfo = ({
   fetchAddress,
   onDrop,
   onClearSpot,
-  neededSpots,
   addedSpots,
   onUpdateSpot,
 }) => {
   const [selectedTrashAmount, setSelectedTrashAmount] = useState(0);
-
-  // const memoizedLoadSpots = useCallback(() => {
-  //   loadSpots();
-  // }, []);
-
-  // useEffect(() => {
-  //   memoizedLoadSpots();
-  // }, [memoizedLoadSpots]);
-
-  // useEffect(() => {
-  //   if (pickedSpot && pickedSpot.length > 0) {
-  //     const amount = pickedSpot.reduce(
-  //       (total, spot) => total + spot.realTrashAmount,
-  //       0
-  //     );
-  //     setSelectedTrashAmount(amount);
-  //   } else {
-  //     setSelectedTrashAmount(0);
-  //   }
-  // }, [pickedSpot]);
 
   useEffect(() => {
     if (addedSpots && addedSpots.length > 0) {

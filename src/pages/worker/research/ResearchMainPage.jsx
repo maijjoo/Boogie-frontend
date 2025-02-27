@@ -58,6 +58,9 @@ const ResearchMainPage = () => {
   // 토스트 메세지 텍스트
   const [toastText, setToastText] = useState("");
 
+  const [successToast, setSuccessToast] = useState(false);
+  const [isToastVisible, setIsToastVisible] = useState(false);
+
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isTeamDropdownVisible, setIsTeamDropdownVisible] = useState(false);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
@@ -104,9 +107,23 @@ const ResearchMainPage = () => {
     }
   }, [BeachNameList]);
 
+  const showToast = () => {
+    setSuccessToast(true);
+    setIsToastVisible(true);
+
+    // 페이드 아웃 시작
+    setTimeout(() => {
+      setIsToastVisible(false);
+    }, 1500);
+
+    // 요소 제거
+    setTimeout(() => {
+      setSuccessToast(false);
+    }, 2000);
+  };
+
   // 등록요청 성공시 초기화
   const initializeAllStates = () => {
-    alert("등록완료");
     setSubs([]);
     setFormImgs([]);
     setTeamList([]);
@@ -119,6 +136,8 @@ const ResearchMainPage = () => {
     setIsSubOnWrite(false);
     setIsResearching(false);
     setResult(false);
+    handleCloseSubmitModal();
+    showToast();
   };
 
   const handleBeachNameChange = (e) => {
@@ -198,14 +217,10 @@ const ResearchMainPage = () => {
     const locData = await fetchLocation();
 
     if (locData.coords) {
-      console.log("좌표 가져오기 성공: ", locData.coords);
       setStartCoords([locData.coords[0], locData.coords[1]]);
     } else if (locData.error) {
-      console.log("좌표 가져오기 오류: ", locData.error);
       return;
     }
-
-    console.log(getAreaByBeachName(beachName));
 
     setIsResearching(true);
     setIsMainFormCollapsed(true);
@@ -216,10 +231,8 @@ const ResearchMainPage = () => {
     const locData = await fetchLocation();
 
     if (locData.coords) {
-      console.log("좌표 가져오기 성공: ", locData.coords);
       setStartCoords([locData.coords[0], locData.coords[1]]);
     } else if (locData.error) {
-      console.log("좌표 가져오기 오류: ", locData.error);
       return;
     }
     setIsSubOnWrite(true);
@@ -298,7 +311,7 @@ const ResearchMainPage = () => {
         setResult(data.result);
       });
     } catch (error) {
-      console.error("Error submitting form: ", error);
+      return;
     }
   };
 
@@ -515,6 +528,22 @@ const ResearchMainPage = () => {
             </div>
           )}
         </div>
+
+        {successToast && (
+          <div className="flex justify-center relative mt-20">
+            <div
+              className={`absolute top-5 left-1/2 w-full transform -translate-x-1/2 bg-blue-200 py-3 rounded-lg shadow-lg transition-all duration-500 ${
+                isToastVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-2"
+              }`}
+            >
+              <p className="text-blue-800 text-center font-semibold text-lg">
+                제출이 완료되었습니다
+              </p>
+            </div>
+          </div>
+        )}
 
         {isResearching && (
           <CameraController
