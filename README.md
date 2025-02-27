@@ -333,6 +333,15 @@
 
 ### [작업 관리 - NEW 작업]
 
+- 
+- 
+- 
+- 
+- 
+  ![image](https://github.com/user-attachments/assets/0afd5669-d69a-4fe9-a06f-bf9313083aec)
+  ![image](https://github.com/user-attachments/assets/16b112f3-2292-4301-9d9b-7720dfc2e191)
+  ![image](https://github.com/user-attachments/assets/ba63bf74-b186-436f-ac86-3041e396b5e8)
+
 ### [작업 관리 - 작업 조회]
 
 ### [회원 관리]

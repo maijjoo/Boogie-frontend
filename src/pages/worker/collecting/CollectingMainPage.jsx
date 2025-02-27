@@ -131,7 +131,6 @@ const CollectingMainPage = () => {
       );
       const doUpdate = await updateSpots(spotId, func);
       console.log("update spot response: ", doUpdate);
-      alert("완료.");
       fetchData();
     } catch (error) {
       console.error(error);

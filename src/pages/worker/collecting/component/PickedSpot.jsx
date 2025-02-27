@@ -1,13 +1,42 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Circle from "../../../../assets/icons/write/Circle.svg";
 import Button from "../../../../components/commons/Button";
+import MobileModal from "../../../../components/modal/MobileModal";
 
 const PickedSpot = ({ spot, index, fetchAddress, onUpdateSpot }) => {
   const [address, setAddress] = useState();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
 
   useEffect(() => {
     fetchAddress(setAddress, spot.latitude, spot.longitude);
   });
+
+  const handleOpenDeleteModal = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleDeleteRoute = () => {
+    onUpdateSpot(spot.id, "toNeeded");
+    handleCloseDeleteModal();
+  };
+
+  const handleOpenCompleteModal = () => {
+    setIsCompleteModalOpen(true);
+  };
+
+  const handleCloseCompleteModal = () => {
+    setIsCompleteModalOpen(false);
+  };
+
+  const handleCompleted = () => {
+    onUpdateSpot(spot.id, "toCompleted");
+    handleCloseCompleteModal();
+  };
 
   return (
     <div className="flex flex-col justify-center items-left p-5 mt-5 border border-gray-600 rounded-md">
@@ -52,30 +81,36 @@ const PickedSpot = ({ spot, index, fetchAddress, onUpdateSpot }) => {
         <Button
           color="white"
           className="w-1/2 rounded-md px-3 py-2 text-lg"
-          onClick={() => {
-            if (
-              confirm(
-                spot.pickUpPlace + "을(를) 수거 경로에서 제외하시겠습니까?"
-              )
-            ) {
-              onUpdateSpot(spot.id, "toNeeded");
-            }
-          }}
+          onClick={handleOpenDeleteModal}
         >
           경로 삭제
         </Button>
         <Button
           color="blue"
           className="w-1/2 rounded-lg px-4 py-3 text-lg"
-          onClick={() => {
-            if (confirm("'" + spot.pickUpPlace + "' 을 수거하셨습니까?")) {
-              onUpdateSpot(spot.id, "toCompleted");
-            }
-          }}
+          onClick={handleOpenCompleteModal}
         >
           수거 완료
         </Button>
       </div>
+
+      {isDeleteModalOpen && (
+        <MobileModal
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleDeleteRoute}
+        >
+          {spot.pickUpPlace + "을(를) 수거 경로에서 제외하시겠습니까?"}
+        </MobileModal>
+      )}
+
+      {isCompleteModalOpen && (
+        <MobileModal
+          onClose={handleCloseCompleteModal}
+          onConfirm={handleCompleted}
+        >
+          <p>{spot.pickUpPlace + "을(를) 수거하셨습니까?"}</p>
+        </MobileModal>
+      )}
     </div>
   );
 };

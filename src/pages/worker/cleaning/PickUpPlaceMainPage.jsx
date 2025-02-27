@@ -35,7 +35,12 @@ const PickUpPlaceMainPage = () => {
       navigate("/", { replace: true });
     }
     if (result === "success") {
-      navigate("/cleaningSelect", { replace: true });
+      navigate("/cleaningSelect", {
+        replace: true,
+        state: {
+          success: "collecting",
+        },
+      });
     }
   }, [isLoggedIn, result, navigate, role]);
 
